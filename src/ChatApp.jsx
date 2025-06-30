@@ -42,7 +42,7 @@ export default function ChatApp() {
   async function fetchRooms() {
     const res = await fetch("http://localhost:3000/rooms");
     const data = await res.json();
-    setRooms(data);
+    setRooms(Array.isArray(data) ? data : []); // Ensure rooms is always an array
   }
 
   const handleSetUserId = async () => {
