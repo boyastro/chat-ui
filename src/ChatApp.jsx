@@ -23,7 +23,7 @@ export default function ChatApp() {
     socket.on("connect", () => {
       setMessages((prev) => [
         ...prev,
-        { system: true, message: `Đã kết nối tới server với id: ${socket.id}` },
+        { system: true, message: `Connected to server with id: ${socket.id}` },
       ]);
     });
     return () => {
@@ -44,7 +44,7 @@ export default function ChatApp() {
 
   const handleSetUserId = async () => {
     if (!userId.trim()) return;
-    // Gọi API lấy thông tin user từ userId
+    // Call API to get user info from userId
     try {
       const res = await fetch(`http://localhost:3000/users/${userId}`);
       if (!res.ok) throw new Error("User not found");
@@ -52,16 +52,14 @@ export default function ChatApp() {
       setUserName(data.name || "");
       setUserIdSet(true);
     } catch (err) {
-      alert("Không tìm thấy user hoặc lỗi server");
+      alert("User not found or server error");
     }
   };
 
   const handleJoinRoom = () => {
     if (!userIdSet || !currentRoom) return;
     socket.emit("joinRoom", currentRoom);
-    setMessages([
-      { system: true, message: `Đã tham gia phòng: ${currentRoom}` },
-    ]);
+    setMessages([{ system: true, message: `Joined room: ${currentRoom}` }]);
   };
 
   const handleCreateRoom = async () => {
@@ -81,7 +79,7 @@ export default function ChatApp() {
     socket.emit("sendMessage", {
       roomId: currentRoom,
       userId: userId,
-      name: userName, // gửi đúng tên lấy từ database
+      name: userName, // send correct name from database
       text: input,
     });
     setInput("");
@@ -94,7 +92,7 @@ export default function ChatApp() {
         <input
           value={userId}
           onChange={(e) => setUserId(e.target.value)}
-          placeholder="Nhập User ID..."
+          placeholder="Enter User ID..."
           disabled={userIdSet}
           className="chat-app-input"
         />
@@ -103,7 +101,7 @@ export default function ChatApp() {
           disabled={userIdSet}
           className="chat-app-btn chat-app-btn-confirm"
         >
-          Xác nhận
+          Confirm
         </button>
       </div>
       <div className="chat-app-room-row">
@@ -113,7 +111,7 @@ export default function ChatApp() {
           disabled={!userIdSet}
           className="chat-app-input"
         >
-          <option value="">-- Chọn phòng --</option>
+          <option value="">-- Select room --</option>
           {rooms.map((room) => (
             <option
               key={room.id || room._id || room.name}
@@ -128,14 +126,14 @@ export default function ChatApp() {
           disabled={!userIdSet}
           className="chat-app-btn chat-app-btn-join"
         >
-          Tham gia phòng
+          Join room
         </button>
       </div>
       <div className="chat-app-room-row">
         <input
           value={newRoom}
           onChange={(e) => setNewRoom(e.target.value)}
-          placeholder="Tên phòng mới"
+          placeholder="New room name"
           disabled={!userIdSet}
           className="chat-app-input"
         />
@@ -144,7 +142,7 @@ export default function ChatApp() {
           disabled={!userIdSet}
           className="chat-app-btn chat-app-btn-create"
         >
-          Tạo phòng
+          Create room
         </button>
       </div>
       <div className="chat-app-messages">
@@ -165,7 +163,7 @@ export default function ChatApp() {
               <>
                 <span className="chat-app-message-user">
                   {msg.user === userId || msg.name === userName
-                    ? "Bạn"
+                    ? "You"
                     : msg.name || msg.user}
                   :
                 </span>
@@ -180,7 +178,7 @@ export default function ChatApp() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Nhập tin nhắn..."
+          placeholder="Enter your message..."
           disabled={!userIdSet || !currentRoom}
           className="chat-app-input chat-app-input-message"
         />
@@ -189,7 +187,7 @@ export default function ChatApp() {
           disabled={!userIdSet || !currentRoom}
           className="chat-app-btn chat-app-btn-send"
         >
-          Gửi
+          Send
         </button>
       </form>
     </div>
