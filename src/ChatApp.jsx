@@ -23,7 +23,10 @@ export default function ChatApp() {
     socket.on("connect", () => {
       setMessages((prev) => [
         ...prev,
-        { system: true, message: `Connected to server with id: ${socket.id}` },
+        {
+          system: true,
+          message: `Connected to server with id Socket: ${socket.id}`,
+        },
       ]);
     });
     return () => {
