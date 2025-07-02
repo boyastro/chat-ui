@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import "./ChatApp.css";
 
 const API_URL = "http://localhost";
-// Đưa socket ra ngoài component, chỉ tạo 1 lần duy nhất
+// Move socket outside the component, only create once
 const socket = io("http://localhost", {
   autoConnect: false,
   transports: ["websocket"],
@@ -21,17 +21,17 @@ export default function ChatApp() {
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState("");
   const [inRoom, setInRoom] = useState(false);
-  const [joinedRoom, setJoinedRoom] = useState(""); // Lưu phòng đã join qua socket
+  const [joinedRoom, setJoinedRoom] = useState(""); // Store the room joined via socket
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Lấy lại token từ localStorage khi load app
+    // Retrieve token from localStorage when loading the app
     const savedToken = localStorage.getItem("token");
     if (savedToken) setToken(savedToken);
   }, []);
 
   useEffect(() => {
-    // Lắng nghe socket chỉ 1 lần khi app mount
+    // Listen to socket events only once when the app mounts
     const handleReceiveMessage = (msg) => {
       console.log("Received message from socket:", msg);
       setMessages((prev) => [...prev, msg]);
@@ -80,7 +80,7 @@ export default function ChatApp() {
   useEffect(() => {
     if (userIdSet) {
       fetchRooms();
-      if (!socket.connected) socket.connect(); // Chỉ connect socket khi login thành công, duy nhất 1 lần
+      if (!socket.connected) socket.connect(); // Only connect socket after successful login, only once
     }
   }, [userIdSet, fetchRooms]);
 
@@ -103,11 +103,11 @@ export default function ChatApp() {
         setToken(data.token);
         localStorage.setItem("token", data.token);
       }
-      // Lấy userId từ data (ưu tiên các trường phổ biến)
+      // Get userId from data (prioritize common fields)
       const uid = data.userId || data.id || data._id || data.uid;
       if (uid) setUserId(uid);
       else {
-        // Nếu không có userId, thử lấy từ token (nếu JWT chứa userId)
+        // If no userId, try to get from token (if JWT contains userId)
         try {
           const payload = JSON.parse(atob(data.token.split(".")[1]));
           if (payload.userId || payload.id || payload._id || payload.uid) {
@@ -116,7 +116,7 @@ export default function ChatApp() {
             );
           }
         } catch (e) {
-          // Không lấy được userId từ token
+          // Cannot get userId from token
         }
       }
       setUserIdSet(true);
@@ -127,10 +127,10 @@ export default function ChatApp() {
 
   const handleJoinRoom = async () => {
     if (!userIdSet || !currentRoom) return;
-    if (joinedRoom === currentRoom) return; // Đã ở phòng này rồi, không join lại
+    if (joinedRoom === currentRoom) return; // Already in this room, do not join again
     try {
       const authToken = token || localStorage.getItem("token");
-      // Lấy thông tin phòng để kiểm tra thành viên
+      // Get room info to check membership
       const roomRes = await fetch(`${API_URL}/rooms/${currentRoom}`, {
         headers: {
           ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -145,7 +145,7 @@ export default function ChatApp() {
           (m) => (m._id || m.id || m).toString() === userId.toString()
         )
       ) {
-        // Nếu đã là thành viên, rời phòng cũ (nếu có) rồi join phòng mới
+        // If already a member, leave old room (if any) then join new room
         if (joinedRoom && joinedRoom !== currentRoom) {
           socket.emit("leaveRoom", { roomId: joinedRoom, userId });
         }
@@ -153,7 +153,7 @@ export default function ChatApp() {
         setJoinedRoom(currentRoom);
         joined = true;
       } else {
-        // Nếu chưa là thành viên thì gọi API join
+        // If not a member, call API to join
         const res = await fetch(`${API_URL}/rooms/${currentRoom}/join`, {
           method: "POST",
           headers: {
@@ -171,7 +171,7 @@ export default function ChatApp() {
         joined = true;
       }
       if (joined) {
-        // Sau khi join, lấy lại thông tin phòng để lấy lịch sử chat
+        // After joining, get room info to get chat history
         const roomInfoRes = await fetch(`${API_URL}/rooms/${currentRoom}`, {
           headers: {
             ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
