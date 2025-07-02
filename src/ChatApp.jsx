@@ -4,7 +4,10 @@ import "./ChatApp.css";
 
 const API_URL = "http://localhost";
 // Đưa socket ra ngoài component, chỉ tạo 1 lần duy nhất
-const socket = io("http://localhost", { autoConnect: false });
+const socket = io("http://localhost", {
+  autoConnect: false,
+  transports: ["websocket"],
+});
 
 export default function ChatApp() {
   const [name, setName] = useState("");
