@@ -5,11 +5,14 @@ const axios = require("axios");
 
 async function testCreatePaymentIntent() {
   try {
+    // Gửi thêm userId và itemId để test metadata
     const response = await axios.post(
       "http://127.0.0.1:8080/payments/create-payment-intent",
       {
         amount: 10000, // số tiền test (ví dụ: 100 USD nếu đơn vị là cent)
         currency: "usd",
+        userId: "685d2558e25fb6b90efff6c5",
+        itemId: "685e07d3509937e71714b9bb",
       }
     );
     console.log("Kết quả:", response.data);

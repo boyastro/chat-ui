@@ -8,7 +8,7 @@
 const STRIPE_SECRET_KEY =
   "sk_test_51RgjJ6Rkaxke7LhDpjIbwnErFMVfJlzRdByCqvDqwhAEqVNg8UXGiqqVxDgCeA3H99i9MH0Eh0Pk3b4Tc8JXecwQ00E0wlJfct"; // <--- Thay bằng secret key test của bạn
 const CLIENT_SECRET =
-  "pi_3RglMBRkaxke7LhD09tLp2W2_secret_1xsIwHFkCGEw4JU8HfISHJpFq"; // <--- Thay bằng clientSecret bạn nhận được
+  "pi_3RgzdrRkaxke7LhD1lIsGNV6_secret_EyBdbKaEnBwGOhWZDLCCqxnIG"; // <--- Thay bằng clientSecret bạn nhận được
 
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 
