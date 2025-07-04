@@ -1,0 +1,33 @@
+// Stripe payment intent API test (Node.js, dùng với Jest hoặc chạy trực tiếp bằng node)
+// Cần cài: npm install axios
+
+const axios = require("axios");
+
+async function testCreatePaymentIntent() {
+  try {
+    const response = await axios.post(
+      "http://127.0.0.1:8080/payments/create-payment-intent",
+      {
+        amount: 10000, // số tiền test (ví dụ: 100 USD nếu đơn vị là cent)
+        currency: "usd",
+      }
+    );
+    console.log("Kết quả:", response.data);
+    if (response.data && response.data.clientSecret) {
+      console.log("Tạo payment intent thành công!");
+    } else {
+      console.error("Không nhận được clientSecret!");
+    }
+  } catch (err) {
+    if (err.response) {
+      console.error("Lỗi từ server:", err.response.status, err.response.data);
+    } else {
+      console.error("Lỗi:", err.message);
+    }
+  }
+}
+
+// Chạy test
+if (require.main === module) {
+  testCreatePaymentIntent();
+}
