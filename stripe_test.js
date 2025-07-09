@@ -7,7 +7,7 @@ async function testCreatePaymentIntent() {
   try {
     // Gửi thêm userId và itemId để test metadata
     const response = await axios.post(
-      "http://127.0.0.1:8080/payments/create-payment-intent",
+      "https://m35vxg11jc.execute-api.ap-southeast-1.amazonaws.com/prod/payments/create-payment-intent",
       {
         amount: 10000, // số tiền test (ví dụ: 100 USD nếu đơn vị là cent)
         currency: "usd",

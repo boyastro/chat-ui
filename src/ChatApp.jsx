@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { io } from "socket.io-client";
 import "./ChatApp.css";
 
-const API_URL = "http://127.0.0.1:8080";
+const API_URL =
+  "https://m35vxg11jc.execute-api.ap-southeast-1.amazonaws.com/prod";
 // Move socket outside the component, only create once
-const socket = io("http://127.0.0.1:8080", {
+const socket = io("http://gametest.ddns.net:30081", {
   autoConnect: false,
   transports: ["websocket"],
 });
