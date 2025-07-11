@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import "./ChatApp.css";
 
 const API_URL =
   "https://m35vxg11jc.execute-api.ap-southeast-1.amazonaws.com/prod";
-// Move socket outside the component, only create once
-const socket = io("http://gametest.ddns.net:30081", {
-  autoConnect: false,
-  transports: ["websocket"],
-});
+// AWS WebSocket (API Gateway) - use native WebSocket
+let ws = null;
 
 export default function ChatApp() {
   const [name, setName] = useState("");
@@ -31,39 +28,136 @@ export default function ChatApp() {
     if (savedToken) setToken(savedToken);
   }, []);
 
+  // Tạo WebSocket chỉ 1 lần khi login thành công
   useEffect(() => {
-    // Listen to socket events only once when the app mounts
-    const handleReceiveMessage = (msg) => {
-      console.log("Received message from socket:", msg);
-      setMessages((prev) => [...prev, msg]);
-    };
-    const handleConnect = () => {
+    if (!userIdSet) return;
+    ws = new window.WebSocket(
+      "wss://zl058iu5n2.execute-api.ap-southeast-1.amazonaws.com/prod"
+    );
+
+    ws.onopen = (event) => {
+      console.log("WS OPEN: Connected to AWS WebSocket");
       setMessages((prev) => [
         ...prev,
-        {
-          system: true,
-          message: `Connected to server with id Socket: ${socket.id}`,
-        },
+        { system: true, message: "Connected to AWS WebSocket" },
       ]);
     };
-    const handleDisconnect = () => {
+
+    ws.onmessage = (event) => {
+      console.log("WS RECEIVED:", event.data); // Log mọi message nhận được từ backend
+      let msg;
+      try {
+        msg = JSON.parse(event.data);
+      } catch {
+        msg = { system: true, message: event.data };
+      }
+      // Xử lý theo từng type message khác nhau
+      if (!msg || !msg.type) {
+        console.log("WS IGNORE: Invalid message format", msg);
+        return;
+      }
+      switch (msg.type) {
+        case "receiveMessage":
+          if (
+            msg.data &&
+            typeof msg.data.user === "string" &&
+            typeof msg.data.name === "string" &&
+            typeof msg.data.message === "string" &&
+            typeof msg.data.time === "string"
+          ) {
+            setMessages((prev) => {
+              console.log("WS ADD: New message", msg.data);
+              return [
+                ...prev,
+                {
+                  ...msg.data,
+                  system: false,
+                },
+              ];
+            });
+          } else {
+            console.log("WS IGNORE: receiveMessage invalid format", msg);
+          }
+          break;
+        case "joinRoomSuccess":
+          // Hiển thị thông báo join room thành công cho user vừa join
+          if (
+            msg.data &&
+            typeof msg.data.userId === "string" &&
+            typeof msg.data.roomId === "string" &&
+            typeof msg.data.time === "string"
+          ) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                system: true,
+                message: `You have joined room: ${msg.data.roomId}`,
+                time: msg.data.time,
+              },
+            ]);
+          } else {
+            console.log("WS IGNORE: joinRoomSuccess invalid format", msg);
+          }
+          break;
+        case "system":
+          // Ví dụ: backend gửi thông báo system
+          if (msg.data && typeof msg.data.message === "string") {
+            setMessages((prev) => [
+              ...prev,
+              { system: true, message: msg.data.message },
+            ]);
+          } else {
+            console.log("WS IGNORE: system message invalid format", msg);
+          }
+          break;
+        case "userJoined":
+          // Ví dụ: backend gửi thông báo user vào phòng
+          if (msg.data && typeof msg.data.name === "string") {
+            setMessages((prev) => [
+              ...prev,
+              { system: true, message: `${msg.data.name} joined the room` },
+            ]);
+          } else {
+            console.log("WS IGNORE: userJoined invalid format", msg);
+          }
+          break;
+        case "userLeft":
+          // Ví dụ: backend gửi thông báo user rời phòng
+          if (msg.data && typeof msg.data.name === "string") {
+            setMessages((prev) => [
+              ...prev,
+              { system: true, message: `${msg.data.name} left the room` },
+            ]);
+          } else {
+            console.log("WS IGNORE: userLeft invalid format", msg);
+          }
+          break;
+        default:
+          // Bỏ qua các type không hỗ trợ
+          console.log("WS IGNORE: Unknown type", msg);
+      }
+    };
+
+    ws.onclose = (event) => {
+      console.log("WS CLOSE:", event);
       setMessages((prev) => [
         ...prev,
-        {
-          system: true,
-          message: `Disconnected from server`,
-        },
+        { system: true, message: "Disconnected from AWS WebSocket" },
       ]);
     };
-    socket.on("receiveMessage", handleReceiveMessage);
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
+
+    ws.onerror = (err) => {
+      console.error("WS ERROR:", err);
+      setMessages((prev) => [
+        ...prev,
+        { system: true, message: "WebSocket error" },
+      ]);
+    };
+
     return () => {
-      socket.off("receiveMessage", handleReceiveMessage);
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
+      ws && ws.close();
     };
-  }, []);
+  }, [userIdSet]);
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -81,7 +175,7 @@ export default function ChatApp() {
   useEffect(() => {
     if (userIdSet) {
       fetchRooms();
-      if (!socket.connected) socket.connect(); // Only connect socket after successful login, only once
+      // WebSocket sẽ tự connect ở useEffect trên
     }
   }, [userIdSet, fetchRooms]);
 
@@ -130,71 +224,41 @@ export default function ChatApp() {
     if (!userIdSet || !currentRoom) return;
     if (joinedRoom === currentRoom) return; // Already in this room, do not join again
     try {
+      // Gửi joinRoom qua WebSocket AWS (chỉ gửi khi user join room, không tạo lại socket)
+      if (ws && ws.readyState === 1) {
+        console.log("WS SEND: joinRoom", { userId, roomId: currentRoom });
+        ws.send(
+          JSON.stringify({
+            action: "joinRoom",
+            connectionId: null, // AWS sẽ tự lấy connectionId
+            userId,
+            roomId: currentRoom,
+          })
+        );
+      }
+      setJoinedRoom(currentRoom);
+      // Lấy lại lịch sử chat qua REST API
       const authToken = token || localStorage.getItem("token");
-      // Get room info to check membership
-      const roomRes = await fetch(`${API_URL}/rooms/${currentRoom}`, {
+      const roomInfoRes = await fetch(`${API_URL}/rooms/${currentRoom}`, {
         headers: {
           ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
       });
-      if (!roomRes.ok) throw new Error("Failed to fetch room info");
-      const roomData = await roomRes.json();
-      let joined = false;
-      if (
-        roomData.members &&
-        roomData.members.some(
-          (m) => (m._id || m.id || m).toString() === userId.toString()
-        )
-      ) {
-        // If already a member, leave old room (if any) then join new room
-        if (joinedRoom && joinedRoom !== currentRoom) {
-          socket.emit("leaveRoom", { roomId: joinedRoom, userId });
-        }
-        socket.emit("joinRoom", { roomId: currentRoom, userId });
-        setJoinedRoom(currentRoom);
-        joined = true;
-      } else {
-        // If not a member, call API to join
-        const res = await fetch(`${API_URL}/rooms/${currentRoom}/join`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-          },
-          body: JSON.stringify({ userId }),
-        });
-        if (!res.ok) throw new Error("Failed to join room");
-        if (joinedRoom && joinedRoom !== currentRoom) {
-          socket.emit("leaveRoom", { roomId: joinedRoom, userId });
-        }
-        socket.emit("joinRoom", { roomId: currentRoom, userId });
-        setJoinedRoom(currentRoom);
-        joined = true;
-      }
-      if (joined) {
-        // After joining, get room info to get chat history
-        const roomInfoRes = await fetch(`${API_URL}/rooms/${currentRoom}`, {
-          headers: {
-            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-          },
-        });
-        if (!roomInfoRes.ok)
-          throw new Error("Failed to fetch room info after join");
-        const roomInfo = await roomInfoRes.json();
-        setMessages(
-          Array.isArray(roomInfo.chatMessages)
-            ? roomInfo.chatMessages.map((msg) => ({
+      if (!roomInfoRes.ok)
+        throw new Error("Failed to fetch room info after join");
+      const roomInfo = await roomInfoRes.json();
+      setMessages(
+        Array.isArray(roomInfo.chatMessages)
+          ? [
+              ...roomInfo.chatMessages.map((msg) => ({
                 ...msg,
                 system: false,
-              }))
-            : []
-        );
-        setMessages((prev) => [
-          ...prev,
-          { system: true, message: `Joined room: ${currentRoom}` },
-        ]);
-        setInRoom(true);
-      }
+              })),
+              { system: true, message: `Joined room: ${currentRoom}` },
+            ]
+          : [{ system: true, message: `Joined room: ${currentRoom}` }]
+      );
+      setInRoom(true);
     } catch (err) {
       alert("Failed to join room");
     }
@@ -224,21 +288,18 @@ export default function ChatApp() {
     if (!input.trim() || !currentRoom || !userIdSet) return;
     try {
       const messageStr = String(input);
-      const res = await fetch(`${API_URL}/rooms/${currentRoom}/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ userId, name, message: messageStr }),
-      });
-      if (!res.ok) throw new Error("Failed to send message");
-      socket.emit("sendMessage", {
-        roomId: currentRoom,
-        userId,
-        name,
-        text: messageStr,
-      });
+      // Không gửi REST API lưu DB nữa, chỉ gửi qua WebSocket AWS
+      if (ws && ws.readyState === 1) {
+        ws.send(
+          JSON.stringify({
+            action: "sendMessage",
+            roomId: currentRoom,
+            userId,
+            name,
+            text: messageStr,
+          })
+        );
+      }
       setInput("");
     } catch (err) {
       alert("Failed to send message");
