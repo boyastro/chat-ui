@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import "./ChatApp.css";
-import { AwsChatSocket } from "./utils/awsSocket";
+import { useAwsChatSocket } from "./hooks/useAwsChatSocket";
 
 const API_URL =
   "https://m35vxg11jc.execute-api.ap-southeast-1.amazonaws.com/prod";
@@ -26,44 +26,50 @@ export default function ChatApp() {
     if (savedToken) setToken(savedToken);
   }, []);
 
-  // Quản lý socket AWS bằng class AwsChatSocket
-  const awsSocketRef = useRef(null);
-  useEffect(() => {
-    if (!userIdSet || !inRoom || !currentRoom) return;
-    if (awsSocketRef.current) {
-      awsSocketRef.current.disconnect();
-      awsSocketRef.current = null;
-    }
-    awsSocketRef.current = new AwsChatSocket({
-      url: "wss://zl058iu5n2.execute-api.ap-southeast-1.amazonaws.com/prod",
-      userId,
-      roomId: currentRoom,
-      onMessage: (msg) => setMessages((prev) => [...prev, msg]),
-      onSystem: (msg) => setMessages((prev) => [...prev, msg]),
-      onOpen: () =>
-        setMessages((prev) => [
-          ...prev,
-          { system: true, message: "Connected to AWS WebSocket" },
-        ]),
-      onClose: () =>
-        setMessages((prev) => [
-          ...prev,
-          { system: true, message: "Disconnected from AWS WebSocket" },
-        ]),
-      onError: () =>
-        setMessages((prev) => [
-          ...prev,
-          { system: true, message: "WebSocket error" },
-        ]),
-    });
-    awsSocketRef.current.connect();
-    return () => {
-      if (awsSocketRef.current) {
-        awsSocketRef.current.disconnect();
-        awsSocketRef.current = null;
-      }
-    };
-  }, [userIdSet, inRoom, currentRoom, userId]);
+  // Định nghĩa callback cố định để tránh socket bị reconnect liên tục
+  const handleSocketMessage = useCallback(
+    (msg) => setMessages((prev) => [...prev, msg]),
+    []
+  );
+  const handleSocketSystem = useCallback(
+    (msg) => setMessages((prev) => [...prev, msg]),
+    []
+  );
+  const handleSocketOpen = useCallback(
+    () =>
+      setMessages((prev) => [
+        ...prev,
+        { system: true, message: "Connected to AWS WebSocket" },
+      ]),
+    []
+  );
+  const handleSocketClose = useCallback(
+    () =>
+      setMessages((prev) => [
+        ...prev,
+        { system: true, message: "Disconnected from AWS WebSocket" },
+      ]),
+    []
+  );
+  const handleSocketError = useCallback(
+    () =>
+      setMessages((prev) => [
+        ...prev,
+        { system: true, message: "WebSocket error" },
+      ]),
+    []
+  );
+
+  const { sendMessage } = useAwsChatSocket({
+    enabled: userIdSet && inRoom && !!currentRoom,
+    userId,
+    roomId: currentRoom,
+    onMessage: handleSocketMessage,
+    onSystem: handleSocketSystem,
+    onOpen: handleSocketOpen,
+    onClose: handleSocketClose,
+    onError: handleSocketError,
+  });
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -182,15 +188,14 @@ export default function ChatApp() {
     if (!input.trim() || !currentRoom || !userIdSet) return;
     try {
       const messageStr = String(input);
-      if (awsSocketRef.current) {
-        awsSocketRef.current.send({
+      sendMessage &&
+        sendMessage({
           action: "sendMessage",
           roomId: currentRoom,
           userId,
           name,
           text: messageStr,
         });
-      }
       setInput("");
     } catch (err) {
       alert("Failed to send message");
