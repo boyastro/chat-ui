@@ -28,9 +28,16 @@ export default function ChatApp() {
     if (savedToken) setToken(savedToken);
   }, []);
 
-  // Tạo WebSocket chỉ 1 lần khi login thành công
+  // Tạo WebSocket chỉ sau khi join room thành công
   useEffect(() => {
-    if (!userIdSet) return;
+    if (!userIdSet || !inRoom || !currentRoom) return;
+    // Đóng socket cũ nếu có
+    if (ws) {
+      try {
+        ws.close();
+      } catch {}
+      ws = null;
+    }
     ws = new window.WebSocket(
       "wss://zl058iu5n2.execute-api.ap-southeast-1.amazonaws.com/prod"
     );
@@ -41,6 +48,17 @@ export default function ChatApp() {
         ...prev,
         { system: true, message: "Connected to AWS WebSocket" },
       ]);
+      // Gửi joinRoom ngay khi socket mở (đảm bảo backend biết user vào room)
+      if (ws && ws.readyState === 1) {
+        ws.send(
+          JSON.stringify({
+            action: "joinRoom",
+            connectionId: null,
+            userId,
+            roomId: currentRoom,
+          })
+        );
+      }
     };
 
     ws.onmessage = (event) => {
@@ -155,9 +173,14 @@ export default function ChatApp() {
     };
 
     return () => {
-      ws && ws.close();
+      if (ws) {
+        try {
+          ws.close();
+        } catch {}
+        ws = null;
+      }
     };
-  }, [userIdSet]);
+  }, [userIdSet, inRoom, currentRoom, userId]);
 
   const fetchRooms = useCallback(async () => {
     try {
@@ -224,18 +247,6 @@ export default function ChatApp() {
     if (!userIdSet || !currentRoom) return;
     if (joinedRoom === currentRoom) return; // Already in this room, do not join again
     try {
-      // Gửi joinRoom qua WebSocket AWS (chỉ gửi khi user join room, không tạo lại socket)
-      if (ws && ws.readyState === 1) {
-        console.log("WS SEND: joinRoom", { userId, roomId: currentRoom });
-        ws.send(
-          JSON.stringify({
-            action: "joinRoom",
-            connectionId: null, // AWS sẽ tự lấy connectionId
-            userId,
-            roomId: currentRoom,
-          })
-        );
-      }
       setJoinedRoom(currentRoom);
       // Lấy lại lịch sử chat qua REST API
       const authToken = token || localStorage.getItem("token");
