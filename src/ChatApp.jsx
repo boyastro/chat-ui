@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import "./ChatApp.css";
 import { useAwsChatSocket } from "./hooks/useAwsChatSocket";
+import LoginForm from "./components/LoginForm";
+import RoomSelect from "./components/RoomSelect";
+import ChatRoom from "./components/ChatRoom";
 
 const API_URL =
   "https://m35vxg11jc.execute-api.ap-southeast-1.amazonaws.com/prod";
@@ -203,163 +206,45 @@ export default function ChatApp() {
   };
 
   if (!userIdSet) {
-    // Login UI
     return (
-      <div className="chat-app-container">
-        <h2 className="chat-app-title">💬 Chat App Login</h2>
-        <form className="chat-app-form" onSubmit={handleLogin}>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter Username..."
-            className="chat-app-input"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter Password..."
-            className="chat-app-input"
-          />
-          <button type="submit" className="chat-app-btn chat-app-btn-confirm">
-            Login
-          </button>
-        </form>
-      </div>
+      <LoginForm
+        name={name}
+        password={password}
+        onNameChange={(e) => setName(e.target.value)}
+        onPasswordChange={(e) => setPassword(e.target.value)}
+        onSubmit={handleLogin}
+      />
     );
   }
 
-  // Chat room UI
   if (!inRoom) {
     return (
-      <div className="chat-app-container">
-        <h2 className="chat-app-title">💬 Chat Room</h2>
-        <div className="chat-app-room-row">
-          <select
-            value={currentRoom}
-            onChange={(e) => setCurrentRoom(e.target.value)}
-            className="chat-app-input"
-          >
-            <option value="">-- Select room --</option>
-            {rooms.map((room) => (
-              <option
-                key={room.id || room._id || room.name}
-                value={room.id || room._id || room.name}
-              >
-                {room.name || room.id || room._id}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleJoinRoom}
-            className="chat-app-btn chat-app-btn-join"
-          >
-            Join room
-          </button>
-        </div>
-        <div className="chat-app-room-row">
-          <input
-            value={newRoom}
-            onChange={(e) => setNewRoom(e.target.value)}
-            placeholder="New room name"
-            className="chat-app-input"
-          />
-          <button
-            onClick={handleCreateRoom}
-            className="chat-app-btn chat-app-btn-create"
-          >
-            Create room
-          </button>
-        </div>
-      </div>
+      <RoomSelect
+        rooms={rooms}
+        currentRoom={currentRoom}
+        onRoomChange={(e) => setCurrentRoom(e.target.value)}
+        onJoinRoom={handleJoinRoom}
+        newRoom={newRoom}
+        onNewRoomChange={(e) => setNewRoom(e.target.value)}
+        onCreateRoom={handleCreateRoom}
+      />
     );
   }
 
   return (
-    <div className="chat-app-container">
-      <h2 className="chat-app-title">💬 Chat Room</h2>
-      <div className="chat-app-room-row">
-        <select
-          value={currentRoom}
-          onChange={(e) => setCurrentRoom(e.target.value)}
-          className="chat-app-input"
-        >
-          <option value="">-- Select room --</option>
-          {rooms.map((room) => (
-            <option
-              key={room.id || room._id || room.name}
-              value={room.id || room._id || room.name}
-            >
-              {room.name || room.id || room._id}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={handleJoinRoom}
-          className="chat-app-btn chat-app-btn-join"
-        >
-          Join room
-        </button>
-      </div>
-      <div className="chat-app-room-row">
-        <input
-          value={newRoom}
-          onChange={(e) => setNewRoom(e.target.value)}
-          placeholder="New room name"
-          className="chat-app-input"
-        />
-        <button
-          onClick={handleCreateRoom}
-          className="chat-app-btn chat-app-btn-create"
-        >
-          Create room
-        </button>
-      </div>
-      <div className="chat-app-messages">
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={
-              msg.system
-                ? "chat-app-message-system"
-                : msg.user === name || msg.name === name
-                ? "chat-app-message chat-app-message-self"
-                : "chat-app-message"
-            }
-          >
-            {msg.system ? (
-              msg.message
-            ) : (
-              <>
-                <span className="chat-app-message-user">
-                  {msg.user === name || msg.name === name
-                    ? "You"
-                    : msg.name || msg.user}
-                  :
-                </span>
-                <span>{msg.message}</span>
-              </>
-            )}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <form className="chat-app-form" onSubmit={handleSend}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Enter your message..."
-          disabled={!currentRoom}
-          className="chat-app-input chat-app-input-message"
-        />
-        <button
-          type="submit"
-          disabled={!currentRoom}
-          className="chat-app-btn chat-app-btn-send"
-        >
-          Send
-        </button>
-      </form>
-    </div>
+    <ChatRoom
+      name={name}
+      rooms={rooms}
+      currentRoom={currentRoom}
+      onRoomChange={(e) => setCurrentRoom(e.target.value)}
+      onJoinRoom={handleJoinRoom}
+      newRoom={newRoom}
+      onNewRoomChange={(e) => setNewRoom(e.target.value)}
+      onCreateRoom={handleCreateRoom}
+      messages={messages}
+      input={input}
+      onInputChange={(e) => setInput(e.target.value)}
+      onSend={handleSend}
+    />
   );
 }
