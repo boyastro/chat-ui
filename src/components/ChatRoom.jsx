@@ -21,9 +21,28 @@ export default function ChatRoom({
   return (
     <div className="max-w-lg mx-auto my-10 bg-white rounded-2xl shadow-xl p-6 relative">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-2xl text-blue-600 tracking-wide m-0">
-          💬 Chat Room
-        </h2>
+        <div>
+          <h2 className="font-bold text-2xl text-blue-600 tracking-wide m-0 inline-block">
+            💬 Chat Room
+          </h2>
+          {currentRoom && (
+            <span className="ml-3 text-lg font-semibold text-gray-700 align-middle bg-blue-100 px-3 py-1 rounded-md">
+              {(() => {
+                const roomObj = Array.isArray(rooms)
+                  ? rooms.find(
+                      (r) =>
+                        r.id === currentRoom ||
+                        r._id === currentRoom ||
+                        r.name === currentRoom
+                    )
+                  : null;
+                return (
+                  roomObj?.name || roomObj?.id || roomObj?._id || currentRoom
+                );
+              })()}
+            </span>
+          )}
+        </div>
         <button
           className="bg-red-500 text-white rounded-md px-5 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
           onClick={onLeaveRoom}

@@ -112,6 +112,7 @@ export default function ChatApp() {
     currentRoom,
     joinedRoom,
     fetchRooms,
+    newRoom: chat.newRoom,
   });
 
   const handleSend = useCallback(

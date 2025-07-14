@@ -48,14 +48,15 @@ export default function RoomSelect({
       </div>
       <div className="flex gap-2">
         <input
-          value={newRoom}
+          value={newRoom || ""}
           onChange={onNewRoomChange}
           placeholder="Tên phòng mới"
           className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-green-300"
         />
         <button
           onClick={onCreateRoom}
-          className="bg-green-600 text-white rounded-md px-6 py-2 font-semibold text-base shadow-md hover:bg-green-700 transition"
+          className="bg-green-600 text-white rounded-md px-6 py-2 font-semibold text-base shadow-md hover:bg-green-700 transition disabled:opacity-60"
+          disabled={!newRoom || !String(newRoom).trim()}
         >
           Tạo phòng
         </button>
