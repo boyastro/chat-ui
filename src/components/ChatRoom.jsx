@@ -4,8 +4,6 @@ export default function ChatRoom({
   name,
   rooms,
   currentRoom,
-  onRoomChange,
-  onJoinRoom,
   newRoom,
   onNewRoomChange,
   onCreateRoom,
@@ -13,6 +11,7 @@ export default function ChatRoom({
   input,
   onInputChange,
   onSend,
+  onLeaveRoom,
 }) {
   const messagesEndRef = useRef(null);
   useEffect(() => {
@@ -20,59 +19,42 @@ export default function ChatRoom({
   }, [messages]);
 
   return (
-    <div className="chat-app-container">
-      <h2 className="chat-app-title">💬 Chat Room</h2>
-      <div className="chat-app-room-row">
-        <select
-          value={currentRoom}
-          onChange={onRoomChange}
-          className="chat-app-input"
-        >
-          <option value="">-- Select room --</option>
-          {rooms.map((room) => (
-            <option
-              key={room.id || room._id || room.name}
-              value={room.id || room._id || room.name}
-            >
-              {room.name || room.id || room._id}
-            </option>
-          ))}
-        </select>
-        <button onClick={onJoinRoom} className="chat-app-btn chat-app-btn-join">
-          Join room
-        </button>
-      </div>
-      <div className="chat-app-room-row">
-        <input
-          value={newRoom}
-          onChange={onNewRoomChange}
-          placeholder="New room name"
-          className="chat-app-input"
-        />
+    <div className="max-w-lg mx-auto my-10 bg-white rounded-2xl shadow-xl p-6 relative">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-bold text-2xl text-blue-600 tracking-wide m-0">
+          💬 Chat Room
+        </h2>
         <button
-          onClick={onCreateRoom}
-          className="chat-app-btn chat-app-btn-create"
+          className="bg-red-500 text-white rounded-md px-5 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
+          onClick={onLeaveRoom}
         >
-          Create room
+          Rời phòng
         </button>
       </div>
-      <div className="chat-app-messages">
+      <div className="bg-gray-100 rounded-lg min-h-[320px] max-h-[400px] overflow-y-auto p-4 mb-5 shadow">
         {messages.map((msg, idx) => (
           <div
             key={idx}
             className={
               msg.system
-                ? "chat-app-message-system"
+                ? "italic text-gray-500 my-2"
                 : msg.user === name || msg.name === name
-                ? "chat-app-message chat-app-message-self"
-                : "chat-app-message"
+                ? "flex items-center my-2 text-right justify-end"
+                : "flex items-center my-2"
             }
           >
             {msg.system ? (
               msg.message
             ) : (
               <>
-                <span className="chat-app-message-user">
+                <span
+                  className={
+                    "font-semibold mr-2 " +
+                    (msg.user === name || msg.name === name
+                      ? "text-blue-600"
+                      : "text-gray-800")
+                  }
+                >
                   {msg.user === name || msg.name === name
                     ? "You"
                     : msg.name || msg.user}
@@ -85,20 +67,20 @@ export default function ChatRoom({
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form className="chat-app-form" onSubmit={onSend}>
+      <form className="flex gap-2" onSubmit={onSend}>
         <input
           value={input}
           onChange={onInputChange}
-          placeholder="Enter your message..."
+          placeholder="Nhập tin nhắn..."
           disabled={!currentRoom}
-          className="chat-app-input chat-app-input-message"
+          className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-blue-300"
         />
         <button
           type="submit"
           disabled={!currentRoom}
-          className="chat-app-btn chat-app-btn-send"
+          className="bg-blue-600 text-white rounded-md px-6 font-semibold text-base shadow-md hover:bg-blue-700 transition disabled:opacity-60"
         >
-          Send
+          Gửi
         </button>
       </form>
     </div>

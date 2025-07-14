@@ -4,29 +4,25 @@ import { useAwsChatSocket } from "./hooks/useAwsChatSocket";
 import { useChatState } from "./hooks/useChatState";
 import { useChatHandlers } from "./hooks/useChatHandlers";
 import { useFetchRooms } from "./hooks/useFetchRooms";
-// import { API_URL } from "./config"; // Commented out unused API_URL
-import LoginForm from "./components/LoginForm";
-import RoomSelect from "./components/RoomSelect";
-import ChatRoom from "./components/ChatRoom";
+// import LoginForm from "./components/LoginForm";
+// import RoomSelect from "./components/RoomSelect";
+// import ChatRoom from "./components/ChatRoom";
+import { BrowserRouter } from "react-router-dom";
+import ChatAppRoutes from "./ChatAppRoutes";
 
 export default function ChatApp() {
-  const chat = useChatState(); // No change needed here
+  const chat = useChatState();
   const {
     name,
-    setName,
     password,
-    setPassword,
     userIdSet,
     setUserIdSet,
-    rooms,
     setRooms,
     currentRoom,
-    setCurrentRoom,
     messages,
     setMessages,
     input,
     setInput,
-    newRoom,
     setNewRoom,
     token,
     setToken,
@@ -36,16 +32,13 @@ export default function ChatApp() {
     setInRoom,
     joinedRoom,
     setJoinedRoom,
-    // messagesEndRef, // Commented out unused messagesEndRef
   } = chat;
 
   useEffect(() => {
-    // Retrieve token from localStorage when loading the app
     const savedToken = localStorage.getItem("token");
     if (savedToken) setToken(savedToken);
   }, [setToken]);
 
-  // Định nghĩa callback cố định để tránh socket bị reconnect liên tục
   const handleSocketMessage = useCallback(
     (msg) => setMessages((prev) => [...prev, msg]),
     [setMessages]
@@ -99,10 +92,9 @@ export default function ChatApp() {
   }, [userIdSet, fetchRooms]);
 
   useEffect(() => {
-    // chat.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); // Commented out scroll logic
+    // chat.messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, chat.messagesEndRef]);
 
-  // Handlers tách riêng
   const { handleLogin, handleJoinRoom, handleCreateRoom } = useChatHandlers({
     name,
     password,
@@ -144,46 +136,19 @@ export default function ChatApp() {
     [input, currentRoom, userIdSet, sendMessage, setInput, userId, name]
   );
 
-  if (!userIdSet) {
-    return (
-      <LoginForm
-        name={name}
-        password={password}
-        onNameChange={(e) => setName(e.target.value)}
-        onPasswordChange={(e) => setPassword(e.target.value)}
-        onSubmit={handleLogin}
-      />
-    );
-  }
-
-  if (!inRoom) {
-    return (
-      <RoomSelect
-        rooms={rooms}
-        currentRoom={currentRoom}
-        onRoomChange={(e) => setCurrentRoom(e.target.value)}
-        onJoinRoom={handleJoinRoom}
-        newRoom={newRoom}
-        onNewRoomChange={(e) => setNewRoom(e.target.value)}
-        onCreateRoom={handleCreateRoom}
-      />
-    );
-  }
-
   return (
-    <ChatRoom
-      name={name}
-      rooms={rooms}
-      currentRoom={currentRoom}
-      onRoomChange={(e) => setCurrentRoom(e.target.value)}
-      onJoinRoom={handleJoinRoom}
-      newRoom={newRoom}
-      onNewRoomChange={(e) => setNewRoom(e.target.value)}
-      onCreateRoom={handleCreateRoom}
-      messages={messages}
-      input={input}
-      onInputChange={(e) => setInput(e.target.value)}
-      onSend={handleSend}
-    />
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
+      <ChatAppRoutes
+        chat={chat}
+        handleLogin={handleLogin}
+        handleJoinRoom={handleJoinRoom}
+        handleCreateRoom={handleCreateRoom}
+        handleSend={handleSend}
+        sendMessage={sendMessage}
+        fetchRooms={fetchRooms}
+      />
+    </BrowserRouter>
   );
 }
