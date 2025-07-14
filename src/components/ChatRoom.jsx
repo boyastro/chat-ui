@@ -12,6 +12,7 @@ export default function ChatRoom({
   onInputChange,
   onSend,
   onLeaveRoom,
+  setJoinedRoom, // truyền prop này từ cha nếu có
 }) {
   const messagesEndRef = useRef(null);
   useEffect(() => {
@@ -45,7 +46,14 @@ export default function ChatRoom({
         </div>
         <button
           className="bg-red-500 text-white rounded-md px-5 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
-          onClick={onLeaveRoom}
+          onClick={() => {
+            if (typeof setJoinedRoom === "function") {
+              setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
+            }
+            if (typeof onLeaveRoom === "function") {
+              onLeaveRoom();
+            }
+          }}
         >
           Rời phòng
         </button>

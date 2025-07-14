@@ -78,6 +78,8 @@ export default function ChatAppRoutes({
               onNewRoomChange={onNewRoomChange}
               onCreateRoom={handleCreateRoomFinal}
               onBackToLogin={() => {
+                if (typeof chat.setCurrentRoom === "function")
+                  chat.setCurrentRoom("");
                 if (typeof chat.setUserIdSet === "function")
                   chat.setUserIdSet(false);
                 if (typeof chat.setToken === "function") chat.setToken(null);
@@ -85,8 +87,11 @@ export default function ChatAppRoutes({
                 if (typeof chat.setName === "function") chat.setName("");
                 if (typeof chat.setPassword === "function")
                   chat.setPassword("");
+                if (typeof chat.setJoinedRoom === "function")
+                  chat.setJoinedRoom("");
                 navigate("/login", { replace: true });
               }}
+              setJoinedRoom={chat.setJoinedRoom}
             />
           ) : (
             <Navigate to="/login" replace />
@@ -111,6 +116,7 @@ export default function ChatAppRoutes({
               }
               onSend={handleSend}
               onLeaveRoom={onLeaveRoom}
+              setJoinedRoom={chat.setJoinedRoom}
             />
           ) : (
             <Navigate to={userIdSet ? "/rooms" : "/login"} replace />
