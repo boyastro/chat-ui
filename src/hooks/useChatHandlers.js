@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { API_URL } from "../config";
 
 export function useChatHandlers(props) {
   const {
@@ -21,6 +20,7 @@ export function useChatHandlers(props) {
     newRoom = "",
   } = props;
   // Đăng nhập
+  const API_URL = process.env.REACT_APP_API_URL;
   const handleLogin = useCallback(
     async (e) => {
       e.preventDefault();
@@ -54,7 +54,7 @@ export function useChatHandlers(props) {
         alert("Invalid username or password or server error");
       }
     },
-    [name, password, setToken, setUserId, setUserIdSet]
+    [name, password, setToken, setUserId, setUserIdSet, API_URL]
   );
 
   // Join room
@@ -99,6 +99,7 @@ export function useChatHandlers(props) {
       setJoinedRoom,
       setMessages,
       setInRoom,
+      API_URL,
     ]
   );
 
@@ -142,7 +143,7 @@ export function useChatHandlers(props) {
         return null;
       }
     },
-    [newRoom, token, setNewRoom, fetchRooms, userId]
+    [newRoom, token, setNewRoom, fetchRooms, userId, API_URL]
   );
 
   return { handleLogin, handleJoinRoom, handleCreateRoom };

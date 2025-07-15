@@ -20,8 +20,9 @@ export function useAwsChatSocket({
       socketRef.current.disconnect();
       socketRef.current = null;
     }
+    const WS_URL = process.env.REACT_APP_WS_URL;
     socketRef.current = new AwsChatSocket({
-      url: "wss://zl058iu5n2.execute-api.ap-southeast-1.amazonaws.com/prod",
+      url: WS_URL,
       userId,
       roomId,
       onMessage,
