@@ -1,8 +1,15 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 import RoomSelect from "./components/RoomSelect";
 import ChatRoom from "./components/ChatRoom";
+import UserInfo from "./components/UserInfo";
 export default function ChatAppRoutes({
   chat,
   handleLogin,
@@ -13,6 +20,7 @@ export default function ChatAppRoutes({
   fetchRooms,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     name,
     setName,
@@ -42,6 +50,8 @@ export default function ChatAppRoutes({
   };
 
   useEffect(() => {
+    // Không redirect nếu đang ở /userinfo
+    if (location.pathname === "/userinfo") return;
     if (userIdSet && !inRoom) {
       navigate("/rooms", { replace: true });
     } else if (userIdSet && inRoom && currentRoom) {
@@ -49,7 +59,7 @@ export default function ChatAppRoutes({
     } else if (!userIdSet) {
       navigate("/login", { replace: true });
     }
-  }, [userIdSet, inRoom, currentRoom, navigate]);
+  }, [userIdSet, inRoom, currentRoom, navigate, location.pathname]);
 
   return (
     <Routes>
@@ -98,6 +108,7 @@ export default function ChatAppRoutes({
           )
         }
       />
+      <Route path="/userinfo" element={<UserInfo />} />
       <Route
         path="/chat/:roomId"
         element={

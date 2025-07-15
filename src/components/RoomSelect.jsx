@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RoomSelect({
   rooms,
@@ -10,30 +11,46 @@ export default function RoomSelect({
   onCreateRoom,
   onBackToLogin,
   setJoinedRoom, // truyền prop này từ cha nếu có
+  userId, // nhận userId từ cha
 }) {
   const [joiningRoom, setJoiningRoom] = useState("");
+  const navigate = useNavigate();
   return (
     <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-bold text-2xl text-blue-600 tracking-wide">
           💬 Chat Room
         </h2>
-        <button
-          className="bg-red-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
-          onClick={() => {
-            if (typeof onRoomChange === "function") {
-              onRoomChange({ target: { value: "" } }); // reset currentRoom
-            }
-            if (typeof setJoinedRoom === "function") {
-              setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
-            }
-            if (typeof onBackToLogin === "function") {
-              onBackToLogin();
-            }
-          }}
-        >
-          Quay lại đăng nhập
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="bg-blue-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-blue-600 transition"
+            onClick={() => {
+              if (userId) {
+                alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
+                return;
+              }
+              navigate("/userinfo");
+            }}
+          >
+            Xem user info
+          </button>
+          <button
+            className="bg-red-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
+            onClick={() => {
+              if (typeof onRoomChange === "function") {
+                onRoomChange({ target: { value: "" } }); // reset currentRoom
+              }
+              if (typeof setJoinedRoom === "function") {
+                setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
+              }
+              if (typeof onBackToLogin === "function") {
+                onBackToLogin();
+              }
+            }}
+          >
+            Quay lại đăng nhập
+          </button>
+        </div>
       </div>
       <div className="flex gap-2 mb-4">
         <input
