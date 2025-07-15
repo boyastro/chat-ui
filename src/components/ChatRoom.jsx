@@ -121,8 +121,27 @@ export default function ChatRoom({
           } else {
             msgUserId = String(msg.user);
           }
-          const isMe = msgUserId === String(userId);
+          // Ensure userId is compared as string for accurate self/other detection
+          let myUserId;
+          if (typeof userId === "string" || typeof userId === "number") {
+            myUserId = String(userId);
+          } else if (
+            userId &&
+            typeof userId === "object" &&
+            (userId.id || userId._id)
+          ) {
+            myUserId = String(userId.id || userId._id);
+          } else {
+            myUserId = "";
+          }
+          if (!myUserId) {
+            console.warn(
+              "[ChatRoom] userId is missing or undefined. Please check how userId is passed to ChatRoom."
+            );
+          }
+          const isMe = msgUserId === myUserId;
           const userInfo = userInfoMap[msgUserId];
+          // ...
           return (
             <div
               key={idx}

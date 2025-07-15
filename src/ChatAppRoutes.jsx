@@ -129,6 +129,7 @@ export default function ChatAppRoutes({
               onSend={handleSend}
               onLeaveRoom={onLeaveRoom}
               setJoinedRoom={chat.setJoinedRoom}
+              userId={userId}
             />
           ) : (
             <Navigate to={userIdSet ? "/rooms" : "/login"} replace />
