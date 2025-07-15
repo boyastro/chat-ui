@@ -3,7 +3,6 @@ import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 
 export default function UserInfo({ userId }) {
-  console.log("[UserInfo] userId:", userId);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
