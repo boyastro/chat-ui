@@ -2,34 +2,24 @@ import React, { useEffect, useState } from "react";
 import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 
-export default function UserInfo() {
+export default function UserInfo({ userId }) {
+  console.log("[UserInfo] userId:", userId);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Lấy userId từ token
-  let userId = null;
-  const token = localStorage.getItem("token");
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      userId = payload.userId || payload.id || payload._id || payload.uid;
-    } catch (e) {}
-  }
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       setLoading(true);
       setError(null);
       try {
-        if (!token) throw new Error("Không tìm thấy token đăng nhập");
         if (!userId) throw new Error("Không tìm thấy userId");
-        const res = await fetch(`${API_URL}/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `${API_URL}/users/${userId}`,
+          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+        );
         if (!res.ok) throw new Error("Không thể lấy thông tin người dùng");
         const data = await res.json();
         setUserInfo(data.user || data);
@@ -41,8 +31,17 @@ export default function UserInfo() {
     };
     fetchUserInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [userId]);
 
+  if (!userId) {
+    return (
+      <div className="max-w-md mx-auto my-10 bg-white rounded-xl shadow-md p-6 text-center">
+        <div className="text-red-500">
+          Không tìm thấy userId. Vui lòng đăng nhập lại.
+        </div>
+      </div>
+    );
+  }
   if (loading) {
     return (
       <div className="text-center p-4">Đang tải thông tin người dùng...</div>

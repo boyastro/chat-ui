@@ -27,6 +27,7 @@ export default function ChatAppRoutes({
     password,
     setPassword,
     userIdSet,
+    userId,
     rooms,
     currentRoom,
     setCurrentRoom,
@@ -108,7 +109,7 @@ export default function ChatAppRoutes({
           )
         }
       />
-      <Route path="/userinfo" element={<UserInfo />} />
+      <Route path="/userinfo" element={<UserInfo userId={userId} />} />
       <Route
         path="/chat/:roomId"
         element={
