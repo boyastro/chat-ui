@@ -23,6 +23,12 @@ export default function RoomSelect({
         </h2>
         <div className="flex gap-2">
           <button
+            className="bg-yellow-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-yellow-600 transition"
+            onClick={() => navigate("/caro")}
+          >
+            Chơi game Caro
+          </button>
+          <button
             className="bg-blue-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-blue-600 transition"
             onClick={() => {
               if (userId) {
