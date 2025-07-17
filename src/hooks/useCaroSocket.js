@@ -53,12 +53,29 @@ export function useCaroSocket({
     };
 
     ws.onerror = (err) => {
-      console.error("[CaroSocket] WebSocket error:", err);
+      // Nếu lỗi do backend trả về 400 (ví dụ: chưa đủ người ghép phòng)
+      if (
+        ws.readyState === WebSocket.CLOSING ||
+        ws.readyState === WebSocket.CLOSED
+      ) {
+        console.warn(
+          "[CaroSocket] WebSocket closed, có thể do backend trả về lỗi hoặc hết timeout ghép phòng."
+        );
+      } else {
+        console.error("[CaroSocket] WebSocket error:", err);
+      }
       onError && onError(err);
     };
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setConnected(false);
-      onClose && onClose();
+      if (event && event.code && event.reason) {
+        console.warn(
+          `[CaroSocket] WebSocket closed: code=${event.code}, reason=${event.reason}`
+        );
+      } else {
+        console.warn("[CaroSocket] WebSocket closed.");
+      }
+      onClose && onClose(event);
     };
     return () => {
       if (socketRef.current) {
