@@ -1,96 +1,116 @@
-import React, { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { useCaroSocket } from "../hooks/useCaroSocket.js";
 
-function calculateWinner(squares, size) {
-  // Kiểm tra hàng, cột, chéo cho caro (5 liên tiếp)
-  const lines = [];
-  for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-      // Hàng ngang
-      if (j + 4 < size)
-        lines.push([
-          [i, j],
-          [i, j + 1],
-          [i, j + 2],
-          [i, j + 3],
-          [i, j + 4],
-        ]);
-      // Hàng dọc
-      if (i + 4 < size)
-        lines.push([
-          [i, j],
-          [i + 1, j],
-          [i + 2, j],
-          [i + 3, j],
-          [i + 4, j],
-        ]);
-      // Chéo chính
-      if (i + 4 < size && j + 4 < size)
-        lines.push([
-          [i, j],
-          [i + 1, j + 1],
-          [i + 2, j + 2],
-          [i + 3, j + 3],
-          [i + 4, j + 4],
-        ]);
-      // Chéo phụ
-      if (i + 4 < size && j - 4 >= 0)
-        lines.push([
-          [i, j],
-          [i + 1, j - 1],
-          [i + 2, j - 2],
-          [i + 3, j - 3],
-          [i + 4, j - 4],
-        ]);
+export default function CaroGame() {
+  const [room, setRoom] = useState(null);
+  const [mySymbol, setMySymbol] = useState("");
+  const [gameStatus, setGameStatus] = useState("");
+  const myConnectionId = useRef("");
+
+  // Callback khi nhận gameStarted từ server
+  const handleGameStarted = useCallback((data) => {
+    setRoom(data);
+    setGameStatus("playing");
+    // Lưu connectionId của chính mình nếu server trả về
+    if (data && data.myConnectionId) {
+      myConnectionId.current = data.myConnectionId;
+    } else if (data && data.connectionId) {
+      // fallback nếu backend chỉ trả về connectionId
+      myConnectionId.current = data.connectionId;
     }
-  }
-  for (let line of lines) {
-    const [a, b, c, d, e] = line;
-    const v = squares[a[0]][a[1]];
+    // Xác định mình là X hay O
     if (
-      v &&
-      v === squares[b[0]][b[1]] &&
-      v === squares[c[0]][c[1]] &&
-      v === squares[d[0]][d[1]] &&
-      v === squares[e[0]][e[1]]
+      data &&
+      data.players &&
+      data.players.length > 0 &&
+      myConnectionId.current
     ) {
-      return v;
+      setMySymbol(data.players[0] === myConnectionId.current ? "X" : "O");
+    } else {
+      setMySymbol("");
     }
+  }, []);
+
+  // Callback khi nhận move
+  const handleMove = useCallback((data) => {
+    setRoom((prev) => ({
+      ...prev,
+      ...data,
+      turn: data.nextTurn || data.turn || prev.turn, // Ưu tiên nextTurn
+    }));
+    setGameStatus(data.status);
+  }, []);
+
+  // Callback khi nhận gameOver
+  const handleGameOver = useCallback((data) => {
+    setGameStatus(data.status);
+  }, []);
+
+  // Sử dụng custom hook mới
+  const { sendMessage, connected } = useCaroSocket({
+    enabled: true,
+    onGameStarted: handleGameStarted,
+    onMove: handleMove,
+    onGameOver: handleGameOver,
+  });
+
+  // Gửi nước đi
+  const makeMove = (x, y) => {
+    if (!room || !connected) return;
+    sendMessage({
+      action: "makeMove",
+      data: { roomId: room.roomId, x, y },
+    });
+  };
+
+  // Rời phòng
+  const leaveRoom = () => {
+    if (!room || !connected) return;
+    sendMessage({
+      action: "leaveRoom",
+      data: { roomId: room.roomId },
+    });
+    setRoom(null);
+    setGameStatus("");
+    setMySymbol("");
+  };
+
+  if (!room) {
+    return <div className="text-center mt-8">Đang ghép phòng...</div>;
   }
-  return null;
-}
 
-export default function CaroGame({ size = 15 }) {
-  const [squares, setSquares] = useState(
-    Array(size)
-      .fill(null)
-      .map(() => Array(size).fill(null))
-  );
-  const [xIsNext, setXIsNext] = useState(true);
-  const winner = calculateWinner(squares, size);
-
-  function handleClick(i, j) {
-    if (squares[i][j] || winner) return;
-    const next = squares.map((row) => row.slice());
-    next[i][j] = xIsNext ? "X" : "O";
-    setSquares(next);
-    setXIsNext(!xIsNext);
+  const { board, turn, players } = room;
+  let winner = null;
+  if (gameStatus === "win") {
+    winner = turn === players[0] ? "O" : "X";
   }
 
   return (
     <div className="flex flex-col items-center my-8">
-      <h2 className="text-2xl font-bold mb-4">Caro Game (Gomoku)</h2>
+      <h2 className="text-2xl font-bold mb-4">Caro Online</h2>
       <div className="mb-2 text-lg">
-        {winner ? `Người thắng: ${winner}` : `Lượt: ${xIsNext ? "X" : "O"}`}
+        {gameStatus === "win"
+          ? `Người thắng: ${winner}`
+          : gameStatus === "draw"
+          ? "Hòa!"
+          : `Lượt: ${turn === players[0] ? "X" : "O"} (${
+              turn === players[0] ? "Người 1" : "Người 2"
+            })`}
       </div>
       <div className="inline-block border-2 border-gray-400 bg-white">
-        {squares.map((row, i) => (
+        {board.map((row, i) => (
           <div key={i} className="flex">
             {row.map((cell, j) => (
               <button
                 key={j}
                 className="w-8 h-8 border border-gray-300 text-lg font-bold focus:outline-none hover:bg-blue-100 transition"
-                onClick={() => handleClick(i, j)}
+                onClick={() => makeMove(j, i)}
                 style={{ width: 32, height: 32 }}
+                disabled={
+                  !!cell ||
+                  gameStatus !== "playing" ||
+                  turn !== myConnectionId.current
+                }
               >
                 {cell}
               </button>
@@ -98,19 +118,17 @@ export default function CaroGame({ size = 15 }) {
           </div>
         ))}
       </div>
-      <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
-        onClick={() => {
-          setSquares(
-            Array(size)
-              .fill(null)
-              .map(() => Array(size).fill(null))
-          );
-          setXIsNext(true);
-        }}
-      >
-        Chơi lại
-      </button>
+      <div className="mt-4">
+        <span className="mr-4">
+          Bạn là: <b>{mySymbol}</b>
+        </span>
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+          onClick={leaveRoom}
+        >
+          Rời phòng
+        </button>
+      </div>
     </div>
   );
 }
