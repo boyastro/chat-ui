@@ -5,6 +5,8 @@ export default function CaroGame() {
   const [room, setRoom] = useState(null);
   const [mySymbol, setMySymbol] = useState("");
   const [gameStatus, setGameStatus] = useState("");
+  const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
+  const [enabled, setEnabled] = useState(true);
   const myConnectionId = useRef("");
 
   // Callback khi nhận gameStarted từ server
@@ -48,10 +50,14 @@ export default function CaroGame() {
 
   // Sử dụng custom hook mới
   const { sendMessage, connected } = useCaroSocket({
-    enabled: true,
+    enabled,
     onGameStarted: handleGameStarted,
     onMove: handleMove,
     onGameOver: handleGameOver,
+    onNoOpponentFound: () => {
+      setShowNoOpponentFound(true);
+      setEnabled(false); // Ngừng tự động reconnect
+    },
   });
 
   // Gửi nước đi
@@ -75,6 +81,27 @@ export default function CaroGame() {
     setMySymbol("");
   };
 
+  if (showNoOpponentFound) {
+    return (
+      <div className="flex flex-col items-center mt-8">
+        <div className="mb-4 text-red-600 font-semibold">
+          Không tìm thấy đối thủ. Vui lòng thử lại.
+        </div>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600"
+          onClick={() => {
+            setShowNoOpponentFound(false);
+            setRoom(null);
+            setGameStatus("");
+            setMySymbol("");
+            setEnabled(true);
+          }}
+        >
+          Thử lại ghép phòng
+        </button>
+      </div>
+    );
+  }
   if (!room) {
     return <div className="text-center mt-8">Đang ghép phòng...</div>;
   }

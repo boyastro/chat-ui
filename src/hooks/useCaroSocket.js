@@ -10,6 +10,7 @@ export function useCaroSocket({
   onOpen,
   onClose,
   onError,
+  onNoOpponentFound,
 } = {}) {
   const socketRef = useRef(null);
   const [connected, setConnected] = useState(false);
@@ -49,6 +50,9 @@ export function useCaroSocket({
       }
       if (msg.type === "gameOver") {
         onGameOver && onGameOver(msg.data);
+      }
+      if (msg.type === "noOpponentFound") {
+        onNoOpponentFound && onNoOpponentFound(msg.data);
       }
     };
 
