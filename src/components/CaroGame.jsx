@@ -217,10 +217,9 @@ export default function CaroGame(props) {
           : (() => {
               if (!players || players.length < 2) return null;
               const isXTurn = turn === players[0].connectionId;
-              const userIdDisplay = isXTurn
-                ? players[0].userId || "-"
-                : players[1].userId || "-";
-              return `Lượt: ${isXTurn ? "X" : "O"} (${userIdDisplay})`;
+              const currentTurnConn = isXTurn ? players[0].connectionId : players[1].connectionId;
+              const who = currentTurnConn === myConnectionId.current ? "Bạn" : "Đối thủ";
+              return `Lượt: ${isXTurn ? "X" : "O"} (${who})`;
             })()}
       </div>
       <div className="inline-block border-2 border-gray-400 bg-white">
