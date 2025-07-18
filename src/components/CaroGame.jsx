@@ -44,6 +44,7 @@ export default function CaroGame(props) {
 
   // Callback khi nhận gameStarted từ server
   const handleGameStarted = useCallback((data) => {
+    console.log("[CaroGame] gameStarted data:", data);
     setRoom(data);
     setGameStatus("playing");
     // Lưu connectionId của chính mình nếu server trả về
@@ -53,6 +54,7 @@ export default function CaroGame(props) {
       // fallback nếu backend chỉ trả về connectionId
       myConnectionId.current = data.connectionId;
     }
+    console.log("[CaroGame] myConnectionId.current:", myConnectionId.current);
     // Xác định mình là X hay O dựa vào players[*].connectionId
     if (
       data &&
@@ -60,9 +62,12 @@ export default function CaroGame(props) {
       data.players.length > 0 &&
       myConnectionId.current
     ) {
+      console.log("[CaroGame] players:", data.players);
       if (myConnectionId.current === data.players[0].connectionId) {
+        console.log("[CaroGame] Bạn là X");
         setMySymbol("X");
       } else if (myConnectionId.current === data.players[1].connectionId) {
+        console.log("[CaroGame] Bạn là O");
         setMySymbol("O");
       } else {
         setMySymbol("");
@@ -72,14 +77,16 @@ export default function CaroGame(props) {
     }
   }, []);
 
-  // Callback khi nhận move
   const handleMove = useCallback((data) => {
     setRoom((prev) => ({
       ...prev,
       ...data,
-      turn: data.nextTurn || data.turn || prev.turn, // Ưu tiên nextTurn
+      turn: data.nextTurn || data.turn || prev.turn,
     }));
     setGameStatus(data.status);
+    if (data.status === "win" && data.winner) {
+      setWinnerId(data.winner);
+    }
   }, []);
 
   // Callback khi nhận gameOver
@@ -102,7 +109,7 @@ export default function CaroGame(props) {
       setRoom((prev) => ({ ...prev, ...data }));
       setGameStatus("win");
       if (data && data.players && data.players.length === 1) {
-        setWinnerId(data.players[0]);
+        setWinnerId(data.players[0].connectionId);
       } else {
         setWinnerId("");
       }
@@ -166,15 +173,9 @@ export default function CaroGame(props) {
   const { board, turn, players } = room;
   let winner = null;
   if (gameStatus === "win") {
-    // Nếu có winnerId (tức là do userLeft), xác định theo userId
+    // Luôn xác định người thắng theo winnerId (connectionId) từ backend
     if (winnerId) {
-      const myPlayer = players.find(
-        (p) => p.connectionId === myConnectionId.current
-      );
-      winner = myPlayer && myPlayer.userId === winnerId ? "Bạn" : "Đối thủ";
-    } else {
-      // turn là connectionId, so sánh với players[0].connectionId
-      winner = turn === players[0].connectionId ? "X" : "O";
+      winner = winnerId === myConnectionId.current ? "Bạn" : "Đối thủ";
     }
   }
 
