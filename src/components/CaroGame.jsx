@@ -233,7 +233,7 @@ export default function CaroGame(props) {
           )}
           <div>
             <div>
-              <span className="font-semibold">Tên:</span>{" "}
+              <span className="font-semibold">Tên Bạn:</span>{" "}
               {userInfo?.name || "(Chưa xác định)"}
             </div>
             <div>
