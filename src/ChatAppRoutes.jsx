@@ -112,7 +112,7 @@ export default function ChatAppRoutes({
         }
       />
       <Route path="/userinfo" element={<UserInfo userId={userId} />} />
-      <Route path="/caro" element={<CaroGame />} />
+      <Route path="/caro" element={<CaroGame userId={userId} />} />
       <Route
         path="/chat/:roomId"
         element={

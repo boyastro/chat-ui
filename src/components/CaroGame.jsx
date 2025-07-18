@@ -1,8 +1,38 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useCaroSocket } from "../hooks/useCaroSocket.js";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../config";
 
-export default function CaroGame() {
+export default function CaroGame(props) {
+  const { userId } = props;
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (!userId) throw new Error("Không tìm thấy userId");
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `${API_URL}/users/${userId}`,
+          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+        );
+        if (!res.ok) throw new Error("Không thể lấy thông tin người dùng");
+        const data = await res.json();
+        setUserInfo(data.user || data);
+      } catch (err) {
+        setError(err.message || "Lỗi không xác định");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
   const navigate = useNavigate();
   const [room, setRoom] = useState(null);
   const [mySymbol, setMySymbol] = useState("");
@@ -114,6 +144,14 @@ export default function CaroGame() {
       </div>
     );
   }
+  if (loading) {
+    return (
+      <div className="text-center mt-8">Đang tải thông tin người dùng...</div>
+    );
+  }
+  if (error) {
+    return <div className="text-center mt-8 text-red-500">{error}</div>;
+  }
   if (!room) {
     return <div className="text-center mt-8">Đang ghép phòng...</div>;
   }
@@ -132,6 +170,33 @@ export default function CaroGame() {
   return (
     <div className="flex flex-col items-center my-8">
       <h2 className="text-2xl font-bold mb-4">Caro Online</h2>
+      <div className="mb-2 text-gray-700 text-sm flex items-center gap-3">
+        {userInfo && userInfo.avatar ? (
+          <img
+            src={userInfo.avatar}
+            alt="avatar"
+            className="w-10 h-10 rounded-full border"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
+            <span className="text-lg">?</span>
+          </div>
+        )}
+        <div>
+          <div>
+            <span className="font-semibold">Tên:</span>{" "}
+            {userInfo?.name || "(Chưa xác định)"}
+          </div>
+          <div>
+            <span className="font-semibold">Level:</span>{" "}
+            {userInfo?.level ?? "-"}
+          </div>
+          <div>
+            <span className="font-semibold">Score:</span>{" "}
+            {userInfo?.score ?? "-"}
+          </div>
+        </div>
+      </div>
       <div className="mb-2 text-lg">
         {gameStatus === "win"
           ? `Người thắng: ${winner}`
