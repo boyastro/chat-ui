@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const WS_URL = "wss://ukgw0jnnkj.execute-api.ap-southeast-1.amazonaws.com/prod";
+const WS_URL = process.env.REACT_APP_WS_URL2;
 
 export function useCaroSocket({
   enabled = true,

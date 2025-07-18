@@ -1,10 +1,10 @@
 import { useCallback } from "react";
-import { API_URL } from "../config";
 
 export function useFetchRooms(token, setRooms) {
   return useCallback(async () => {
+    const apiUrl = process.env.REACT_APP_API_URL;
     try {
-      const res = await fetch(`${API_URL}/rooms`, {
+      const res = await fetch(`${apiUrl}/rooms`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error("Failed to fetch rooms");
