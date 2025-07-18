@@ -53,14 +53,20 @@ export default function CaroGame(props) {
       // fallback nếu backend chỉ trả về connectionId
       myConnectionId.current = data.connectionId;
     }
-    // Xác định mình là X hay O
+    // Xác định mình là X hay O dựa vào players[*].connectionId
     if (
       data &&
       data.players &&
       data.players.length > 0 &&
       myConnectionId.current
     ) {
-      setMySymbol(data.players[0] === myConnectionId.current ? "X" : "O");
+      if (myConnectionId.current === data.players[0].connectionId) {
+        setMySymbol("X");
+      } else if (myConnectionId.current === data.players[1].connectionId) {
+        setMySymbol("O");
+      } else {
+        setMySymbol("");
+      }
     } else {
       setMySymbol("");
     }
@@ -160,11 +166,15 @@ export default function CaroGame(props) {
   const { board, turn, players } = room;
   let winner = null;
   if (gameStatus === "win") {
-    // Nếu có winnerId (tức là do userLeft), xác định theo connectionId
+    // Nếu có winnerId (tức là do userLeft), xác định theo userId
     if (winnerId) {
-      winner = winnerId === myConnectionId.current ? "Bạn" : "Đối thủ";
+      const myPlayer = players.find(
+        (p) => p.connectionId === myConnectionId.current
+      );
+      winner = myPlayer && myPlayer.userId === winnerId ? "Bạn" : "Đối thủ";
     } else {
-      winner = turn === players[0] ? "O" : "X";
+      // turn là connectionId, so sánh với players[0].connectionId
+      winner = turn === players[0].connectionId ? "X" : "O";
     }
   }
 
@@ -203,9 +213,14 @@ export default function CaroGame(props) {
           ? `Người thắng: ${winner}`
           : gameStatus === "draw"
           ? "Hòa!"
-          : `Lượt: ${turn === players[0] ? "X" : "O"} (${
-              turn === players[0] ? "Người 1" : "Người 2"
-            })`}
+          : (() => {
+              if (!players || players.length < 2) return null;
+              const isXTurn = turn === players[0].connectionId;
+              const userIdDisplay = isXTurn
+                ? players[0].userId || "-"
+                : players[1].userId || "-";
+              return `Lượt: ${isXTurn ? "X" : "O"} (${userIdDisplay})`;
+            })()}
       </div>
       <div className="inline-block border-2 border-gray-400 bg-white">
         {board.map((row, i) => (
