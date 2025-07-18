@@ -7,6 +7,7 @@ export default function CaroGame() {
   const [gameStatus, setGameStatus] = useState("");
   const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
   const [enabled, setEnabled] = useState(true);
+  const [winnerId, setWinnerId] = useState("");
   const myConnectionId = useRef("");
 
   // Callback khi nhận gameStarted từ server
@@ -57,6 +58,15 @@ export default function CaroGame() {
     onNoOpponentFound: () => {
       setShowNoOpponentFound(true);
       setEnabled(false); // Ngừng tự động reconnect
+    },
+    onUserLeft: (data) => {
+      setRoom((prev) => ({ ...prev, ...data }));
+      setGameStatus("win");
+      if (data && data.players && data.players.length === 1) {
+        setWinnerId(data.players[0]);
+      } else {
+        setWinnerId("");
+      }
     },
   });
 
@@ -109,7 +119,12 @@ export default function CaroGame() {
   const { board, turn, players } = room;
   let winner = null;
   if (gameStatus === "win") {
-    winner = turn === players[0] ? "O" : "X";
+    // Nếu có winnerId (tức là do userLeft), xác định theo connectionId
+    if (winnerId) {
+      winner = winnerId === myConnectionId.current ? "Bạn" : "Đối thủ";
+    } else {
+      winner = turn === players[0] ? "O" : "X";
+    }
   }
 
   return (

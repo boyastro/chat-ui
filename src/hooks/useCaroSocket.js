@@ -11,6 +11,7 @@ export function useCaroSocket({
   onClose,
   onError,
   onNoOpponentFound,
+  onUserLeft,
 } = {}) {
   const socketRef = useRef(null);
   const [connected, setConnected] = useState(false);
@@ -53,6 +54,9 @@ export function useCaroSocket({
       }
       if (msg.type === "noOpponentFound") {
         onNoOpponentFound && onNoOpponentFound(msg.data);
+      }
+      if (msg.type === "userLeft") {
+        onUserLeft && onUserLeft(msg.data);
       }
     };
 
