@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback } from "react";
 import { useCaroSocket } from "../hooks/useCaroSocket.js";
+import { useNavigate } from "react-router-dom";
 
 export default function CaroGame() {
+  const navigate = useNavigate();
   const [room, setRoom] = useState(null);
   const [mySymbol, setMySymbol] = useState("");
   const [gameStatus, setGameStatus] = useState("");
@@ -165,10 +167,16 @@ export default function CaroGame() {
           Bạn là: <b>{mySymbol}</b>
         </span>
         <button
-          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600"
+          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 mr-2"
           onClick={leaveRoom}
         >
           Rời phòng
+        </button>
+        <button
+          className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
+          onClick={() => navigate("/rooms")}
+        >
+          Thoát Game
         </button>
       </div>
     </div>
