@@ -84,6 +84,7 @@ export default function CaroGame(props) {
   // Sử dụng custom hook mới
   const { sendMessage, connected } = useCaroSocket({
     enabled,
+    userId,
     onGameStarted: handleGameStarted,
     onMove: handleMove,
     onGameOver: handleGameOver,

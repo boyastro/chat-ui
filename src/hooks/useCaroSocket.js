@@ -4,6 +4,7 @@ const WS_URL = "wss://ukgw0jnnkj.execute-api.ap-southeast-1.amazonaws.com/prod";
 
 export function useCaroSocket({
   enabled = true,
+  userId,
   onGameStarted,
   onMove,
   onGameOver,
@@ -28,7 +29,7 @@ export function useCaroSocket({
     ws.onopen = () => {
       setConnected(true);
       onOpen && onOpen();
-      const joinMsg = JSON.stringify({ action: "joinRoom" });
+      const joinMsg = JSON.stringify({ action: "joinRoom", userId });
       console.log("[CaroSocket] ws.send:", joinMsg);
       ws.send(joinMsg);
     };
