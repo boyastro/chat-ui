@@ -1,13 +1,17 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useCaroSocket } from "../hooks/useCaroSocket.js";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "../config";
 
 export default function CaroGame(props) {
   const { userId } = props;
   const [userInfo, setUserInfo] = useState(null);
+  const [opponentInfo, setOpponentInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Khai báo các biến state và ref cần dùng trước các useEffect để tránh lỗi no-use-before-define
+  const [room, setRoom] = useState(null);
+  const myConnectionId = useRef("");
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -16,8 +20,10 @@ export default function CaroGame(props) {
       try {
         if (!userId) throw new Error("Không tìm thấy userId");
         const token = localStorage.getItem("token");
+        const apiUrl = process.env.REACT_APP_API_URL;
+        // Lấy thông tin user
         const res = await fetch(
-          `${API_URL}/users/${userId}`,
+          `${apiUrl}/users/${userId}`,
           token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
         );
         if (!res.ok) throw new Error("Không thể lấy thông tin người dùng");
@@ -33,14 +39,43 @@ export default function CaroGame(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  // Lấy thông tin đối thủ khi đã có room và players
+  useEffect(() => {
+    const fetchOpponentInfo = async () => {
+      if (!room || !room.players || room.players.length < 2) {
+        setOpponentInfo(null);
+        return;
+      }
+      const myConnId = myConnectionId.current;
+      const opponent = room.players.find((p) => p.connectionId !== myConnId);
+      if (!opponent || !opponent.userId) {
+        setOpponentInfo(null);
+        return;
+      }
+      try {
+        const token = localStorage.getItem("token");
+        const apiUrl = process.env.REACT_APP_API_URL;
+        const res = await fetch(
+          `${apiUrl}/users/${opponent.userId}`,
+          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+        );
+        if (!res.ok) throw new Error("Không thể lấy thông tin đối thủ");
+        const data = await res.json();
+        setOpponentInfo(data.user || data);
+      } catch (err) {
+        setOpponentInfo(null);
+      }
+    };
+    fetchOpponentInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room]);
+
   const navigate = useNavigate();
-  const [room, setRoom] = useState(null);
   const [mySymbol, setMySymbol] = useState("");
   const [gameStatus, setGameStatus] = useState("");
   const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [winnerId, setWinnerId] = useState("");
-  const myConnectionId = useRef("");
 
   // Callback khi nhận gameStarted từ server
   const handleGameStarted = useCallback((data) => {
@@ -182,30 +217,61 @@ export default function CaroGame(props) {
   return (
     <div className="flex flex-col items-center my-8">
       <h2 className="text-2xl font-bold mb-4">Caro Online</h2>
-      <div className="mb-2 text-gray-700 text-sm flex items-center gap-3">
-        {userInfo && userInfo.avatar ? (
-          <img
-            src={userInfo.avatar}
-            alt="avatar"
-            className="w-10 h-10 rounded-full border"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
-            <span className="text-lg">?</span>
-          </div>
-        )}
-        <div>
+      <div className="mb-2 flex flex-row gap-8 items-center">
+        {/* Thông tin bạn */}
+        <div className="text-gray-700 text-sm flex items-center gap-3">
+          {userInfo && userInfo.avatar ? (
+            <img
+              src={userInfo.avatar}
+              alt="avatar"
+              className="w-10 h-10 rounded-full border"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
+              <span className="text-lg">?</span>
+            </div>
+          )}
           <div>
-            <span className="font-semibold">Tên:</span>{" "}
-            {userInfo?.name || "(Chưa xác định)"}
+            <div>
+              <span className="font-semibold">Tên:</span>{" "}
+              {userInfo?.name || "(Chưa xác định)"}
+            </div>
+            <div>
+              <span className="font-semibold">Level:</span>{" "}
+              {userInfo?.level ?? "-"}
+            </div>
+            <div>
+              <span className="font-semibold">Score:</span>{" "}
+              {userInfo?.score ?? "-"}
+            </div>
           </div>
+        </div>
+        {/* Thông tin đối thủ */}
+        <div className="text-gray-700 text-sm flex items-center gap-3">
+          {opponentInfo && opponentInfo.avatar ? (
+            <img
+              src={opponentInfo.avatar}
+              alt="opponent-avatar"
+              className="w-10 h-10 rounded-full border"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
+              <span className="text-lg">?</span>
+            </div>
+          )}
           <div>
-            <span className="font-semibold">Level:</span>{" "}
-            {userInfo?.level ?? "-"}
-          </div>
-          <div>
-            <span className="font-semibold">Score:</span>{" "}
-            {userInfo?.score ?? "-"}
+            <div>
+              <span className="font-semibold">Tên đối thủ:</span>{" "}
+              {opponentInfo?.name || "(Chưa xác định)"}
+            </div>
+            <div>
+              <span className="font-semibold">Level:</span>{" "}
+              {opponentInfo?.level ?? "-"}
+            </div>
+            <div>
+              <span className="font-semibold">Score:</span>{" "}
+              {opponentInfo?.score ?? "-"}
+            </div>
           </div>
         </div>
       </div>
