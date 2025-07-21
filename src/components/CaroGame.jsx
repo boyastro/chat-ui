@@ -449,13 +449,13 @@ export default function CaroGame(props) {
                   key={i + "-" + j}
                   className="aspect-square text-lg font-bold focus:outline-none hover:bg-blue-100 transition p-0 bg-white"
                   style={{
-                    display: 'block',
+                    display: "block",
                     minWidth: 0,
-                    width: '100%',
+                    width: "100%",
                     flexBasis: 0,
-                    fontSize: 'clamp(1rem, 4vw, 1.5rem)',
-                    outline: '1px solid #d1d5db', // Tailwind border-gray-300
-                    outlineOffset: '-1px',
+                    fontSize: "clamp(1rem, 4vw, 1.5rem)",
+                    outline: "1px solid #d1d5db", // Tailwind border-gray-300
+                    outlineOffset: "-1px",
                     lineHeight: 1,
                   }}
                   onClick={() => makeMove(j, i)}
