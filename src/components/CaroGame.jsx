@@ -374,13 +374,13 @@ export default function CaroGame(props) {
           Bạn là: <b>{mySymbol}</b>
         </span>
         <button
-          className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 mr-2"
+          className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600 mr-2"
           onClick={leaveRoom}
         >
           Chơi lại
         </button>
         <button
-          className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
+          className="px-4 py-2 bg-green-500 text-white rounded shadow hover:bg-green-600"
           onClick={() => navigate("/rooms")}
         >
           Trở Lại Phòng Chát
