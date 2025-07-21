@@ -2,6 +2,35 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useCaroSocket } from "../hooks/useCaroSocket.js";
 import { useNavigate } from "react-router-dom";
 
+function ResultModal({ open, result, onClose }) {
+  if (!open) return null;
+  let title = "";
+  let color = "";
+  if (result === "win") {
+    title = "Bạn đã thắng!";
+    color = "text-green-600";
+  } else if (result === "lose") {
+    title = "Bạn đã thua!";
+    color = "text-red-600";
+  } else if (result === "draw") {
+    title = "Hai bên hòa nhau!";
+    color = "text-gray-700";
+  }
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+      <div className="bg-white rounded-lg shadow-lg p-8 min-w-[300px] flex flex-col items-center">
+        <div className={`text-2xl font-bold mb-4 ${color}`}>{title}</div>
+        <button
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={onClose}
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CaroGame(props) {
   const { userId } = props;
   const [userInfo, setUserInfo] = useState(null);
@@ -76,6 +105,8 @@ export default function CaroGame(props) {
   const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [winnerId, setWinnerId] = useState("");
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultType, setResultType] = useState(""); // "win" | "lose" | "draw"
 
   // Callback khi nhận gameStarted từ server
   const handleGameStarted = useCallback((data) => {
@@ -122,11 +153,32 @@ export default function CaroGame(props) {
     if (data.status === "win" && data.winner) {
       setWinnerId(data.winner);
     }
+    if (data.status === "win" || data.status === "draw") {
+      // Xác định kết quả cho modal
+      if (data.status === "draw") {
+        setResultType("draw");
+      } else if (data.winner === myConnectionId.current) {
+        setResultType("win");
+      } else {
+        setResultType("lose");
+      }
+      setShowResultModal(true);
+    }
   }, []);
 
   // Callback khi nhận gameOver
   const handleGameOver = useCallback((data) => {
     setGameStatus(data.status);
+    if (data.status === "win" || data.status === "draw") {
+      if (data.status === "draw") {
+        setResultType("draw");
+      } else if (data.winner === myConnectionId.current) {
+        setResultType("win");
+      } else {
+        setResultType("lose");
+      }
+      setShowResultModal(true);
+    }
   }, []);
 
   // Sử dụng custom hook mới
@@ -216,6 +268,11 @@ export default function CaroGame(props) {
 
   return (
     <div className="flex flex-col items-center my-8">
+      <ResultModal
+        open={showResultModal}
+        result={resultType}
+        onClose={() => setShowResultModal(false)}
+      />
       <h2 className="text-2xl font-bold mb-4">Caro Online</h2>
       <div className="mb-2 flex flex-row gap-8 items-center">
         {/* Thông tin bạn */}
@@ -320,13 +377,13 @@ export default function CaroGame(props) {
           className="px-4 py-2 bg-red-500 text-white rounded shadow hover:bg-red-600 mr-2"
           onClick={leaveRoom}
         >
-          Rời phòng
+          Chơi lại
         </button>
         <button
           className="px-4 py-2 bg-gray-500 text-white rounded shadow hover:bg-gray-600"
           onClick={() => navigate("/rooms")}
         >
-          Thoát Game
+          Trở Lại Phòng Chát
         </button>
       </div>
     </div>
