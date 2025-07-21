@@ -44,7 +44,7 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
         <div className="text-red-500">{error}</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-[500px] w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead>
               <tr className="bg-gray-100">
                 <th className="py-2 px-2 text-left whitespace-nowrap">#</th>
