@@ -24,17 +24,17 @@ export default function RoomSelect({
             Chat Room
           </span>
         </div>
-        <div className="flex gap-2 justify-center items-center w-full sm:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 justify-center items-center w-full sm:w-auto">
           <button
-            className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
             title="Chơi game Caro"
             onClick={() => navigate("/caro")}
           >
-            <span className="text-lg">🎮</span>
+            <span className="text-base">🎮</span>
             <span className="hidden sm:inline">Caro</span>
           </button>
           <button
-            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
             title="Xem user info"
             onClick={() => {
               if (userId) {
@@ -44,11 +44,19 @@ export default function RoomSelect({
               navigate("/userinfo");
             }}
           >
-            <span className="text-lg">👤</span>
+            <span className="text-base">👤</span>
             <span className="hidden sm:inline">User</span>
           </button>
           <button
-            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10 border-2 border-yellow-300"
+            title="Bảng xếp hạng"
+            onClick={() => navigate("/leaderboard")}
+          >
+            <span className="text-base">🏆</span>
+            <span className="hidden md:inline">Leaderboard</span>
+          </button>
+          <button
+            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
             title="Quay lại đăng nhập"
             onClick={() => {
               if (typeof onRoomChange === "function") {
@@ -62,7 +70,7 @@ export default function RoomSelect({
               }
             }}
           >
-            <span className="text-lg">🔙</span>
+            <span className="text-base">🔙</span>
             <span className="hidden sm:inline">Đăng nhập</span>
           </button>
         </div>
