@@ -106,6 +106,7 @@ export default function ChatAppRoutes({
                 navigate("/login", { replace: true });
               }}
               setJoinedRoom={chat.setJoinedRoom}
+              fetchRooms={fetchRooms}
             />
           ) : (
             <Navigate to="/login" replace />

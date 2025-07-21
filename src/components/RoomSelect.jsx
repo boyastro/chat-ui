@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function RoomSelect({
   rooms,
@@ -12,9 +12,18 @@ export default function RoomSelect({
   onBackToLogin,
   setJoinedRoom, // truyền prop này từ cha nếu có
   userId, // nhận userId từ cha
+  fetchRooms, // truyền prop này từ cha nếu có
 }) {
   const [joiningRoom, setJoiningRoom] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Tự động lấy lại danh sách phòng mới mỗi khi component mount hoặc route thay đổi
+  useEffect(() => {
+    if (typeof fetchRooms === "function") {
+      fetchRooms();
+    }
+  }, [location.pathname, fetchRooms]);
   return (
     <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
