@@ -68,14 +68,14 @@ export default function ChatRoom({
   }, [messages]);
 
   return (
-    <div className="max-w-lg mx-auto my-10 bg-white rounded-2xl shadow-xl p-6 relative">
-      <div className="flex items-center justify-between mb-4">
+    <div className="max-w-lg mx-auto my-10 bg-white rounded-2xl shadow-xl p-6 relative border border-gray-200">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
         <div>
           <h2 className="font-bold text-2xl text-blue-600 tracking-wide m-0 inline-block">
             💬 Chat Room
           </h2>
           {currentRoom && (
-            <span className="ml-3 text-lg font-semibold text-gray-700 align-middle bg-blue-100 px-3 py-1 rounded-md">
+            <span className="ml-3 text-lg font-semibold text-gray-700 align-middle bg-blue-100 px-3 py-1 rounded-full shadow-sm">
               {(() => {
                 const roomObj = Array.isArray(rooms)
                   ? rooms.find(
@@ -93,7 +93,7 @@ export default function ChatRoom({
           )}
         </div>
         <button
-          className="bg-red-500 text-white rounded-md px-5 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
+          className="bg-red-500 text-white rounded-full px-5 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition transform hover:-translate-y-0.5"
           onClick={() => {
             if (typeof setJoinedRoom === "function") {
               setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
@@ -106,7 +106,7 @@ export default function ChatRoom({
           Rời phòng
         </button>
       </div>
-      <div className="bg-gray-100 rounded-lg min-h-[320px] max-h-[400px] overflow-y-auto p-4 mb-5 shadow">
+      <div className="bg-gray-50 rounded-xl min-h-[320px] max-h-[400px] overflow-y-auto p-4 mb-5 shadow-inner border border-gray-100">
         {messages.map((msg, idx) => {
           // Normalize userId for lookup (must match the fetch logic)
           let msgUserId;
@@ -147,14 +147,16 @@ export default function ChatRoom({
               key={idx}
               className={
                 msg.system
-                  ? "italic text-gray-500 my-2"
+                  ? "italic text-gray-500 my-2 text-center"
                   : isMe
-                  ? "flex items-center my-2 text-right justify-end"
-                  : "flex items-center my-2"
+                  ? "flex items-center my-3 text-right justify-end"
+                  : "flex items-center my-3"
               }
             >
               {msg.system ? (
-                msg.message
+                <div className="px-3 py-1 bg-gray-100 rounded-full inline-block text-sm">
+                  {msg.message}
+                </div>
               ) : (
                 <>
                   {/* Avatar bên trái nếu không phải mình */}
@@ -162,26 +164,40 @@ export default function ChatRoom({
                     <img
                       src={userInfo.avatar}
                       alt={userInfo.name || msg.user}
-                      className="w-8 h-8 rounded-full mr-2 border border-gray-300 bg-white object-cover"
-                      style={{ minWidth: 32 }}
+                      className="w-10 h-10 rounded-full mr-2 border-2 border-gray-200 bg-white object-cover shadow-sm"
+                      style={{ minWidth: 40 }}
                     />
                   )}
-                  <span
-                    className={
-                      "font-semibold mr-2 " +
-                      (isMe ? "text-blue-600" : "text-gray-800")
-                    }
+                  <div
+                    className={`flex flex-col ${
+                      isMe ? "items-end" : "items-start"
+                    }`}
                   >
-                    {isMe ? "You" : msg.name ? msg.name : msg.user}:
-                  </span>
-                  <span>{msg.message}</span>
+                    <span
+                      className={
+                        "font-semibold text-sm mb-1 " +
+                        (isMe ? "text-blue-600" : "text-gray-800")
+                      }
+                    >
+                      {isMe ? "You" : msg.name ? msg.name : msg.user}
+                    </span>
+                    <span
+                      className={`px-3 py-2 rounded-lg ${
+                        isMe
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-200 text-gray-800"
+                      }`}
+                    >
+                      {msg.message}
+                    </span>
+                  </div>
                   {/* Avatar bên phải nếu là mình */}
                   {isMe && userInfo && userInfo.avatar && (
                     <img
                       src={userInfo.avatar}
                       alt="You"
-                      className="w-8 h-8 rounded-full ml-2 border border-gray-300 bg-white object-cover"
-                      style={{ minWidth: 32 }}
+                      className="w-10 h-10 rounded-full ml-2 border-2 border-blue-200 bg-white object-cover shadow-sm"
+                      style={{ minWidth: 40 }}
                     />
                   )}
                 </>
@@ -191,18 +207,23 @@ export default function ChatRoom({
         })}
         <div ref={messagesEndRef} />
       </div>
-      <form className="flex gap-2" onSubmit={onSend}>
-        <input
-          value={input}
-          onChange={onInputChange}
-          placeholder="Nhập tin nhắn..."
-          disabled={!currentRoom}
-          className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-blue-300"
-        />
+      <form className="flex gap-3 mt-2" onSubmit={onSend}>
+        <div className="flex-1 relative">
+          <input
+            value={input}
+            onChange={onInputChange}
+            placeholder="Nhập tin nhắn..."
+            disabled={!currentRoom}
+            className="w-full rounded-full border border-gray-300 pl-4 pr-10 py-3 text-base bg-white outline-none focus:ring-2 focus:ring-blue-300 shadow-sm"
+          />
+          {!input && (
+            <span className="absolute right-4 top-3 text-gray-400">💬</span>
+          )}
+        </div>
         <button
           type="submit"
-          disabled={!currentRoom}
-          className="bg-blue-600 text-white rounded-md px-6 font-semibold text-base shadow-md hover:bg-blue-700 transition disabled:opacity-60"
+          disabled={!currentRoom || !input.trim()}
+          className="bg-blue-600 text-white rounded-full px-6 py-3 font-semibold text-base shadow-md hover:bg-blue-700 transition disabled:opacity-60 transform hover:-translate-y-0.5"
         >
           Gửi
         </button>
