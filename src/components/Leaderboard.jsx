@@ -52,7 +52,6 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
               <th className="py-2 px-2 text-center">Thắng</th>
               <th className="py-2 px-2 text-center">Thua</th>
               <th className="py-2 px-2 text-center">Hòa</th>
-              <th className="py-2 px-2 text-center">Kỷ lục</th>
             </tr>
           </thead>
           <tbody>
@@ -81,9 +80,6 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
                 <td className="py-1 px-2 text-center">{u.winCount ?? "-"}</td>
                 <td className="py-1 px-2 text-center">{u.loseCount ?? "-"}</td>
                 <td className="py-1 px-2 text-center">{u.drawCount ?? "-"}</td>
-                <td className="py-1 px-2 text-center">
-                  {u.highestScore ?? "-"}
-                </td>
               </tr>
             ))}
           </tbody>
