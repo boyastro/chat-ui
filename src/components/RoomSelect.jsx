@@ -18,19 +18,20 @@ export default function RoomSelect({
   return (
     <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3 justify-center w-full sm:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-xl shadow-sm">
-          <span className="text-2xl text-blue-600">💬</span>
-          <span className="font-bold text-2xl text-blue-600 tracking-wide">
+        <div className="flex items-center gap-2 justify-center w-full sm:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 p-2 rounded-xl shadow-sm">
+          <span className="text-xl text-blue-600">💬</span>
+          <span className="font-bold text-xl text-blue-600 tracking-wide">
             Chat Room
           </span>
         </div>
         <div className="grid grid-cols-4 xs:grid-cols-2 sm:flex sm:flex-wrap md:flex-nowrap gap-2 justify-center items-center w-full sm:w-auto">
           <button
-            className="flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 border border-yellow-300"
+            className="flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-3 py-2 font-semibold text-sm shadow-md transition w-[50px] h-[50px] sm:h-12 sm:w-auto border-2 border-yellow-300"
             title="Chơi game Caro"
             onClick={() => navigate("/caro")}
           >
-            <span className="text-base">🎮</span>
+            <span className="text-lg">🎮</span>
+            <span className="hidden sm:inline ml-1 font-bold">Caro</span>
           </button>
           <button
             className="flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 sm:w-auto border border-blue-400"
