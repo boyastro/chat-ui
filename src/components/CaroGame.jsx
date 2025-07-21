@@ -426,21 +426,40 @@ export default function CaroGame(props) {
           </div>
         </div>
       </div>
-      <div className="mb-2 text-lg">
-        {gameStatus === "win"
-          ? `Người thắng: ${winner}`
-          : gameStatus === "draw"
-          ? "Hòa!"
-          : (() => {
-              if (!players || players.length < 2) return null;
-              const isXTurn = turn === players[0].connectionId;
-              const currentTurnConn = isXTurn
-                ? players[0].connectionId
-                : players[1].connectionId;
-              const who =
-                currentTurnConn === myConnectionId.current ? "Bạn" : "Đối thủ";
-              return `Lượt: ${isXTurn ? "X" : "O"} (${who})`;
-            })()}
+      <div className="mb-2 w-full flex items-center justify-center">
+        {gameStatus === "win" ? (
+          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 font-semibold text-xs shadow-sm">
+            <span className="text-base">🏆</span> Người thắng:{" "}
+            <span className="font-bold text-green-900">{winner}</span>
+          </div>
+        ) : gameStatus === "draw" ? (
+          <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 text-gray-700 font-semibold text-xs shadow-sm">
+            <span className="text-base">🤝</span>{" "}
+            <span className="font-bold">Hai bên hòa nhau!</span>
+          </div>
+        ) : (
+          (() => {
+            if (!players || players.length < 2) return null;
+            const isXTurn = turn === players[0].connectionId;
+            const currentTurnConn = isXTurn
+              ? players[0].connectionId
+              : players[1].connectionId;
+            const who =
+              currentTurnConn === myConnectionId.current ? "Bạn" : "Đối thủ";
+            return (
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-xs shadow-sm">
+                <span className="text-base">{isXTurn ? "❌" : "⭕"}</span>
+                <span>
+                  Lượt:{" "}
+                  <span className="font-bold text-blue-900">
+                    {isXTurn ? "X" : "O"}
+                  </span>{" "}
+                  (<span className="font-bold">{who}</span>)
+                </span>
+              </div>
+            );
+          })()
+        )}
       </div>
       <div className="w-full max-w-full overflow-x-auto">
         <div
@@ -489,12 +508,6 @@ export default function CaroGame(props) {
         </div>
       </div>
       <div className="mt-4 w-full flex flex-row flex-nowrap items-center justify-center gap-1 overflow-x-auto">
-        <div className="flex flex-row items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 shadow-sm">
-          <span>Bạn là:</span>
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-200 text-blue-700 font-bold text-base border border-blue-300 shadow">
-            {mySymbol || "?"}
-          </span>
-        </div>
         <button
           className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm whitespace-nowrap"
           style={{ minWidth: "90px" }}
