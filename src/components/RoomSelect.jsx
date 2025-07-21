@@ -20,7 +20,9 @@ export default function RoomSelect({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <div className="flex items-center gap-3 justify-center w-full sm:w-auto">
           <span className="text-2xl text-blue-600">💬</span>
-          <span className="font-bold text-2xl text-blue-600 tracking-wide">Chat Room</span>
+          <span className="font-bold text-2xl text-blue-600 tracking-wide">
+            Chat Room
+          </span>
         </div>
         <div className="flex gap-2 justify-center items-center w-full sm:w-auto">
           <button
