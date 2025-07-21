@@ -426,26 +426,51 @@ export default function CaroGame(props) {
               return `Lượt: ${isXTurn ? "X" : "O"} (${who})`;
             })()}
       </div>
-      <div className="inline-block border-2 border-gray-400 bg-white">
-        {board.map((row, i) => (
-          <div key={i} className="flex">
-            {row.map((cell, j) => (
-              <button
-                key={j}
-                className="w-8 h-8 border border-gray-300 text-lg font-bold focus:outline-none hover:bg-blue-100 transition"
-                onClick={() => makeMove(j, i)}
-                style={{ width: 32, height: 32 }}
-                disabled={
-                  !!cell ||
-                  gameStatus !== "playing" ||
-                  turn !== myConnectionId.current
-                }
-              >
-                {cell}
-              </button>
-            ))}
+      <div className="w-full max-w-full overflow-x-auto">
+        <div
+          className="mx-auto border-2 border-gray-400 bg-white"
+          style={{
+            width: "100%",
+            maxWidth: "min(100vw, 420px)",
+            minWidth: 240,
+          }}
+        >
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: `repeat(${
+                board[0]?.length || 0
+              }, minmax(0, 1fr))`,
+            }}
+          >
+            {board.flatMap((row, i) =>
+              row.map((cell, j) => (
+                <button
+                  key={i + "-" + j}
+                  className="aspect-square text-lg font-bold focus:outline-none hover:bg-blue-100 transition p-0 bg-white"
+                  style={{
+                    display: 'block',
+                    minWidth: 0,
+                    width: '100%',
+                    flexBasis: 0,
+                    fontSize: 'clamp(1rem, 4vw, 1.5rem)',
+                    outline: '1px solid #d1d5db', // Tailwind border-gray-300
+                    outlineOffset: '-1px',
+                    lineHeight: 1,
+                  }}
+                  onClick={() => makeMove(j, i)}
+                  disabled={
+                    !!cell ||
+                    gameStatus !== "playing" ||
+                    turn !== myConnectionId.current
+                  }
+                >
+                  {cell}
+                </button>
+              ))
+            )}
           </div>
-        ))}
+        </div>
       </div>
       <div className="mt-4">
         <span className="mr-4">
