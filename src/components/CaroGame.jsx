@@ -345,67 +345,83 @@ export default function CaroGame(props) {
   }
 
   return (
-    <div className="flex flex-col items-center my-8">
+    <div className="flex flex-col items-center my-8 px-2 max-w-3xl mx-auto">
       <ResultModal
         open={showResultModal}
         result={resultType}
         onClose={() => setShowResultModal(false)}
       />
-      <h2 className="text-2xl font-bold mb-4">Caro Online</h2>
-      <div className="mb-2 flex flex-row gap-8 items-center">
-        {/* Thông tin bạn */}
-        <div className="text-gray-700 text-sm flex items-center gap-3">
-          {userInfo && userInfo.avatar ? (
-            <img
-              src={userInfo.avatar}
-              alt="avatar"
-              className="w-10 h-10 rounded-full border"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
-              <span className="text-lg">?</span>
+      <h2 className="text-3xl font-bold mb-6 text-blue-700 flex items-center gap-2">
+        <span className="text-yellow-500">🎮</span> Caro Online
+      </h2>
+      <div className="w-full mb-4 flex flex-row gap-0 items-stretch border rounded-xl overflow-hidden shadow bg-white">
+        {/* Bạn */}
+        <div className="flex-1 flex flex-row items-center gap-1 p-2 bg-gradient-to-br from-blue-50 to-blue-200 border-r border-blue-100 min-w-0">
+          <div className="flex flex-col items-center min-w-[40px]">
+            {userInfo && userInfo.avatar ? (
+              <img
+                src={userInfo.avatar}
+                alt="avatar"
+                className="w-8 h-8 rounded-full border border-blue-300 shadow"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-blue-200 flex items-center justify-center text-blue-500 border border-blue-300 shadow">
+                <span className="text-base">👤</span>
+              </div>
+            )}
+            <div className="mt-0.5 text-base font-extrabold text-blue-600 drop-shadow">
+              {mySymbol || "?"}
             </div>
-          )}
-          <div>
-            <div>
-              <span className="font-semibold">Tên Bạn:</span>{" "}
+            <div className="mt-0.5 text-[10px] font-bold text-blue-700">
+              Bạn
+            </div>
+          </div>
+          <div className="flex-1 ml-1 min-w-0 flex flex-col flex-wrap gap-y-0.5">
+            <div className="font-semibold text-blue-900 text-xs break-words whitespace-pre-line">
               {userInfo?.name || "(Chưa xác định)"}
             </div>
-            <div>
-              <span className="font-semibold">Level:</span>{" "}
-              {userInfo?.level ?? "-"}
-            </div>
-            <div>
-              <span className="font-semibold">Score:</span>{" "}
-              {userInfo?.score ?? "-"}
+            <div className="flex flex-wrap gap-1">
+              <div className="bg-blue-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
+                <span className="mr-0.5">⭐</span> {userInfo?.level ?? "-"}
+              </div>
+              <div className="bg-green-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
+                <span className="mr-0.5">🏆</span> {userInfo?.score ?? "-"}
+              </div>
             </div>
           </div>
         </div>
-        {/* Thông tin đối thủ */}
-        <div className="text-gray-700 text-sm flex items-center gap-3">
-          {opponentInfo && opponentInfo.avatar ? (
-            <img
-              src={opponentInfo.avatar}
-              alt="opponent-avatar"
-              className="w-10 h-10 rounded-full border"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border">
-              <span className="text-lg">?</span>
+        {/* Đối thủ */}
+        <div className="flex-1 flex flex-row items-center gap-1 p-2 bg-gradient-to-br from-pink-50 to-pink-200 min-w-0">
+          <div className="flex flex-col items-center min-w-[40px]">
+            {opponentInfo && opponentInfo.avatar ? (
+              <img
+                src={opponentInfo.avatar}
+                alt="opponent-avatar"
+                className="w-8 h-8 rounded-full border border-pink-300 shadow"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-pink-200 flex items-center justify-center text-pink-500 border border-pink-300 shadow">
+                <span className="text-base">👤</span>
+              </div>
+            )}
+            <div className="mt-0.5 text-base font-extrabold text-pink-600 drop-shadow">
+              {mySymbol === "X" ? "O" : mySymbol === "O" ? "X" : "?"}
             </div>
-          )}
-          <div>
-            <div>
-              <span className="font-semibold">Tên đối thủ:</span>{" "}
+            <div className="mt-0.5 text-[10px] font-bold text-pink-700">
+              Đối thủ
+            </div>
+          </div>
+          <div className="flex-1 ml-1 min-w-0 flex flex-col flex-wrap gap-y-0.5">
+            <div className="font-semibold text-pink-900 text-xs break-words whitespace-pre-line">
               {opponentInfo?.name || "(Chưa xác định)"}
             </div>
-            <div>
-              <span className="font-semibold">Level:</span>{" "}
-              {opponentInfo?.level ?? "-"}
-            </div>
-            <div>
-              <span className="font-semibold">Score:</span>{" "}
-              {opponentInfo?.score ?? "-"}
+            <div className="flex flex-wrap gap-1">
+              <div className="bg-pink-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
+                <span className="mr-0.5">⭐</span> {opponentInfo?.level ?? "-"}
+              </div>
+              <div className="bg-amber-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
+                <span className="mr-0.5">🏆</span> {opponentInfo?.score ?? "-"}
+              </div>
             </div>
           </div>
         </div>
@@ -472,21 +488,26 @@ export default function CaroGame(props) {
           </div>
         </div>
       </div>
-      <div className="mt-4">
-        <span className="mr-4">
-          Bạn là: <b>{mySymbol}</b>
-        </span>
+      <div className="mt-4 w-full flex flex-row flex-nowrap items-center justify-center gap-1 overflow-x-auto">
+        <div className="flex flex-row items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-sm font-semibold text-blue-700 shadow-sm">
+          <span>Bạn là:</span>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-200 text-blue-700 font-bold text-base border border-blue-300 shadow">
+            {mySymbol || "?"}
+          </span>
+        </div>
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600 mr-2"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-500 text-white font-semibold shadow hover:bg-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm whitespace-nowrap"
+          style={{ minWidth: "90px" }}
           onClick={leaveRoom}
         >
-          Chơi lại
+          <span className="text-base">🔄</span> Chơi lại
         </button>
         <button
-          className="px-4 py-2 bg-green-500 text-white rounded shadow hover:bg-green-600"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500 text-white font-semibold shadow hover:bg-green-600 transition focus:outline-none focus:ring-2 focus:ring-green-300 text-sm whitespace-nowrap"
+          style={{ minWidth: "120px" }}
           onClick={() => navigate("/rooms")}
         >
-          Trở Lại Phòng Chát
+          <span className="text-base">💬</span> Trở Lại Phòng Chát
         </button>
       </div>
     </div>
