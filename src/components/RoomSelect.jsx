@@ -80,12 +80,12 @@ export default function RoomSelect({
           </button>
         </div>
       </div>
-      <div className="flex gap-3 mb-5">
+      <div className="flex gap-2 mb-5">
         <input
           value={newRoom || ""}
           onChange={onNewRoomChange}
           placeholder="Tên phòng mới"
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
+          className="flex-1 min-w-0 h-12 rounded-lg border border-gray-300 px-4 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
         />
         <button
           onClick={async () => {
@@ -105,10 +105,13 @@ export default function RoomSelect({
               onNewRoomChange({ target: { value: "" } });
             }
           }}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg px-6 py-2 font-semibold text-base shadow-md hover:from-green-600 hover:to-emerald-700 transition disabled:opacity-60 border border-green-400"
+          className="flex-1 min-w-0 h-12 flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg px-0 font-semibold text-xs sm:text-sm shadow-md hover:from-green-600 hover:to-emerald-700 transition disabled:opacity-60 border border-green-400"
           disabled={!newRoom || !String(newRoom).trim()}
         >
-          Tạo phòng
+          <span className="text-base">➕</span>
+          <span className="ml-1 font-bold truncate text-xs sm:text-sm">
+            Tạo phòng
+          </span>
         </button>
       </div>
       <div className="mb-4">
