@@ -72,7 +72,7 @@ export default function RoomSelect({
             }}
           >
             <span className="text-base">🔙</span>
-            <span className="hidden sm:inline ml-1">Đăng nhập</span>
+            <span className="hidden sm:inline ml-1">Đăng Xuất</span>
           </button>
         </div>
       </div>
