@@ -22,7 +22,20 @@ function ResultModal({ open, result, onClose }) {
         <div className={`text-2xl font-bold mb-4 ${color}`}>{title}</div>
         <button
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={onClose}
+          onClick={async () => {
+            if (typeof onClose === "function") onClose();
+            // Sau khi đóng modal, chỉ cập nhật score (và level nếu muốn) của user và đối thủ
+            try {
+              const token = localStorage.getItem("token");
+              const apiUrl = process.env.REACT_APP_API_URL;
+              // Cập nhật score cho user
+              if (window.updateUserScore)
+                await window.updateUserScore(token, apiUrl);
+              // Cập nhật score cho đối thủ
+              if (window.updateOpponentScore)
+                await window.updateOpponentScore(token, apiUrl);
+            } catch {}
+          }}
         >
           Đóng
         </button>
@@ -42,62 +55,127 @@ export default function CaroGame(props) {
   const [room, setRoom] = useState(null);
   const myConnectionId = useRef("");
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      setLoading(true);
-      setError(null);
+  // Hàm chỉ cập nhật score (và level) cho user
+  const updateUserScore = useCallback(
+    async (token, apiUrl) => {
       try {
-        if (!userId) throw new Error("Không tìm thấy userId");
-        const token = localStorage.getItem("token");
-        const apiUrl = process.env.REACT_APP_API_URL;
-        // Lấy thông tin user
+        if (!userId) return;
         const res = await fetch(
           `${apiUrl}/users/${userId}`,
           token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
         );
-        if (!res.ok) throw new Error("Không thể lấy thông tin người dùng");
+        if (!res.ok) return;
         const data = await res.json();
-        setUserInfo(data.user || data);
-      } catch (err) {
-        setError(err.message || "Lỗi không xác định");
-      } finally {
-        setLoading(false);
-      }
-    };
+        setUserInfo((prev) => ({
+          ...prev,
+          score: (data.user || data).score,
+          level: (data.user || data).level,
+        }));
+      } catch {}
+    },
+    [userId]
+  );
+
+  // Hàm fetch lại user info đầy đủ (giữ lại cho lần đầu load)
+  const fetchUserInfo = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!userId) throw new Error("Không tìm thấy userId");
+      const token = localStorage.getItem("token");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      // Lấy thông tin user
+      const res = await fetch(
+        `${apiUrl}/users/${userId}`,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
+      if (!res.ok) throw new Error("Không thể lấy thông tin người dùng");
+      const data = await res.json();
+      setUserInfo(data.user || data);
+    } catch (err) {
+      setError(err.message || "Lỗi không xác định");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+  useEffect(() => {
     fetchUserInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, fetchUserInfo]);
+  // Để gọi từ ResultModal
+  useEffect(() => {
+    window.updateUserInfo = fetchUserInfo;
+    window.updateUserScore = updateUserScore;
+    return () => {
+      delete window.updateUserInfo;
+      delete window.updateUserScore;
+    };
+  }, [userId, fetchUserInfo, updateUserScore]);
 
   // Lấy thông tin đối thủ khi đã có room và players
-  useEffect(() => {
-    const fetchOpponentInfo = async () => {
-      if (!room || !room.players || room.players.length < 2) {
-        setOpponentInfo(null);
-        return;
-      }
+  // Hàm chỉ cập nhật score (và level) cho đối thủ
+  const updateOpponentScore = useCallback(
+    async (token, apiUrl) => {
+      if (!room || !room.players || room.players.length < 2) return;
       const myConnId = myConnectionId.current;
       const opponent = room.players.find((p) => p.connectionId !== myConnId);
-      if (!opponent || !opponent.userId) {
-        setOpponentInfo(null);
-        return;
-      }
+      if (!opponent || !opponent.userId) return;
       try {
-        const token = localStorage.getItem("token");
-        const apiUrl = process.env.REACT_APP_API_URL;
         const res = await fetch(
           `${apiUrl}/users/${opponent.userId}`,
           token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
         );
-        if (!res.ok) throw new Error("Không thể lấy thông tin đối thủ");
+        if (!res.ok) return;
         const data = await res.json();
-        setOpponentInfo(data.user || data);
-      } catch (err) {
-        setOpponentInfo(null);
-      }
-    };
+        setOpponentInfo((prev) => ({
+          ...prev,
+          score: (data.user || data).score,
+          level: (data.user || data).level,
+        }));
+      } catch {}
+    },
+    [room]
+  );
+
+  // Hàm fetch lại opponent info đầy đủ (giữ lại cho lần đầu load)
+  const fetchOpponentInfo = useCallback(async () => {
+    if (!room || !room.players || room.players.length < 2) {
+      setOpponentInfo(null);
+      return;
+    }
+    const myConnId = myConnectionId.current;
+    const opponent = room.players.find((p) => p.connectionId !== myConnId);
+    if (!opponent || !opponent.userId) {
+      setOpponentInfo(null);
+      return;
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const res = await fetch(
+        `${apiUrl}/users/${opponent.userId}`,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+      );
+      if (!res.ok) throw new Error("Không thể lấy thông tin đối thủ");
+      const data = await res.json();
+      setOpponentInfo(data.user || data);
+    } catch (err) {
+      setOpponentInfo(null);
+    }
+  }, [room]);
+  useEffect(() => {
     fetchOpponentInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [room]);
+  }, [room, fetchOpponentInfo]);
+  // Để gọi từ ResultModal
+  useEffect(() => {
+    window.updateOpponentInfo = fetchOpponentInfo;
+    window.updateOpponentScore = updateOpponentScore;
+    return () => {
+      delete window.updateOpponentInfo;
+      delete window.updateOpponentScore;
+    };
+  }, [room, fetchOpponentInfo, updateOpponentScore]);
 
   const navigate = useNavigate();
   const [mySymbol, setMySymbol] = useState("");
