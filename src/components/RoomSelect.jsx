@@ -24,17 +24,16 @@ export default function RoomSelect({
             Chat Room
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 justify-center items-center w-full sm:w-auto">
+        <div className="grid grid-cols-4 xs:grid-cols-2 sm:flex sm:flex-wrap md:flex-nowrap gap-2 justify-center items-center w-full sm:w-auto">
           <button
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-yellow-300"
+            className="flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 border border-yellow-300"
             title="Chơi game Caro"
             onClick={() => navigate("/caro")}
           >
             <span className="text-base">🎮</span>
-            <span className="hidden sm:inline">Caro</span>
           </button>
           <button
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-blue-400"
+            className="flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 sm:w-auto border border-blue-400"
             title="Xem user info"
             onClick={() => {
               if (userId) {
@@ -45,19 +44,19 @@ export default function RoomSelect({
             }}
           >
             <span className="text-base">👤</span>
-            <span className="hidden sm:inline">User</span>
+            <span className="hidden sm:inline ml-1">User</span>
           </button>
           <button
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-purple-400 relative overflow-hidden"
+            className="flex items-center justify-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 sm:w-auto border border-purple-400 relative overflow-hidden"
             title="Bảng xếp hạng"
             onClick={() => navigate("/leaderboard")}
           >
             <span className="text-base relative z-10">🏆</span>
-            <span className="hidden md:inline relative z-10">BXH</span>
+            <span className="hidden md:inline relative z-10 ml-1">BXH</span>
             <div className="absolute inset-0 bg-yellow-300 opacity-20"></div>
           </button>
           <button
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-red-400"
+            className="flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-1.5 font-semibold text-xs sm:text-sm shadow-md transition w-[40px] h-[40px] sm:h-10 sm:w-auto border border-red-400"
             title="Quay lại đăng nhập"
             onClick={() => {
               if (typeof onRoomChange === "function") {
@@ -72,7 +71,7 @@ export default function RoomSelect({
             }}
           >
             <span className="text-base">🔙</span>
-            <span className="hidden sm:inline">Đăng nhập</span>
+            <span className="hidden sm:inline ml-1">Đăng nhập</span>
           </button>
         </div>
       </div>
