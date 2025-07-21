@@ -35,7 +35,7 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
           onClick={() => navigate("/rooms")}
         >
           <span className="text-base">💬</span>
-          <span>Phòng chat</span>
+          <span>Trở lại Phòng Chat</span>
         </button>
       </div>
       {loading ? (
