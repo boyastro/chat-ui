@@ -16,17 +16,17 @@ export default function RoomSelect({
   const [joiningRoom, setJoiningRoom] = useState("");
   const navigate = useNavigate();
   return (
-    <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-        <div className="flex items-center gap-3 justify-center w-full sm:w-auto">
+    <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div className="flex items-center gap-3 justify-center w-full sm:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-xl shadow-sm">
           <span className="text-2xl text-blue-600">💬</span>
           <span className="font-bold text-2xl text-blue-600 tracking-wide">
             Chat Room
           </span>
         </div>
-        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 justify-center items-center w-full sm:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 justify-center items-center w-full sm:w-auto">
           <button
-            className="flex items-center gap-1 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-yellow-300"
             title="Chơi game Caro"
             onClick={() => navigate("/caro")}
           >
@@ -34,7 +34,7 @@ export default function RoomSelect({
             <span className="hidden sm:inline">Caro</span>
           </button>
           <button
-            className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-blue-400"
             title="Xem user info"
             onClick={() => {
               if (userId) {
@@ -48,15 +48,16 @@ export default function RoomSelect({
             <span className="hidden sm:inline">User</span>
           </button>
           <button
-            className="flex items-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10 border-2 border-yellow-300"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-purple-400 relative overflow-hidden"
             title="Bảng xếp hạng"
             onClick={() => navigate("/leaderboard")}
           >
-            <span className="text-base">🏆</span>
-            <span className="hidden md:inline">Leaderboard</span>
+            <span className="text-base relative z-10">🏆</span>
+            <span className="hidden md:inline relative z-10">BXH</span>
+            <div className="absolute inset-0 bg-yellow-300 opacity-20"></div>
           </button>
           <button
-            className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white rounded-full px-2 py-2 font-semibold text-xs sm:text-sm shadow transition min-w-[36px] h-9 sm:h-10"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-3 py-2 font-semibold text-xs sm:text-sm shadow-md transition min-w-[36px] h-9 sm:h-10 border border-red-400"
             title="Quay lại đăng nhập"
             onClick={() => {
               if (typeof onRoomChange === "function") {
@@ -75,12 +76,12 @@ export default function RoomSelect({
           </button>
         </div>
       </div>
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-3 mb-5">
         <input
           value={newRoom || ""}
           onChange={onNewRoomChange}
           placeholder="Tên phòng mới"
-          className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-green-300"
+          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-base bg-gray-50 outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
         />
         <button
           onClick={async () => {
@@ -100,30 +101,34 @@ export default function RoomSelect({
               onNewRoomChange({ target: { value: "" } });
             }
           }}
-          className="bg-green-600 text-white rounded-md px-6 py-2 font-semibold text-base shadow-md hover:bg-green-700 transition disabled:opacity-60"
+          className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg px-6 py-2 font-semibold text-base shadow-md hover:from-green-600 hover:to-emerald-700 transition disabled:opacity-60 border border-green-400"
           disabled={!newRoom || !String(newRoom).trim()}
         >
           Tạo phòng
         </button>
       </div>
       <div className="mb-4">
-        <div className="font-semibold text-gray-700 mb-2">Danh sách phòng:</div>
-        <ul className="divide-y divide-gray-200 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <span className="text-base">📋</span>
+          Danh sách phòng:
+        </div>
+        <ul className="divide-y divide-gray-200 bg-gradient-to-b from-gray-50 to-white rounded-lg border border-gray-200 shadow-sm">
           {rooms.length === 0 && (
-            <li className="p-4 text-gray-400 text-center">
+            <li className="p-6 text-gray-400 text-center">
               Chưa có phòng nào.
             </li>
           )}
           {rooms.map((room) => (
             <li
               key={room.id || room._id || room.name}
-              className="flex items-center justify-between p-3 hover:bg-blue-50 transition"
+              className="flex items-center justify-between p-4 hover:bg-blue-50 transition"
             >
               <div>
-                <div className="font-bold text-blue-700 text-base">
+                <div className="font-bold text-blue-700 text-base flex items-center gap-2">
+                  <span className="text-sm">🏠</span>
                   {room.name || room.id || room._id}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 mt-1">
                   Chủ phòng:{" "}
                   <span className="font-medium text-gray-700">
                     {room.hostName ||
@@ -146,11 +151,16 @@ export default function RoomSelect({
                   await Promise.resolve(onJoinRoom(roomValue));
                   setJoiningRoom("");
                 }}
-                className="bg-blue-600 text-white rounded-md px-4 py-2 font-semibold text-sm shadow hover:bg-blue-700 transition"
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-4 py-2 font-semibold text-sm shadow-md transition border border-blue-400 flex items-center gap-1"
               >
-                {joiningRoom === (room.id || room._id || room.name)
-                  ? "Đang vào..."
-                  : "Vào phòng"}
+                <span>
+                  {joiningRoom === (room.id || room._id || room.name)
+                    ? "Đang vào..."
+                    : "Vào phòng"}
+                </span>
+                {joiningRoom !== (room.id || room._id || room.name) && (
+                  <span className="text-xs">➜</span>
+                )}
               </button>
             </li>
           ))}
