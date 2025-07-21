@@ -25,7 +25,7 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
   }, [type, limit]);
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 max-w-xl mx-auto my-6">
+    <div className="bg-white rounded-xl shadow p-2 sm:p-4 max-w-xl mx-auto my-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-bold text-blue-700 flex items-center gap-2">
           🏆 Bảng xếp hạng
@@ -43,47 +43,63 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
       ) : error ? (
         <div className="text-red-500">{error}</div>
       ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-2 text-left">#</th>
-              <th className="py-2 px-2 text-left">Tên</th>
-              <th className="py-2 px-2 text-center">Điểm</th>
-              <th className="py-2 px-2 text-center">Thắng</th>
-              <th className="py-2 px-2 text-center">Thua</th>
-              <th className="py-2 px-2 text-center">Hòa</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u, idx) => (
-              <tr key={u._id || u.id} className="border-b hover:bg-blue-50">
-                <td className="py-1 px-2 font-semibold text-blue-600">
-                  {idx + 1}
-                </td>
-                <td className="py-1 px-2 flex items-center gap-2">
-                  {u.avatar ? (
-                    <img
-                      src={u.avatar}
-                      alt="avatar"
-                      className="w-7 h-7 rounded-full border"
-                    />
-                  ) : (
-                    <span className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border text-xs">
-                      ?
-                    </span>
-                  )}
-                  <span>{u.name}</span>
-                </td>
-                <td className="py-1 px-2 text-center font-bold">
-                  {u.totalScore ?? "-"}
-                </td>
-                <td className="py-1 px-2 text-center">{u.winCount ?? "-"}</td>
-                <td className="py-1 px-2 text-center">{u.loseCount ?? "-"}</td>
-                <td className="py-1 px-2 text-center">{u.drawCount ?? "-"}</td>
+        <div className="overflow-x-auto">
+          <table className="min-w-[500px] w-full text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-2 text-left whitespace-nowrap">#</th>
+                <th className="py-2 px-2 text-left whitespace-nowrap">Tên</th>
+                <th className="py-2 px-2 text-center whitespace-nowrap">
+                  Điểm
+                </th>
+                <th className="py-2 px-2 text-center whitespace-nowrap">
+                  Thắng
+                </th>
+                <th className="py-2 px-2 text-center whitespace-nowrap">
+                  Thua
+                </th>
+                <th className="py-2 px-2 text-center whitespace-nowrap">Hòa</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u, idx) => (
+                <tr key={u._id || u.id} className="border-b hover:bg-blue-50">
+                  <td className="py-1 px-2 font-semibold text-blue-600 text-center sm:text-left">
+                    {idx + 1}
+                  </td>
+                  <td className="py-1 px-2 flex items-center gap-2 min-w-[120px]">
+                    {u.avatar ? (
+                      <img
+                        src={u.avatar}
+                        alt="avatar"
+                        className="w-7 h-7 rounded-full border flex-shrink-0"
+                      />
+                    ) : (
+                      <span className="w-7 h-7 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 border text-xs flex-shrink-0">
+                        ?
+                      </span>
+                    )}
+                    <span className="truncate max-w-[80px] sm:max-w-none">
+                      {u.name}
+                    </span>
+                  </td>
+                  <td className="py-1 px-2 text-center font-bold whitespace-nowrap">
+                    {u.totalScore ?? "-"}
+                  </td>
+                  <td className="py-1 px-2 text-center whitespace-nowrap">
+                    {u.winCount ?? "-"}
+                  </td>
+                  <td className="py-1 px-2 text-center whitespace-nowrap">
+                    {u.loseCount ?? "-"}
+                  </td>
+                  <td className="py-1 px-2 text-center whitespace-nowrap">
+                    {u.drawCount ?? "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
