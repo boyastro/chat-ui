@@ -17,19 +17,23 @@ export default function RoomSelect({
   const navigate = useNavigate();
   return (
     <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-2xl text-blue-600 tracking-wide">
-          💬 Chat Room
-        </h2>
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <div className="flex items-center gap-3 justify-center w-full sm:w-auto">
+          <span className="text-2xl text-blue-600">💬</span>
+          <span className="font-bold text-2xl text-blue-600 tracking-wide">Chat Room</span>
+        </div>
+        <div className="flex gap-2 justify-center items-center w-full sm:w-auto">
           <button
-            className="bg-yellow-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-yellow-600 transition"
+            className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            title="Chơi game Caro"
             onClick={() => navigate("/caro")}
           >
-            Chơi game Caro
+            <span className="text-lg">🎮</span>
+            <span className="hidden sm:inline">Caro</span>
           </button>
           <button
-            className="bg-blue-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-blue-600 transition"
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            title="Xem user info"
             onClick={() => {
               if (userId) {
                 alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
@@ -38,10 +42,12 @@ export default function RoomSelect({
               navigate("/userinfo");
             }}
           >
-            Xem user info
+            <span className="text-lg">👤</span>
+            <span className="hidden sm:inline">User</span>
           </button>
           <button
-            className="bg-red-500 text-white rounded-md px-4 py-2 font-semibold text-base shadow-md hover:bg-red-600 transition"
+            className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-2 font-semibold text-sm shadow transition min-w-[40px] h-10"
+            title="Quay lại đăng nhập"
             onClick={() => {
               if (typeof onRoomChange === "function") {
                 onRoomChange({ target: { value: "" } }); // reset currentRoom
@@ -54,7 +60,8 @@ export default function RoomSelect({
               }
             }}
           >
-            Quay lại đăng nhập
+            <span className="text-lg">🔙</span>
+            <span className="hidden sm:inline">Đăng nhập</span>
           </button>
         </div>
       </div>
