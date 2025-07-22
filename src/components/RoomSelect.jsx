@@ -25,8 +25,8 @@ export default function RoomSelect({
     }
   }, [location.pathname, fetchRooms]);
   return (
-    <div className="max-w-lg mx-auto my-16 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div className="max-w-lg mx-auto my-2 bg-white rounded-2xl shadow-xl p-2 border border-gray-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
         <div className="flex items-center gap-2 justify-center w-full sm:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 p-2 rounded-xl shadow-sm">
           <span className="text-xl text-blue-600">💬</span>
           <span className="font-bold text-xl text-blue-600 tracking-wide">
