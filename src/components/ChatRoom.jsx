@@ -141,7 +141,17 @@ export default function ChatRoom({
           }
           const isMe = msgUserId === myUserId;
           const userInfo = userInfoMap[msgUserId];
-          // ...
+          // Ẩn các system message không mong muốn
+          if (
+            msg.system &&
+            (msg.message?.includes("Connected to AWS WebSocket") ||
+              msg.message?.includes("Disconnected from AWS WebSocket") ||
+              msg.message?.includes("WebSocket error") ||
+              msg.message?.startsWith("Joined room") ||
+              msg.message?.startsWith("You have joined room"))
+          ) {
+            return null;
+          }
           return (
             <div
               key={idx}
