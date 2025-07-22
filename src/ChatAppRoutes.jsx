@@ -12,6 +12,7 @@ import ChatRoom from "./components/ChatRoom";
 import UserInfo from "./components/UserInfo";
 import CaroGame from "./components/CaroGame";
 import Leaderboard from "./components/Leaderboard";
+import Shop from "./components/Shop";
 export default function ChatAppRoutes({
   chat,
   handleLogin,
@@ -53,8 +54,12 @@ export default function ChatAppRoutes({
   };
 
   useEffect(() => {
-    // Không redirect nếu đang ở /userinfo, /caro hoặc /leaderboard
-    if (["/userinfo", "/caro", "/leaderboard"].includes(location.pathname))
+    // Không redirect nếu đang ở /userinfo, /caro, /leaderboard hoặc /shop
+    if (
+      ["/userinfo", "/caro", "/leaderboard", "/shop"].includes(
+        location.pathname
+      )
+    )
       return;
     if (userIdSet && !inRoom) {
       navigate("/rooms", { replace: true });
@@ -116,6 +121,7 @@ export default function ChatAppRoutes({
       <Route path="/userinfo" element={<UserInfo userId={userId} />} />
       <Route path="/caro" element={<CaroGame userId={userId} />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/shop" element={<Shop />} />
       <Route
         path="/chat/:roomId"
         element={

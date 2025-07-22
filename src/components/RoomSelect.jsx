@@ -48,6 +48,19 @@ export default function RoomSelect({
             <span className="text-xs text-yellow-800 mt-0.5 font-bold tracking-wide">
               Play Caro
             </span>
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-green-300 mt-2"
+              title="Vào shop vật phẩm"
+              onClick={() => navigate("/shop")}
+            >
+              <span className="text-lg">🛒</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Shop
+              </span>
+            </button>
+            <span className="text-xs text-green-800 mt-0.5 font-bold tracking-wide">
+              Shop
+            </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
             <button
