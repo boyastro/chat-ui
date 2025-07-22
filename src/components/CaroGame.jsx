@@ -416,73 +416,73 @@ export default function CaroGame(props) {
       <h2 className="text-2xl font-bold mb-4 text-blue-700 flex items-center gap-2 min-h-[40px] leading-tight">
         <span className="text-yellow-500 text-2xl">🎮</span> Caro Online
       </h2>
-      <div className="w-full mb-2 flex flex-row gap-0 items-stretch border rounded-xl overflow-hidden shadow bg-white min-h-[40px]">
+      <div className="w-full mb-4 flex flex-row gap-0 items-stretch border rounded-xl overflow-hidden shadow bg-white min-h-[64px]">
         {/* Bạn */}
-        <div className="flex-1 flex flex-row items-center gap-1 p-1 bg-gradient-to-br from-blue-50 to-blue-200 border-r border-blue-100 min-w-0 min-h-[32px]">
-          <div className="flex flex-col items-center min-w-[28px]">
+        <div className="flex-1 flex flex-row items-center gap-2 p-2 bg-gradient-to-br from-blue-50 to-blue-200 border-r border-blue-100 min-w-0 min-h-[48px]">
+          <div className="flex flex-col items-center min-w-[40px]">
             {userInfo && userInfo.avatar ? (
               <img
                 src={userInfo.avatar}
                 alt="avatar"
-                className="w-7 h-7 rounded-full border border-blue-300 shadow"
+                className="w-10 h-10 rounded-full border border-blue-300 shadow"
               />
             ) : (
-              <div className="w-7 h-7 rounded-full bg-blue-200 flex items-center justify-center text-blue-500 border border-blue-300 shadow">
-                <span className="text-base">👤</span>
+              <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-500 border border-blue-300 shadow">
+                <span className="text-lg">👤</span>
               </div>
             )}
-            <div className="mt-0.5 text-base font-extrabold text-blue-600 drop-shadow leading-tight">
+            <div className="mt-1 text-lg font-extrabold text-blue-600 drop-shadow leading-tight">
               {mySymbol || "?"}
             </div>
-            <div className="mt-0 text-[10px] font-bold text-blue-700 leading-tight">
+            <div className="mt-0.5 text-xs font-bold text-blue-700 leading-tight">
               Bạn
             </div>
           </div>
-          <div className="flex-1 ml-1 min-w-0 flex flex-col flex-wrap gap-y-0.5">
-            <div className="font-semibold text-blue-900 text-sm break-words whitespace-pre-line leading-tight">
+          <div className="flex-1 ml-2 min-w-0 flex flex-col flex-wrap gap-y-1">
+            <div className="font-semibold text-blue-900 text-base break-words whitespace-pre-line leading-tight">
               {userInfo?.name || "(Chưa xác định)"}
             </div>
-            <div className="flex flex-wrap gap-0.5">
-              <div className="bg-blue-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
-                <span className="mr-0.5">⭐</span> {userInfo?.level ?? "-"}
+            <div className="flex flex-wrap gap-1">
+              <div className="bg-blue-100 rounded px-2 py-1 text-xs flex items-center min-w-0">
+                <span className="mr-1">⭐</span> {userInfo?.level ?? "-"}
               </div>
-              <div className="bg-green-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
-                <span className="mr-0.5">🏆</span> {userInfo?.score ?? "-"}
+              <div className="bg-green-100 rounded px-2 py-1 text-xs flex items-center min-w-0">
+                <span className="mr-1">🏆</span> {userInfo?.score ?? "-"}
               </div>
             </div>
           </div>
         </div>
         {/* Đối thủ */}
-        <div className="flex-1 flex flex-row items-center gap-1 p-1 bg-gradient-to-br from-pink-50 to-pink-200 min-w-0 min-h-[32px]">
-          <div className="flex flex-col items-center min-w-[28px]">
+        <div className="flex-1 flex flex-row items-center gap-2 p-2 bg-gradient-to-br from-pink-50 to-pink-200 min-w-0 min-h-[48px]">
+          <div className="flex flex-col items-center min-w-[40px]">
             {opponentInfo && opponentInfo.avatar ? (
               <img
                 src={opponentInfo.avatar}
                 alt="opponent-avatar"
-                className="w-7 h-7 rounded-full border border-pink-300 shadow"
+                className="w-10 h-10 rounded-full border border-pink-300 shadow"
               />
             ) : (
-              <div className="w-7 h-7 rounded-full bg-pink-200 flex items-center justify-center text-pink-500 border border-pink-300 shadow">
-                <span className="text-base">👤</span>
+              <div className="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center text-pink-500 border border-pink-300 shadow">
+                <span className="text-lg">👤</span>
               </div>
             )}
-            <div className="mt-0.5 text-base font-extrabold text-pink-600 drop-shadow leading-tight">
+            <div className="mt-1 text-lg font-extrabold text-pink-600 drop-shadow leading-tight">
               {mySymbol === "X" ? "O" : mySymbol === "O" ? "X" : "?"}
             </div>
-            <div className="mt-0 text-[10px] font-bold text-pink-700 leading-tight">
+            <div className="mt-0.5 text-xs font-bold text-pink-700 leading-tight">
               Đối thủ
             </div>
           </div>
-          <div className="flex-1 ml-1 min-w-0 flex flex-col flex-wrap gap-y-0.5">
-            <div className="font-semibold text-pink-900 text-sm break-words whitespace-pre-line leading-tight">
+          <div className="flex-1 ml-2 min-w-0 flex flex-col flex-wrap gap-y-1">
+            <div className="font-semibold text-pink-900 text-base break-words whitespace-pre-line leading-tight">
               {opponentInfo?.name || "(Chưa xác định)"}
             </div>
-            <div className="flex flex-wrap gap-0.5">
-              <div className="bg-pink-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
-                <span className="mr-0.5">⭐</span> {opponentInfo?.level ?? "-"}
+            <div className="flex flex-wrap gap-1">
+              <div className="bg-pink-100 rounded px-2 py-1 text-xs flex items-center min-w-0">
+                <span className="mr-1">⭐</span> {opponentInfo?.level ?? "-"}
               </div>
-              <div className="bg-amber-100 rounded px-1.5 py-0.5 text-[10px] flex items-center min-w-0">
-                <span className="mr-0.5">🏆</span> {opponentInfo?.score ?? "-"}
+              <div className="bg-amber-100 rounded px-2 py-1 text-xs flex items-center min-w-0">
+                <span className="mr-1">🏆</span> {opponentInfo?.score ?? "-"}
               </div>
             </div>
           </div>
