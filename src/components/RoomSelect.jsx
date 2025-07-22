@@ -45,51 +45,68 @@ export default function RoomSelect({
                 Caro
               </span>
             </button>
-            <span className="text-[11px] text-yellow-700 mt-0.5 font-medium">Play game</span>
-          </div>
-          <button
-            className="flex-1 min-w-0 flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-blue-400"
-            title="Xem user info"
-            onClick={() => {
-              if (userId) {
-                alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
-                return;
-              }
-              navigate("/userinfo");
-            }}
-          >
-            <span className="text-base">👤</span>
-            <span className="hidden xs:inline ml-1 truncate">User</span>
-          </button>
-          <button
-            className="flex-1 min-w-0 flex items-center justify-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-purple-400 relative overflow-hidden"
-            title="Bảng xếp hạng"
-            onClick={() => navigate("/leaderboard")}
-          >
-            <span className="text-base relative z-10">🏆</span>
-            <span className="hidden xs:inline relative z-10 ml-1 truncate">
-              BXH
+            <span className="text-xs text-yellow-800 mt-0.5 font-bold tracking-wide">
+              Play Caro
             </span>
-            <div className="absolute inset-0 bg-yellow-300 opacity-20"></div>
-          </button>
-          <button
-            className="flex-1 min-w-0 flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-red-400"
-            title="Quay lại đăng nhập"
-            onClick={() => {
-              if (typeof onRoomChange === "function") {
-                onRoomChange({ target: { value: "" } }); // reset currentRoom
-              }
-              if (typeof setJoinedRoom === "function") {
-                setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
-              }
-              if (typeof onBackToLogin === "function") {
-                onBackToLogin();
-              }
-            }}
-          >
-            <span className="text-base">🔙</span>
-            <span className="hidden xs:inline ml-1 truncate">Đăng Xuất</span>
-          </button>
+          </div>
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-blue-400"
+              title="Xem user info"
+              onClick={() => {
+                if (userId) {
+                  alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
+                  return;
+                }
+                navigate("/userinfo");
+              }}
+            >
+              <span className="text-base">👤</span>
+              <span className="hidden xs:inline ml-1 truncate">User</span>
+            </button>
+            <span className="text-xs text-blue-800 mt-0.5 font-bold tracking-wide">
+              User info
+            </span>
+          </div>
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-purple-400 relative overflow-hidden"
+              title="Bảng xếp hạng"
+              onClick={() => navigate("/leaderboard")}
+            >
+              <span className="text-base relative z-10">🏆</span>
+              <span className="hidden xs:inline relative z-10 ml-1 truncate">
+                BXH
+              </span>
+              <div className="absolute inset-0 bg-yellow-300 opacity-20"></div>
+            </button>
+            <span className="text-xs text-purple-800 mt-0.5 font-bold tracking-wide">
+              Leaderboard
+            </span>
+          </div>
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-red-400"
+              title="Quay lại đăng nhập"
+              onClick={() => {
+                if (typeof onRoomChange === "function") {
+                  onRoomChange({ target: { value: "" } }); // reset currentRoom
+                }
+                if (typeof setJoinedRoom === "function") {
+                  setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
+                }
+                if (typeof onBackToLogin === "function") {
+                  onBackToLogin();
+                }
+              }}
+            >
+              <span className="text-base">🔙</span>
+              <span className="hidden xs:inline ml-1 truncate">Đăng Xuất</span>
+            </button>
+            <span className="text-xs text-red-800 mt-0.5 font-bold tracking-wide">
+              Logout
+            </span>
+          </div>
         </div>
       </div>
       <div className="flex gap-2 mb-5">
