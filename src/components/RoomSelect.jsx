@@ -34,16 +34,19 @@ export default function RoomSelect({
           </span>
         </div>
         <div className="flex gap-2 w-full">
-          <button
-            className="flex-1 min-w-0 flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-yellow-300"
-            title="Chơi game Caro"
-            onClick={() => navigate("/caro")}
-          >
-            <span className="text-lg">🎮</span>
-            <span className="hidden xs:inline ml-1 font-bold truncate">
-              Caro
-            </span>
-          </button>
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-yellow-300"
+              title="Chơi game Caro"
+              onClick={() => navigate("/caro")}
+            >
+              <span className="text-lg">🎮</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Caro
+              </span>
+            </button>
+            <span className="text-[11px] text-yellow-700 mt-0.5 font-medium">Play game</span>
+          </div>
           <button
             className="flex-1 min-w-0 flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-blue-400"
             title="Xem user info"
