@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function UserInfo({ userId }) {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
+  const [itemInfoMap, setItemInfoMap] = useState({}); // Lưu thông tin vật phẩm theo id
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,6 +32,35 @@ export default function UserInfo({ userId }) {
     fetchUserInfo();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  // Lấy thông tin vật phẩm inventory nếu có
+  useEffect(() => {
+    if (!userInfo || !Array.isArray(userInfo.inventory) || userInfo.inventory.length === 0) return;
+    const token = localStorage.getItem("token");
+    const API = API_URL;
+    // Lọc ra các item id chưa có trong itemInfoMap
+    const missingIds = userInfo.inventory
+      .map((inv) => inv.item)
+      .filter((id) => id && !itemInfoMap[id]);
+    if (missingIds.length === 0) return;
+    Promise.all(
+      missingIds.map((id) =>
+        fetch(`${API}/items/${id}`, {
+          headers: { Authorization: token ? `Bearer ${token}` : undefined },
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => ({ id, data }))
+          .catch(() => ({ id, data: null }))
+      )
+    ).then((results) => {
+      const newMap = { ...itemInfoMap };
+      results.forEach(({ id, data }) => {
+        if (data && data.name) newMap[id] = data;
+      });
+      setItemInfoMap(newMap);
+    });
+    // eslint-disable-next-line
+  }, [userInfo]);
 
   if (!userId) {
     return (
@@ -148,6 +178,39 @@ export default function UserInfo({ userId }) {
               </div>
             )}
           </div>
+
+          {/* INVENTORY */}
+          {Array.isArray(userInfo.inventory) && userInfo.inventory.length > 0 && (
+            <div className="mt-8">
+              <div className="font-bold text-lg text-green-700 mb-2 flex items-center gap-2">
+                <span className="text-base">🎒</span> Kho vật phẩm
+              </div>
+              <ul className="divide-y divide-gray-200 bg-gradient-to-b from-green-50 to-white rounded-lg border border-green-200 shadow-sm">
+                {userInfo.inventory.map((inv) => {
+                  const item = itemInfoMap[inv.item];
+                  return (
+                    <li key={inv._id || inv.item} className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <div className="font-semibold text-green-900 text-base flex items-center gap-2">
+                          <span className="text-sm">🧩</span>
+                          {item ? item.name : <span className="italic text-gray-400">Đang tải...</span>}
+                        </div>
+                        {item && (
+                          <div className="text-xs text-gray-600 mt-1">
+                            {item.type && <span className="mr-2">Loại: <span className="font-medium text-green-700">{item.type}</span></span>}
+                            {item.effect && <span>Hiệu ứng: <span className="font-medium text-green-700">{item.effect}</span></span>}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right font-bold text-orange-700 text-sm min-w-[60px]">
+                        x{inv.quantity || 1}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
