@@ -50,6 +50,16 @@ export function useCaroSocket({
       if (msg.type === "move") {
         onMove && onMove(msg.data);
       }
+      // Xử lý khi user quá 30s không đánh, server gửi type: 'passTurn'
+      if (msg.type === "passTurn") {
+        // Nếu server chỉ gửi nextTurn, client cần cập nhật lại state turn
+        // Tạo object giống như move nhưng chỉ có nextTurn
+        const moveData = {
+          ...msg.data,
+          // Có thể bổ sung các trường khác nếu cần
+        };
+        onMove && onMove(moveData);
+      }
       if (msg.type === "gameOver") {
         onGameOver && onGameOver(msg.data);
       }

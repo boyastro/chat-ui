@@ -54,7 +54,61 @@ export default function CaroGame(props) {
   // Khai báo các biến state và ref cần dùng trước các useEffect để tránh lỗi no-use-before-define
   const [room, setRoom] = useState(null);
   const myConnectionId = useRef("");
+  const [mySymbol, setMySymbol] = useState("");
+  const [gameStatus, setGameStatus] = useState("");
+  const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
+  const [enabled, setEnabled] = useState(true);
+  const [winnerId, setWinnerId] = useState("");
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultType, setResultType] = useState(""); // "win" | "lose" | "draw"
+  // Timer state
+  const [moveTimer, setMoveTimer] = useState(30);
+  const timerRef = useRef();
 
+  // Khai báo các biến phụ thuộc room để tránh warning no-use-before-define
+  const { board, turn, players } = room || {};
+
+  // Reset timer when turn changes or game starts/ends
+  useEffect(() => {
+    if (
+      gameStatus !== "playing" ||
+      !room ||
+      !room.players ||
+      room.players.length < 2
+    ) {
+      setMoveTimer(30);
+      clearInterval(timerRef.current);
+      return;
+    }
+    if (turn === myConnectionId.current) {
+      setMoveTimer(30);
+      clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setMoveTimer((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            // Auto-pass turn if time runs out
+            if (gameStatus === "playing" && turn === myConnectionId.current) {
+              sendMessage({
+                action: "passTurn",
+                data: { roomId: room.roomId },
+              });
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      setMoveTimer(30);
+      clearInterval(timerRef.current);
+    }
+    return () => clearInterval(timerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [turn, gameStatus, room?.roomId]);
+
+  // Clear timer on unmount
+  useEffect(() => () => clearInterval(timerRef.current), []);
   // Hàm chỉ cập nhật score (và level) cho user
   const updateUserScore = useCallback(
     async (token, apiUrl) => {
@@ -178,13 +232,7 @@ export default function CaroGame(props) {
   }, [room, fetchOpponentInfo, updateOpponentScore]);
 
   const navigate = useNavigate();
-  const [mySymbol, setMySymbol] = useState("");
-  const [gameStatus, setGameStatus] = useState("");
-  const [showNoOpponentFound, setShowNoOpponentFound] = useState(false);
-  const [enabled, setEnabled] = useState(true);
-  const [winnerId, setWinnerId] = useState("");
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [resultType, setResultType] = useState(""); // "win" | "lose" | "draw"
+  // ...các state này đã được khai báo phía trên để tránh warning no-use-before-define...
 
   // Callback khi nhận gameStarted từ server
   const handleGameStarted = useCallback((data) => {
@@ -222,25 +270,39 @@ export default function CaroGame(props) {
   }, []);
 
   const handleMove = useCallback((data) => {
-    setRoom((prev) => ({
-      ...prev,
-      ...data,
-      turn: data.nextTurn || data.turn || prev.turn,
-    }));
-    setGameStatus(data.status);
-    if (data.status === "win" && data.winner) {
-      setWinnerId(data.winner);
-    }
-    if (data.status === "win" || data.status === "draw") {
-      // Xác định kết quả cho modal
-      if (data.status === "draw") {
-        setResultType("draw");
-      } else if (data.winner === myConnectionId.current) {
-        setResultType("win");
-      } else {
-        setResultType("lose");
+    setRoom((prev) => {
+      // Nếu chỉ có nextTurn (passTurn), không thay đổi board, chỉ cập nhật turn và đảm bảo status là 'playing'
+      if (data.nextTurn && !data.board && !data.status) {
+        return {
+          ...prev,
+          turn: data.nextTurn,
+          status: "playing",
+        };
       }
-      setShowResultModal(true);
+      // Nếu là nước đi bình thường hoặc có board/status
+      return {
+        ...prev,
+        ...data,
+        turn: data.nextTurn || data.turn || prev.turn,
+      };
+    });
+    // Nếu có status thì cập nhật trạng thái game
+    if (data.status) {
+      setGameStatus(data.status);
+      if (data.status === "win" && data.winner) {
+        setWinnerId(data.winner);
+      }
+      if (data.status === "win" || data.status === "draw") {
+        // Xác định kết quả cho modal
+        if (data.status === "draw") {
+          setResultType("draw");
+        } else if (data.winner === myConnectionId.current) {
+          setResultType("win");
+        } else {
+          setResultType("lose");
+        }
+        setShowResultModal(true);
+      }
     }
   }, []);
 
@@ -335,7 +397,7 @@ export default function CaroGame(props) {
     return <div className="text-center mt-8">Đang ghép phòng...</div>;
   }
 
-  const { board, turn, players } = room;
+  // Đã khai báo phía trên để tránh redeclare
   let winner = null;
   if (gameStatus === "win") {
     // Luôn xác định người thắng theo winnerId (connectionId) từ backend
@@ -446,8 +508,9 @@ export default function CaroGame(props) {
               : players[1].connectionId;
             const who =
               currentTurnConn === myConnectionId.current ? "Bạn" : "Đối thủ";
+            const isMyTurn = turn === myConnectionId.current;
             return (
-              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-xs shadow-sm">
+              <div className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold text-xs shadow-sm">
                 <span className="text-base">{isXTurn ? "❌" : "⭕"}</span>
                 <span>
                   Lượt:{" "}
@@ -456,6 +519,16 @@ export default function CaroGame(props) {
                   </span>{" "}
                   (<span className="font-bold">{who}</span>)
                 </span>
+                {isMyTurn && (
+                  <span className="ml-2 px-2 py-0.5 rounded bg-yellow-200 text-yellow-800 font-bold text-xs animate-pulse">
+                    ⏳ {moveTimer}s
+                  </span>
+                )}
+                {!isMyTurn && (
+                  <span className="ml-2 px-2 py-0.5 rounded bg-gray-200 text-gray-700 font-bold text-xs">
+                    ⏳ {moveTimer}s
+                  </span>
+                )}
               </div>
             );
           })()
