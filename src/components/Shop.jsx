@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Component hiển thị danh sách vật phẩm từ API Opponent Shop
 export default function Shop() {
+  const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +39,13 @@ export default function Shop() {
 
   return (
     <div className="max-w-xl mx-auto my-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+      <button
+        className="mb-4 flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg font-semibold shadow hover:from-blue-500 hover:to-indigo-600 transition"
+        onClick={() => navigate("/rooms")}
+      >
+        <span className="text-lg">⬅️</span>
+        <span>Quay lại chọn phòng</span>
+      </button>
       <h2 className="text-2xl font-bold text-blue-700 mb-4">
         🛒 Shop - Danh Sách Vật Phẩm
       </h2>
