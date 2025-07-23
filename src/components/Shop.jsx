@@ -11,7 +11,8 @@ import {
 // Component hiển thị danh sách vật phẩm từ API Opponent Shop
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
-function PaymentForm({ clientSecret, onSuccess, onCancel }) {
+// Hiển thị tổng bill trước khi nhập thẻ
+function PaymentForm({ clientSecret, onSuccess, onCancel, item, quantity }) {
   const stripe = useStripe();
   const elements = useElements();
   const [paying, setPaying] = useState(false);
@@ -43,6 +44,18 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 p-6 bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md mx-auto"
     >
+      {/* Tổng bill */}
+      {item && (
+        <div className="mb-3 text-center">
+          <div className="text-base text-gray-700 font-semibold mb-1">
+            Tổng thanh toán
+          </div>
+          <div className="text-2xl font-bold text-green-700">
+            {quantity} x {item.name} = {item.price * quantity}{" "}
+            <span className="text-yellow-500">💰</span>
+          </div>
+        </div>
+      )}
       <div className="mb-1 w-full">
         <label className="block text-gray-700 font-semibold mb-2 text-lg">
           Nhập thông tin thẻ
@@ -102,6 +115,9 @@ export default function Shop({ userId }) {
   const [clientSecret, setClientSecret] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  // State to store selected item and quantity for payment modal
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL;
@@ -137,11 +153,15 @@ export default function Shop({ userId }) {
     setBuyMessage("");
     setClientSecret("");
     setShowPayment(false);
+    // Find the item and quantity at the time of click
+    const item = items.find((i) => (i._id || i.id || i.name) === itemId);
+    let quantity = Number(quantityMap[itemId]);
+    if (!quantity || quantity < 1) quantity = 1;
+    setSelectedItem(item);
+    setSelectedQuantity(quantity);
     try {
       const API_URL = process.env.REACT_APP_API_URL;
       const token = localStorage.getItem("token");
-      const quantity =
-        Number(quantityMap[itemId]) > 0 ? Number(quantityMap[itemId]) : 1;
       const res = await fetch(`${API_URL}/items/buy`, {
         method: "POST",
         headers: {
@@ -219,6 +239,8 @@ export default function Shop({ userId }) {
               <Elements stripe={stripePromise} options={{ clientSecret }}>
                 <PaymentForm
                   clientSecret={clientSecret}
+                  item={selectedItem}
+                  quantity={selectedQuantity}
                   onSuccess={() => {
                     setShowPayment(false);
                     setClientSecret("");
