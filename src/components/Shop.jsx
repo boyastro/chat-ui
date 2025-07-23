@@ -1,7 +1,75 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 
 // Component hiển thị danh sách vật phẩm từ API Opponent Shop
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+
+function PaymentForm({ clientSecret, onSuccess, onCancel }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setPaying(true);
+    setError("");
+    if (!stripe || !elements) return;
+    const cardElement = elements.getElement(CardElement);
+    const { error: stripeError, paymentIntent } =
+      await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardElement },
+      });
+    if (stripeError) {
+      setError(stripeError.message);
+      setPaying(false);
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      onSuccess();
+    } else {
+      setError("Thanh toán thất bại. Vui lòng thử lại.");
+      setPaying(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
+    >
+      <div className="mb-3">
+        <CardElement
+          options={{ hidePostalCode: true }}
+          className="p-2 border rounded bg-white"
+        />
+      </div>
+      {error && <div className="text-red-500 mb-2 text-sm">{error}</div>}
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={paying || !stripe}
+          className="bg-green-600 text-white px-4 py-2 rounded font-semibold shadow disabled:opacity-60"
+        >
+          {paying ? "Đang thanh toán..." : "Xác nhận thanh toán"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold shadow"
+        >
+          Huỷ
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function Shop({ userId }) {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
@@ -10,6 +78,8 @@ export default function Shop({ userId }) {
   const [buyingId, setBuyingId] = useState(null);
   const [buyMessage, setBuyMessage] = useState("");
   const [quantityMap, setQuantityMap] = useState({});
+  const [clientSecret, setClientSecret] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL;
@@ -43,6 +113,8 @@ export default function Shop({ userId }) {
   const handleBuy = async (itemId) => {
     setBuyingId(itemId);
     setBuyMessage("");
+    setClientSecret("");
+    setShowPayment(false);
     try {
       const API_URL = process.env.REACT_APP_API_URL;
       const token = localStorage.getItem("token");
@@ -57,10 +129,12 @@ export default function Shop({ userId }) {
         body: JSON.stringify({ userId, itemId, quantity }),
       });
       const data = await res.json();
-      if (res.ok) {
-        setBuyMessage(data.message || "Mua thành công!");
+      if (res.ok && data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPayment(true);
+        setBuyMessage("");
       } else {
-        setBuyMessage(data.message || "Mua thất bại!");
+        setBuyMessage(data.message || data.error || "Mua thất bại!");
       }
     } catch (err) {
       setBuyMessage("Lỗi khi mua vật phẩm!");
@@ -85,6 +159,25 @@ export default function Shop({ userId }) {
         <div className="mb-4 text-center font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg py-2 px-4">
           {buyMessage}
         </div>
+      )}
+      {showPayment && clientSecret && (
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+          <PaymentForm
+            clientSecret={clientSecret}
+            onSuccess={() => {
+              setShowPayment(false);
+              setClientSecret("");
+              setBuyMessage(
+                "Thanh toán thành công! Vật phẩm sẽ được cộng vào kho của bạn."
+              );
+            }}
+            onCancel={() => {
+              setShowPayment(false);
+              setClientSecret("");
+              setBuyMessage("");
+            }}
+          />
+        </Elements>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.map((item) => (
