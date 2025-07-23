@@ -43,17 +43,17 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
       onSubmit={handleSubmit}
       className="flex flex-col gap-4 p-6 bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md mx-auto"
     >
-      <div className="mb-1">
+      <div className="mb-1 w-full">
         <label className="block text-gray-700 font-semibold mb-2 text-lg">
           Nhập thông tin thẻ
         </label>
-        <div className="rounded-lg border-2 border-blue-200 focus-within:border-blue-500 transition bg-gray-50 px-3 py-2">
+        <div className="rounded-lg border-2 border-blue-200 focus-within:border-blue-500 transition bg-gray-50 px-1 py-2 w-full">
           <CardElement
             options={{
               hidePostalCode: true,
               style: {
                 base: {
-                  fontSize: "18px",
+                  fontSize: "16px",
                   color: "#22223b",
                   "::placeholder": { color: "#a0aec0" },
                   fontFamily: "inherit",
@@ -62,7 +62,9 @@ function PaymentForm({ clientSecret, onSuccess, onCancel }) {
                 invalid: { color: "#e53e3e" },
               },
             }}
-            className="bg-white rounded-md px-2 py-3 border-none outline-none"
+            className="bg-white rounded-xl px-2 py-3 border-none outline-none w-full text-lg focus:ring-2 focus:ring-blue-400 transition min-w-0"
+            inputMode="numeric"
+            autoComplete="cc-number"
           />
         </div>
       </div>
