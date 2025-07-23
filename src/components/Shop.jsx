@@ -101,6 +101,7 @@ export default function Shop({ userId }) {
   const [quantityMap, setQuantityMap] = useState({});
   const [clientSecret, setClientSecret] = useState("");
   const [showPayment, setShowPayment] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL;
@@ -221,9 +222,7 @@ export default function Shop({ userId }) {
                   onSuccess={() => {
                     setShowPayment(false);
                     setClientSecret("");
-                    setBuyMessage(
-                      "Thanh toán thành công! Vật phẩm sẽ được cộng vào kho của bạn."
-                    );
+                    setShowSuccess(true);
                   }}
                   onCancel={() => {
                     setShowPayment(false);
@@ -232,6 +231,46 @@ export default function Shop({ userId }) {
                   }}
                 />
               </Elements>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-2xl border border-green-300 p-8 max-w-sm w-full flex flex-col items-center animate-fadeInUp">
+            <div className="flex flex-col items-center">
+              <div className="bg-green-100 rounded-full p-4 mb-4 border-4 border-green-200">
+                <svg
+                  className="w-12 h-12 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-green-700 mb-2 text-center">
+                Thanh toán thành công!
+              </h2>
+              <p className="text-green-800 text-center mb-6">
+                Vật phẩm đã được cộng vào kho của bạn.
+              </p>
+              <button
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:from-blue-600 hover:to-indigo-700 transition text-base"
+                onClick={() => {
+                  setShowSuccess(false);
+                  setBuyMessage("");
+                }}
+              >
+                Quay lại Shop
+              </button>
             </div>
           </div>
         </div>
