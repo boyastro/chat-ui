@@ -19,6 +19,7 @@ export default function LuckyWheel({ onWin }) {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(0);
+  const [transitionDuration, setTransitionDuration] = useState("5000ms");
   const [wheelSize] = useState({ width: 420, height: 420 }); // Tăng kích thước bánh xe lớn hơn nữa
 
   // Tạo refs để vẽ canvas
@@ -227,6 +228,10 @@ export default function LuckyWheel({ onWin }) {
     setSpinning(true);
     setResult(null);
 
+    // Reset lại góc quay về 0, tắt transition để không bị chậm
+    setTransitionDuration("0ms");
+    setAngle(0);
+
     // Chọn giải thưởng ngẫu nhiên
     const prizeIndex = Math.floor(Math.random() * segmentCount);
     const selectedPrize = prizes[prizeIndex];
@@ -247,7 +252,11 @@ export default function LuckyWheel({ onWin }) {
       )}°`
     );
 
-    setAngle(finalAngle);
+    // Đợi một frame để CSS transition nhận giá trị mới
+    setTimeout(() => {
+      setTransitionDuration("5000ms");
+      setAngle(finalAngle);
+    }, 10);
 
     // Đợi animation kết thúc rồi cập nhật kết quả
     setTimeout(() => {
@@ -257,7 +266,7 @@ export default function LuckyWheel({ onWin }) {
       console.log(
         `Kết quả: ${selectedPrize.label}, value: ${selectedPrize.value}`
       );
-    }, 5000);
+    }, 5010);
   };
 
   return (
@@ -281,7 +290,7 @@ export default function LuckyWheel({ onWin }) {
               className="transition-transform ease-out rounded-full shadow-xl"
               style={{
                 transform: `rotate(${angle}deg)`,
-                transitionDuration: "5000ms",
+                transitionDuration,
               }}
             />
 
@@ -312,13 +321,21 @@ export default function LuckyWheel({ onWin }) {
       {/* Kết quả */}
       {result && (
         <div className="text-xl font-bold text-green-700 mt-4 animate-bounce p-4 bg-green-50 rounded-lg border border-green-200">
-          {result.value === 0
-            ? "Rất tiếc! Bạn đã mất lượt"
-            : result.value === "retry"
-            ? "Chúc mừng! Bạn được quay lại"
-            : result.value === "rare"
-            ? "Tuyệt vời! Bạn nhận vật phẩm hiếm"
-            : `Chúc mừng! Bạn nhận được: ${result.label}`}
+          {result.value === 0 ? (
+            "Rất tiếc! Bạn đã mất lượt"
+          ) : result.value === "retry" ? (
+            <>
+              Chúc mừng! Bạn được quay lại
+              <br />
+              <span className="text-base text-gray-500">
+                Bạn có thể bấm nút quay để tiếp tục.
+              </span>
+            </>
+          ) : result.value === "rare" ? (
+            "Tuyệt vời! Bạn nhận vật phẩm hiếm"
+          ) : (
+            `Chúc mừng! Bạn nhận được: ${result.label}`
+          )}
         </div>
       )}
     </div>
