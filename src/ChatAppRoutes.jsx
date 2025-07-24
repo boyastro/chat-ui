@@ -13,6 +13,7 @@ import UserInfo from "./components/UserInfo";
 import CaroGame from "./components/CaroGame";
 import Leaderboard from "./components/Leaderboard";
 import Shop from "./components/Shop";
+import LuckyWheel from "./components/LuckyWheel";
 export default function ChatAppRoutes({
   chat,
   handleLogin,
@@ -54,9 +55,9 @@ export default function ChatAppRoutes({
   };
 
   useEffect(() => {
-    // Không redirect nếu đang ở /userinfo, /caro, /leaderboard hoặc /shop
+    // Không redirect nếu đang ở /userinfo, /caro, /leaderboard, /shop hoặc /luckywheel
     if (
-      ["/userinfo", "/caro", "/leaderboard", "/shop"].includes(
+      ["/userinfo", "/caro", "/leaderboard", "/shop", "/luckywheel"].includes(
         location.pathname
       )
     )
@@ -122,6 +123,7 @@ export default function ChatAppRoutes({
       <Route path="/caro" element={<CaroGame userId={userId} />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/shop" element={<Shop userId={userId} />} />
+      <Route path="/luckywheel" element={<LuckyWheel />} />
       <Route
         path="/chat/:roomId"
         element={

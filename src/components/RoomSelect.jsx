@@ -61,6 +61,7 @@ export default function RoomSelect({
             <span className="text-xs text-green-800 mt-0.5 font-bold tracking-wide">
               Shop
             </span>
+            {/* ...existing code for User Info button and label... */}
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
             <button
@@ -79,6 +80,19 @@ export default function RoomSelect({
             </button>
             <span className="text-xs text-blue-800 mt-0.5 font-bold tracking-wide">
               User info
+            </span>
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-pink-500 to-yellow-400 hover:from-pink-600 hover:to-yellow-500 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-pink-300 mt-2"
+              title="Vòng quay may mắn"
+              onClick={() => navigate("/luckywheel")}
+            >
+              <span className="text-lg">🎡</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Lucky Wheel
+              </span>
+            </button>
+            <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
+              Lucky Wheel
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
