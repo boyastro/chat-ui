@@ -23,7 +23,7 @@ export default function LuckyWheel({ onWin, userId }) {
   const [transitionDuration, setTransitionDuration] = useState("5000ms");
   const [wheelSize, setWheelSize] = useState({ width: 420, height: 420 });
   const [spinsLeft, setSpinsLeft] = useState(null); // Số lượt quay còn lại
-  const [spinCountToday, setSpinCountToday] = useState(null); // Số lượt đã quay hôm nay
+  // Đã bỏ biến spinCountToday vì không sử dụng
   // Đã bỏ biến coin vì không sử dụng
 
   // Kiểm tra số lượt quay khi vào component
@@ -41,11 +41,11 @@ export default function LuckyWheel({ onWin, userId }) {
           },
         });
         const data = await res.json();
-        if (data.spinsLeft !== undefined) setSpinsLeft(data.spinsLeft);
-        if (data.spinCountToday !== undefined)
-          setSpinCountToday(data.spinCountToday);
-        // Không cần xử lý coin
-        else setSpinsLeft(0);
+        if (data.spinsLeft !== undefined) {
+          setSpinsLeft(data.spinsLeft);
+        } else {
+          setSpinsLeft(0);
+        }
       } catch (err) {
         setSpinsLeft(0); // Nếu lỗi thì disable quay
       }
