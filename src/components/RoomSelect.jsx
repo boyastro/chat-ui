@@ -87,12 +87,10 @@ export default function RoomSelect({
               onClick={() => navigate("/luckywheel")}
             >
               <span className="text-base">🎡</span>
-              <span className="hidden xs:inline ml-1 truncate">
-                Lucky Wheel
-              </span>
+              <span className="hidden xs:inline ml-1 truncate">LuckyWheel</span>
             </button>
             <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
-              Lucky Wheel
+              LuckyWheel
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
