@@ -207,31 +207,31 @@ export default function LuckyWheel({ onWin }) {
 
     ctx.clearRect(0, 0, 100, 100);
 
-    // Vẽ mũi tên to hơn và nổi bật - điều chỉnh hướng mũi tên
+    // Vẽ mũi tên nhỏ hơn và nổi bật - điều chỉnh hướng mũi tên
     ctx.beginPath();
-    ctx.moveTo(50, 80); // Đỉnh mũi tên - đặt ở dưới để trỏ vào bánh xe
-    ctx.lineTo(20, 30); // Góc trái - đặt ở trên
-    ctx.lineTo(80, 30); // Góc phải - đặt ở trên
+    ctx.moveTo(50, 70); // Đỉnh mũi tên - đặt ở dưới để trỏ vào bánh xe (nhỏ hơn)
+    ctx.lineTo(30, 35); // Góc trái - đặt ở trên (di chuyển vào trong)
+    ctx.lineTo(70, 35); // Góc phải - đặt ở trên (di chuyển vào trong)
     ctx.closePath();
 
     // Thêm hiệu ứng gradient - điều chỉnh vị trí gradient theo hướng mũi tên mới
-    const gradient = ctx.createLinearGradient(50, 80, 50, 30);
+    const gradient = ctx.createLinearGradient(50, 70, 50, 35);
     gradient.addColorStop(0, "#dc2626");
     gradient.addColorStop(1, "#b91c1c");
     ctx.fillStyle = gradient;
     ctx.fill();
 
     // Thêm đường viền
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2; // Giảm độ đậm đường viền
     ctx.strokeStyle = "white";
     ctx.stroke();
 
-    // Vẽ nút tròn ở đuôi mũi tên - di chuyển lên trên
+    // Vẽ nút tròn ở đuôi mũi tên - di chuyển lên trên - nhỏ hơn
     ctx.beginPath();
-    ctx.arc(50, 30, 20, 0, 2 * Math.PI);
+    ctx.arc(50, 35, 15, 0, 2 * Math.PI); // Giảm kích thước từ 20 xuống 15
     ctx.fillStyle = "#dc2626";
     ctx.fill();
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 2.5; // Giảm độ đậm đường viền từ 4 xuống 2.5
     ctx.strokeStyle = "white";
     ctx.stroke();
 
