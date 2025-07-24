@@ -300,7 +300,7 @@ export default function LuckyWheel({ onWin }) {
       </button>
 
       <h2 className="text-xl sm:text-2xl font-bold text-center bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text">
-        <span className="block mt-2 mb-1 sm:mt-4 sm:mb-2">
+        <span className="block mt-0 mb-1 sm:mt-0 sm:mb-2">
           Vòng Quay May Mắn
         </span>
       </h2>
