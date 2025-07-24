@@ -19,7 +19,7 @@ export default function LuckyWheel({ onWin }) {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(0);
-  const [wheelSize, setWheelSize] = useState({ width: 420, height: 420 }); // Tăng kích thước bánh xe lớn hơn nữa
+  const [wheelSize] = useState({ width: 420, height: 420 }); // Tăng kích thước bánh xe lớn hơn nữa
 
   // Tạo refs để vẽ canvas
   const wheelRef = React.useRef(null);
