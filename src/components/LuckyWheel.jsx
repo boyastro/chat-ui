@@ -6,7 +6,7 @@ const prizes = [
   { label: "Quay lại", value: "retry", color: "#e5e7eb" },
   { label: "500💰", value: 500, color: "#fcd34d" },
   { label: "Mất lượt", value: "rare", color: "#a5b4fc" },
-  { label: "Mất", value: 0, color: "#e5e7eb" },
+  { label: "Mất lượt", value: 0, color: "#e5e7eb" },
   { label: "1000💰", value: 1000, color: "#fcd34d" },
   { label: "Mất lượt", value: "rare", color: "#a5b4fc" },
   { label: "300💰", value: 300, color: "#fef08a" },
