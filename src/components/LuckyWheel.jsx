@@ -15,14 +15,14 @@ const prizes = [
 
 const segmentCount = prizes.length;
 const segmentAngle = 360 / segmentCount;
-
-export default function LuckyWheel({ onWin }) {
+export default function LuckyWheel({ onWin, userId }) {
   const navigate = useNavigate();
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(0);
   const [transitionDuration, setTransitionDuration] = useState("5000ms");
   const [wheelSize, setWheelSize] = useState({ width: 420, height: 420 });
+  const [spinsLeft, setSpinsLeft] = useState(2); // Số lượt quay còn lại
 
   // Responsive: điều chỉnh kích thước bánh xe theo màn hình
   useEffect(() => {
@@ -243,7 +243,7 @@ export default function LuckyWheel({ onWin }) {
   }, []);
 
   const spin = () => {
-    if (spinning) return;
+    if (spinning || spinsLeft <= 0) return;
 
     setSpinning(true);
     setResult(null);
@@ -260,32 +260,55 @@ export default function LuckyWheel({ onWin }) {
     );
 
     // Tính toán góc quay cuối cùng
-    // Mũi tên ở vị trí 12h (top), canvas 0° là 3h, nên cần offset -90°
     const fullSpins = 6;
-    const pointerOffset = 90; // offset để mũi tên trỏ đúng 12h
+    const pointerOffset = 90;
     const stopAngle =
       360 - segmentAngle * prizeIndex - segmentAngle / 2 - pointerOffset;
     const finalAngle = 360 * fullSpins + stopAngle;
-    console.log(
-      `stopAngle: ${stopAngle.toFixed(2)}°, finalAngle: ${finalAngle.toFixed(
-        2
-      )}°`
-    );
-
-    // Đợi một frame để CSS transition nhận giá trị mới
     setTimeout(() => {
       setTransitionDuration("5000ms");
       setAngle(finalAngle);
     }, 10);
 
-    // Đợi animation kết thúc rồi cập nhật kết quả
-    setTimeout(() => {
+    // Đợi animation kết thúc rồi gửi kết quả lên backend
+    setTimeout(async () => {
       setSpinning(false);
       setResult(selectedPrize);
       if (onWin) onWin(selectedPrize);
-      console.log(
-        `Kết quả: ${selectedPrize.label}, value: ${selectedPrize.value}`
-      );
+      // Gửi kết quả lên backend
+      let rewardType, reward;
+      if (selectedPrize.value === "rare") {
+        rewardType = "item";
+        reward = null;
+      } else if (typeof selectedPrize.value === "number") {
+        rewardType = "coin";
+        reward = selectedPrize.value;
+      } else {
+        // Không gửi nếu là ô "Quay lại" hoặc không hợp lệ
+        return;
+      }
+      try {
+        const token = localStorage.getItem("token");
+        const apiUrl = process.env.REACT_APP_API_URL || "";
+        const res = await fetch(`${apiUrl}/spin/getspin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ userId, rewardType, reward }),
+        });
+        const data = await res.json();
+        if (data.spinsLeft !== undefined) setSpinsLeft(data.spinsLeft);
+        if (data.itemName) {
+          setResult((prev) => ({ ...prev, itemName: data.itemName }));
+        }
+        if (data.error) {
+          alert(data.error);
+        }
+      } catch (err) {
+        alert("Lỗi kết nối máy chủ!");
+      }
     }, 5010);
   };
 
@@ -345,9 +368,13 @@ export default function LuckyWheel({ onWin }) {
       <button
         className="bg-gradient-to-r from-pink-500 to-yellow-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-lg sm:text-xl shadow-lg hover:from-pink-600 hover:to-yellow-600 transition-all transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
         onClick={spin}
-        disabled={spinning}
+        disabled={spinning || spinsLeft <= 0}
       >
-        {spinning ? "Đang quay..." : "Quay ngay"}
+        {spinning
+          ? "Đang quay..."
+          : spinsLeft > 0
+          ? `Quay ngay (${spinsLeft} lượt)`
+          : "Hết lượt quay hôm nay"}
       </button>
 
       {/* Kết quả */}
@@ -364,7 +391,14 @@ export default function LuckyWheel({ onWin }) {
               </span>
             </>
           ) : result.value === "rare" ? (
-            "Tuyệt vời! Bạn nhận vật phẩm"
+            result.itemName ? (
+              <>
+                Tuyệt vời! Bạn nhận vật phẩm:{" "}
+                <span className="text-yellow-700">{result.itemName}</span>
+              </>
+            ) : (
+              "Tuyệt vời! Bạn nhận vật phẩm"
+            )
           ) : (
             `Chúc mừng! Bạn nhận được: ${result.label}`
           )}

@@ -123,7 +123,7 @@ export default function ChatAppRoutes({
       <Route path="/caro" element={<CaroGame userId={userId} />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
       <Route path="/shop" element={<Shop userId={userId} />} />
-      <Route path="/luckywheel" element={<LuckyWheel />} />
+      <Route path="/luckywheel" element={<LuckyWheel userId={userId} />} />
       <Route
         path="/chat/:roomId"
         element={
