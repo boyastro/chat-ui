@@ -20,7 +20,20 @@ export default function LuckyWheel({ onWin }) {
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(0);
   const [transitionDuration, setTransitionDuration] = useState("5000ms");
-  const [wheelSize] = useState({ width: 420, height: 420 }); // Tăng kích thước bánh xe lớn hơn nữa
+  const [wheelSize, setWheelSize] = useState({ width: 420, height: 420 });
+
+  // Responsive: điều chỉnh kích thước bánh xe theo màn hình
+  useEffect(() => {
+    function handleResize() {
+      const screenWidth = window.innerWidth;
+      const size = screenWidth < 768 ? Math.min(screenWidth - 40, 320) : 420;
+      setWheelSize({ width: size, height: size });
+    }
+
+    handleResize(); // Chạy khi mount
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Tạo refs để vẽ canvas
   const wheelRef = React.useRef(null);
@@ -35,6 +48,9 @@ export default function LuckyWheel({ onWin }) {
     const centerX = wheelSize.width / 2;
     const centerY = wheelSize.height / 2;
     const radius = Math.min(centerX, centerY) - 10;
+
+    // Điều chỉnh font size theo kích thước bánh xe
+    const isMobile = wheelSize.width < 350;
 
     // Xóa canvas
     ctx.clearRect(0, 0, wheelSize.width, wheelSize.height);
@@ -90,11 +106,12 @@ export default function LuckyWheel({ onWin }) {
       ctx.translate(textX, textY);
       ctx.rotate(midAngle + Math.PI / 2);
 
-      // Chuẩn bị text
-      ctx.font = "bold 15px Arial"; // Giảm kích thước chữ xuống nhỏ hơn
+      // Chuẩn bị text - responsive font size
+      const fontSize = isMobile ? 12 : 15;
+      ctx.font = `bold ${fontSize}px Arial`;
       const textMetrics = ctx.measureText(prize.label);
-      const textWidth = textMetrics.width + 16; // Giảm padding cho text box
-      const textHeight = 26; // Giảm chiều cao cho text box
+      const textWidth = textMetrics.width + (isMobile ? 10 : 16); // Padding nhỏ hơn trên mobile
+      const textHeight = isMobile ? 22 : 26; // Chiều cao nhỏ hơn trên mobile
 
       // Vẽ nền cho text (với đường viền)
       ctx.fillStyle = "rgba(255, 255, 255, 1.0)"; // Nền màu trắng đặc
@@ -155,25 +172,26 @@ export default function LuckyWheel({ onWin }) {
       ctx.restore();
     });
 
-    // Vẽ vòng tròn trung tâm nhỏ hơn
+    // Vẽ vòng tròn trung tâm nhỏ hơn - responsive size
+    const centerSize = isMobile ? 35 : 50;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 50, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, centerSize, 0, 2 * Math.PI);
     ctx.fillStyle = "white";
     ctx.fill();
-    ctx.lineWidth = 4;
+    ctx.lineWidth = isMobile ? 3 : 4;
     ctx.strokeStyle = "#eab308";
     ctx.stroke();
 
     // Thêm vòng tròn trang trí bên trong
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
-    ctx.lineWidth = 2;
+    ctx.arc(centerX, centerY, centerSize * 0.8, 0, 2 * Math.PI);
+    ctx.lineWidth = isMobile ? 1.5 : 2;
     ctx.strokeStyle = "#eab308";
     ctx.stroke();
 
     // Thêm vòng tròn nhỏ nhất ở trung tâm để trang trí
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+    ctx.arc(centerX, centerY, centerSize * 0.3, 0, 2 * Math.PI);
     ctx.fillStyle = "#eab308";
     ctx.fill();
   }, [wheelSize]);
@@ -270,18 +288,22 @@ export default function LuckyWheel({ onWin }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-8 py-10 px-4">
-      <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text">
+    <div className="flex flex-col items-center gap-4 sm:gap-8 py-6 sm:py-10 px-2 sm:px-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-center bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text">
         Vòng Quay May Mắn
       </h2>
 
       <div className="relative">
         {/* Khung chứa vòng quay với đổ bóng */}
-        <div className="p-4 bg-gradient-to-b from-yellow-50 to-amber-50 rounded-full shadow-lg">
+        <div className="p-2 sm:p-4 bg-gradient-to-b from-yellow-50 to-amber-50 rounded-full shadow-lg">
           {/* Vòng quay */}
           <div
             className="relative"
-            style={{ width: wheelSize.width, height: wheelSize.height }}
+            style={{
+              width: wheelSize.width,
+              height: wheelSize.height,
+              maxWidth: "100vw",
+            }}
           >
             <canvas
               ref={wheelRef}
@@ -295,9 +317,9 @@ export default function LuckyWheel({ onWin }) {
             />
 
             {/* Trục giữa - kích thước nhỏ hơn */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-3 border-yellow-500 bg-gradient-to-b from-white to-gray-50 shadow-lg z-10 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full bg-white shadow-inner"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 sm:border-3 border-yellow-500 bg-gradient-to-b from-white to-gray-50 shadow-lg z-10 flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 flex items-center justify-center">
+                <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-white shadow-inner"></div>
               </div>
             </div>
           </div>
@@ -311,7 +333,7 @@ export default function LuckyWheel({ onWin }) {
 
       {/* Nút Quay */}
       <button
-        className="bg-gradient-to-r from-pink-500 to-yellow-500 text-white px-10 py-4 rounded-full font-bold text-xl shadow-lg hover:from-pink-600 hover:to-yellow-600 transition-all transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="bg-gradient-to-r from-pink-500 to-yellow-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-lg sm:text-xl shadow-lg hover:from-pink-600 hover:to-yellow-600 transition-all transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
         onClick={spin}
         disabled={spinning}
       >
@@ -320,7 +342,7 @@ export default function LuckyWheel({ onWin }) {
 
       {/* Kết quả */}
       {result && (
-        <div className="text-xl font-bold text-green-700 mt-4 animate-bounce p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="text-base sm:text-xl font-bold text-green-700 mt-4 animate-bounce p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200 max-w-full">
           {result.value === 0 ? (
             "Rất tiếc! Bạn đã mất lượt"
           ) : result.value === "retry" ? (
