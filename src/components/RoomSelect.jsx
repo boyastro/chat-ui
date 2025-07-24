@@ -61,6 +61,7 @@ export default function RoomSelect({
             <span className="text-xs text-green-800 mt-0.5 font-bold tracking-wide">
               Shop
             </span>
+
             {/* ...existing code for User Info button and label... */}
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
@@ -107,6 +108,19 @@ export default function RoomSelect({
             </button>
             <span className="text-xs text-purple-800 mt-0.5 font-bold tracking-wide">
               Leaderboard
+            </span>
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-600 hover:to-yellow-800 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-yellow-400 mt-2"
+              title="Mua Coin"
+              onClick={() => navigate("/coinshop")}
+            >
+              <span className="text-lg">🪙</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                CoinShop
+              </span>
+            </button>
+            <span className="text-xs text-yellow-700 mt-0.5 font-bold tracking-wide">
+              Mua Coin
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
