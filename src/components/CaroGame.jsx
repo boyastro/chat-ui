@@ -20,6 +20,16 @@ function ResultModal({ open, result, onClose }) {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div className="bg-white rounded-lg shadow-lg p-8 min-w-[300px] flex flex-col items-center">
         <div className={`text-2xl font-bold mb-4 ${color}`}>{title}</div>
+        {result === "win" && (
+          <div className="mb-2 text-green-700 text-base font-semibold">
+            <span className="inline-block mr-2">🏆</span>Score +20, Coin +10
+          </div>
+        )}
+        {result === "lose" && (
+          <div className="mb-2 text-red-600 text-base font-semibold">
+            <span className="inline-block mr-2">😢</span>Score -20
+          </div>
+        )}
         <button
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={async () => {
