@@ -15,7 +15,7 @@ const coinPackages = [
   { id: "coin_500", amount: 500, price: 399 },
 ];
 
-export default function CoinShop() {
+export default function CoinShop({ userId }) {
   const stripePromise = loadStripe(
     process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
   );
@@ -33,7 +33,7 @@ export default function CoinShop() {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ packageId: pkg.id }),
+        body: JSON.stringify({ packageId: pkg.id, userId }),
       });
       const data = await res.json();
       if (data.clientSecret) {
@@ -145,6 +145,10 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           {success ? (
             <div className="text-green-600 font-bold">
               Thanh toán thành công!
+              <br />
+              Bạn được cộng thêm{" "}
+              <span className="text-yellow-700">{pkg.amount} coin</span> vào tài
+              khoản.
             </div>
           ) : (
             <button
