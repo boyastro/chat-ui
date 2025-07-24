@@ -82,13 +82,16 @@ export default function RoomSelect({
               User info
             </span>
             <button
-              className="w-full flex items-center justify-center bg-gradient-to-r from-pink-500 to-yellow-400 hover:from-pink-600 hover:to-yellow-500 text-white rounded-lg px-4 py-2 font-semibold text-lg shadow-md transition h-12 border-2 border-pink-300 mt-2"
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-pink-500 to-yellow-400 hover:from-pink-600 hover:to-yellow-500 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-pink-300 mt-2"
               title="Vòng quay may mắn"
               onClick={() => navigate("/luckywheel")}
             >
-              <span className="text-2xl">🎡</span>
+              <span className="text-base">🎡</span>
+              <span className="hidden xs:inline ml-1 truncate">
+                Lucky Wheel
+              </span>
             </button>
-            <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide text-center w-full block">
+            <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
               Lucky Wheel
             </span>
           </div>
