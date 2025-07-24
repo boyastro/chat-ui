@@ -22,8 +22,28 @@ export default function LuckyWheel({ onWin, userId }) {
   const [angle, setAngle] = useState(0);
   const [transitionDuration, setTransitionDuration] = useState("5000ms");
   const [wheelSize, setWheelSize] = useState({ width: 420, height: 420 });
-  const [spinsLeft, setSpinsLeft] = useState(2); // Số lượt quay còn lại
+  const [spinsLeft, setSpinsLeft] = useState(null); // Số lượt quay còn lại
 
+  // Kiểm tra số lượt quay khi vào component
+  useEffect(() => {
+    async function fetchSpinStatus() {
+      if (!userId) return;
+      try {
+        const token = localStorage.getItem("token");
+        const apiUrl = process.env.REACT_APP_API_URL || "";
+        const res = await fetch(`${apiUrl}/spin/status?userId=${userId}`, {
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const data = await res.json();
+        if (data.spinsLeft !== undefined) setSpinsLeft(data.spinsLeft);
+      } catch (err) {
+        setSpinsLeft(0); // Nếu lỗi thì disable quay
+      }
+    }
+    fetchSpinStatus();
+  }, [userId]);
   // Responsive: điều chỉnh kích thước bánh xe theo màn hình
   useEffect(() => {
     function handleResize() {
@@ -368,10 +388,12 @@ export default function LuckyWheel({ onWin, userId }) {
       <button
         className="bg-gradient-to-r from-pink-500 to-yellow-500 text-white px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-lg sm:text-xl shadow-lg hover:from-pink-600 hover:to-yellow-600 transition-all transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
         onClick={spin}
-        disabled={spinning || spinsLeft <= 0}
+        disabled={spinning || spinsLeft === null || spinsLeft <= 0}
       >
         {spinning
           ? "Đang quay..."
+          : spinsLeft === null
+          ? "Đang kiểm tra lượt quay..."
           : spinsLeft > 0
           ? `Quay ngay (${spinsLeft} lượt)`
           : "Hết lượt quay hôm nay"}
