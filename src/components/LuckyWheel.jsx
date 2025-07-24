@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Dữ liệu giải thưởng với màu sắc được định nghĩa sẵn
 const prizes = [
@@ -16,6 +17,7 @@ const segmentCount = prizes.length;
 const segmentAngle = 360 / segmentCount;
 
 export default function LuckyWheel({ onWin }) {
+  const navigate = useNavigate();
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState(null);
   const [angle, setAngle] = useState(0);
@@ -289,6 +291,14 @@ export default function LuckyWheel({ onWin }) {
 
   return (
     <div className="flex flex-col items-center gap-4 sm:gap-8 py-6 sm:py-10 px-2 sm:px-4">
+      <button
+        className="mb-2 self-start flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+        onClick={() => navigate("/rooms")}
+      >
+        <span className="text-sm">⬅️</span>
+        <span>Quay lại chọn phòng</span>
+      </button>
+
       <h2 className="text-xl sm:text-2xl font-bold text-center bg-gradient-to-r from-pink-500 to-yellow-500 text-transparent bg-clip-text">
         <span className="block mt-2 mb-1 sm:mt-4 sm:mb-2">
           Vòng Quay May Mắn
