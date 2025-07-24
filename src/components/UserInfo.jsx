@@ -175,6 +175,15 @@ export default function UserInfo({ userId }) {
                 {userInfo.score || "0"}
               </div>
             </div>
+            {/* Coin */}
+            <div className="bg-yellow-50 p-3 rounded-lg col-span-2">
+              <div className="text-sm text-yellow-600 mb-1 flex items-center gap-1">
+                <span className="text-base">🪙</span> Coin
+              </div>
+              <div className="font-bold text-yellow-700 text-lg">
+                {userInfo.coin ?? 0}
+              </div>
+            </div>
 
             {userInfo.email && (
               <div className="col-span-2 bg-gray-50 p-3 rounded-lg">
