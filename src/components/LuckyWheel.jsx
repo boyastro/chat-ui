@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 // Dữ liệu giải thưởng với màu sắc được định nghĩa sẵn
 const prizes = [
-  { label: "100💰", value: 100, color: "#fef08a" },
+  { label: "10💰", value: 10, color: "#fef08a" },
   { label: "Quay lại", value: "retry", color: "#e5e7eb" },
-  { label: "500💰", value: 500, color: "#fcd34d" },
-  { label: "Hiếm", value: "rare", color: "#a5b4fc" },
-  { label: "Hiếm", value: "rare", color: "#e5e7eb" },
-  { label: "1000💰", value: 1000, color: "#fcd34d" },
-  { label: "Hiếm", value: "rare", color: "#a5b4fc" },
-  { label: "300💰", value: 300, color: "#fef08a" },
+  { label: "50💰", value: 50, color: "#fcd34d" },
+  { label: "10💰", value: 10, color: "#a5b4fc" },
+  { label: "5💰", value: 5, color: "#e5e7eb" },
+  { label: "20💰", value: 20, color: "#fcd34d" },
+  { label: "Vật Phẩm", value: "rare", color: "#a5b4fc" },
+  { label: "30💰", value: 30, color: "#fef08a" },
 ];
 
 const segmentCount = prizes.length;
@@ -364,7 +364,7 @@ export default function LuckyWheel({ onWin }) {
               </span>
             </>
           ) : result.value === "rare" ? (
-            "Tuyệt vời! Bạn nhận vật phẩm hiếm"
+            "Tuyệt vời! Bạn nhận vật phẩm"
           ) : (
             `Chúc mừng! Bạn nhận được: ${result.label}`
           )}
