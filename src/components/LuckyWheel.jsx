@@ -180,15 +180,15 @@ export default function LuckyWheel({ onWin }) {
 
     ctx.clearRect(0, 0, 100, 100);
 
-    // Vẽ mũi tên to hơn và nổi bật
+    // Vẽ mũi tên to hơn và nổi bật - điều chỉnh hướng mũi tên
     ctx.beginPath();
-    ctx.moveTo(50, 12); // Đỉnh mũi tên
-    ctx.lineTo(20, 50); // Mũi tên rộng hơn
-    ctx.lineTo(80, 50); // Mũi tên rộng hơn
+    ctx.moveTo(50, 80); // Đỉnh mũi tên - đặt ở dưới để trỏ vào bánh xe
+    ctx.lineTo(20, 30); // Góc trái - đặt ở trên
+    ctx.lineTo(80, 30); // Góc phải - đặt ở trên
     ctx.closePath();
 
-    // Thêm hiệu ứng gradient
-    const gradient = ctx.createLinearGradient(50, 12, 50, 50);
+    // Thêm hiệu ứng gradient - điều chỉnh vị trí gradient theo hướng mũi tên mới
+    const gradient = ctx.createLinearGradient(50, 80, 50, 30);
     gradient.addColorStop(0, "#dc2626");
     gradient.addColorStop(1, "#b91c1c");
     ctx.fillStyle = gradient;
@@ -199,9 +199,9 @@ export default function LuckyWheel({ onWin }) {
     ctx.strokeStyle = "white";
     ctx.stroke();
 
-    // Vẽ nút tròn ở đuôi mũi tên
+    // Vẽ nút tròn ở đuôi mũi tên - di chuyển lên trên
     ctx.beginPath();
-    ctx.arc(50, 50, 20, 0, 2 * Math.PI);
+    ctx.arc(50, 30, 20, 0, 2 * Math.PI);
     ctx.fillStyle = "#dc2626";
     ctx.fill();
     ctx.lineWidth = 4;
@@ -273,8 +273,8 @@ export default function LuckyWheel({ onWin }) {
             </div>
           </div>
 
-          {/* Mũi tên - vị trí cao hơn */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-10 z-20">
+          {/* Mũi tên - dịch lên trên một chút */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-8 z-20">
             <canvas ref={arrowRef} width="100" height="100" />
           </div>
         </div>
