@@ -5,10 +5,10 @@ const prizes = [
   { label: "100💰", value: 100, color: "#fef08a" },
   { label: "Quay lại", value: "retry", color: "#e5e7eb" },
   { label: "500💰", value: 500, color: "#fcd34d" },
-  { label: "Mất lượt", value: "rare", color: "#a5b4fc" },
-  { label: "Mất lượt", value: 0, color: "#e5e7eb" },
+  { label: "Hiếm", value: "rare", color: "#a5b4fc" },
+  { label: "Hiếm", value: "rare", color: "#e5e7eb" },
   { label: "1000💰", value: 1000, color: "#fcd34d" },
-  { label: "Mất lượt", value: "rare", color: "#a5b4fc" },
+  { label: "Hiếm", value: "rare", color: "#a5b4fc" },
   { label: "300💰", value: 300, color: "#fef08a" },
 ];
 
@@ -50,6 +50,12 @@ export default function LuckyWheel({ onWin }) {
       // Vẽ phần bánh xe
       const startAngle = (i * segmentAngle * Math.PI) / 180;
       const endAngle = ((i + 1) * segmentAngle * Math.PI) / 180;
+      // Log góc bắt đầu, kết thúc và label
+      console.log(
+        `Phần ${i}: ${prize.label} | startAngle: ${(i * segmentAngle).toFixed(
+          2
+        )}° | endAngle: ${((i + 1) * segmentAngle).toFixed(2)}°`
+      );
 
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
@@ -224,11 +230,22 @@ export default function LuckyWheel({ onWin }) {
     // Chọn giải thưởng ngẫu nhiên
     const prizeIndex = Math.floor(Math.random() * segmentCount);
     const selectedPrize = prizes[prizeIndex];
+    console.log(
+      `Quay trúng index: ${prizeIndex}, label: ${selectedPrize.label}`
+    );
 
     // Tính toán góc quay cuối cùng
+    // Mũi tên ở vị trí 12h (top), canvas 0° là 3h, nên cần offset -90°
     const fullSpins = 6;
-    const finalAngle =
-      360 * fullSpins + (360 - segmentAngle * prizeIndex - segmentAngle / 2);
+    const pointerOffset = 90; // offset để mũi tên trỏ đúng 12h
+    const stopAngle =
+      360 - segmentAngle * prizeIndex - segmentAngle / 2 - pointerOffset;
+    const finalAngle = 360 * fullSpins + stopAngle;
+    console.log(
+      `stopAngle: ${stopAngle.toFixed(2)}°, finalAngle: ${finalAngle.toFixed(
+        2
+      )}°`
+    );
 
     setAngle(finalAngle);
 
@@ -237,6 +254,9 @@ export default function LuckyWheel({ onWin }) {
       setSpinning(false);
       setResult(selectedPrize);
       if (onWin) onWin(selectedPrize);
+      console.log(
+        `Kết quả: ${selectedPrize.label}, value: ${selectedPrize.value}`
+      );
     }, 5000);
   };
 
