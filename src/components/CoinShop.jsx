@@ -19,15 +19,8 @@ const coinPackages = [
 
 function CoinShop({ userId }) {
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
-  const stripePromise = loadStripe(
-    process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
-  );
-  const [clientSecret, setClientSecret] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPkg, setSelectedPkg] = useState(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
+  // Hàm fetch user info để tái sử dụng, dùng useCallback để tránh warning
+  const fetchUserInfo = React.useCallback(() => {
     const API_URL = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem("token");
     fetch(`${API_URL}/users/${userId || "me"}`, {
@@ -50,6 +43,17 @@ function CoinShop({ userId }) {
         }
       });
   }, [userId]);
+  const stripePromise = loadStripe(
+    process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
+  );
+  const [clientSecret, setClientSecret] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPkg, setSelectedPkg] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   // ...existing code...
   const handleBuy = async (pkg) => {
@@ -197,6 +201,7 @@ function CoinShop({ userId }) {
             pkg={selectedPkg}
             clientSecret={clientSecret}
             onClose={() => setShowModal(false)}
+            onPaymentSuccess={fetchUserInfo}
           />
         </Elements>
       )}
@@ -225,10 +230,9 @@ function CoinShop({ userId }) {
 export default CoinShop;
 // ...existing code...
 
-function PaymentModal({ pkg, clientSecret, onClose }) {
+function PaymentModal({ pkg, clientSecret, onClose, onPaymentSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -266,6 +270,9 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
       result.paymentIntent.status === "succeeded"
     ) {
       setSuccess(true);
+      if (typeof onPaymentSuccess === "function") {
+        onPaymentSuccess();
+      }
     }
   };
 
@@ -437,27 +444,6 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
 
         {success && (
           <div className="flex flex-col gap-1.5 mt-1">
-            <button
-              className="w-full py-1 px-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md font-medium shadow-sm hover:shadow-md hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-xs flex items-center justify-center gap-1"
-              onClick={() => {
-                onClose();
-                navigate("/rooms");
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3 w-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>Trở Lại Phòng Chát</span>
-            </button>
             <button
               className="w-full py-1 px-2 bg-gray-100 rounded-md text-gray-700 font-medium hover:bg-gray-200 transition-colors text-xs"
               onClick={onClose}
