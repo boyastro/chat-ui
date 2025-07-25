@@ -1,0 +1,58 @@
+/* CoinShop.css */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7);
+  }
+  70% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 10px rgba(250, 204, 21, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.group:hover .group-hover\:animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+/* Stripe Element Customization */
+.StripeElement {
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-height: 42px;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.5);
+}
+
+.StripeElement--invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
