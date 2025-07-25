@@ -164,7 +164,6 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
       result.paymentIntent.status === "succeeded"
     ) {
       setSuccess(true);
-      setTimeout(onClose, 2000);
     }
   };
 
