@@ -126,11 +126,17 @@ export default function Shop({ userId }) {
       </div>
       {/* User Card */}
       <div className="flex items-center gap-4 mb-8 p-4 rounded-xl bg-gradient-to-r from-blue-100/80 to-indigo-100/60 shadow border border-blue-200 w-fit mx-auto">
-        <img
-          src={userInfo.avatar}
-          alt="avatar"
-          className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white"
-        />
+        {userInfo.avatar ? (
+          <img
+            src={userInfo.avatar}
+            alt="avatar"
+            className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white flex items-center justify-center text-2xl text-blue-400 font-bold">
+            {userInfo.name ? userInfo.name[0] : "U"}
+          </div>
+        )}
         <div className="flex flex-col gap-1">
           <span className="font-semibold text-lg text-blue-900">
             {userInfo.name}
