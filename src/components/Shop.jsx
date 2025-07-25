@@ -284,10 +284,10 @@ export default function Shop({ userId }) {
                     Giá: {item.price}{" "}
                     <span className="text-yellow-500">💰</span>
                   </span>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      className="w-7 h-7 flex items-center justify-center rounded-l bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold text-lg border border-r-0 border-blue-200"
+                      className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 text-blue-700 font-bold text-xl border border-blue-200 shadow-sm transition-all duration-150 active:scale-90 disabled:opacity-50"
                       onClick={() =>
                         setQuantityMap((q) => ({
                           ...q,
@@ -296,8 +296,23 @@ export default function Shop({ userId }) {
                       }
                       disabled={quantity <= 1}
                       tabIndex={-1}
+                      aria-label="Giảm số lượng"
                     >
-                      -
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                      >
+                        <rect
+                          x="5"
+                          y="9"
+                          width="10"
+                          height="2"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                      </svg>
                     </button>
                     <input
                       type="number"
@@ -309,13 +324,13 @@ export default function Shop({ userId }) {
                           [itemKey]: Math.max(1, Number(e.target.value)),
                         }))
                       }
-                      className="w-12 px-2 py-1 border-t border-b border-blue-200 text-center text-sm focus:ring-2 focus:ring-blue-300 outline-none"
-                      style={{ minWidth: 40 }}
+                      className="w-14 px-2 py-1 border border-blue-200 rounded-lg text-center text-base font-semibold focus:ring-2 focus:ring-blue-300 outline-none bg-white shadow-sm"
+                      style={{ minWidth: 44 }}
                       title="Số lượng"
                     />
                     <button
                       type="button"
-                      className="w-7 h-7 flex items-center justify-center rounded-r bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold text-lg border border-l-0 border-blue-200"
+                      className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 text-blue-700 font-bold text-xl border border-blue-200 shadow-sm transition-all duration-150 active:scale-90"
                       onClick={() =>
                         setQuantityMap((q) => ({
                           ...q,
@@ -323,8 +338,31 @@ export default function Shop({ userId }) {
                         }))
                       }
                       tabIndex={-1}
+                      aria-label="Tăng số lượng"
                     >
-                      +
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                      >
+                        <rect
+                          x="9"
+                          y="5"
+                          width="2"
+                          height="10"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                        <rect
+                          x="5"
+                          y="9"
+                          width="10"
+                          height="2"
+                          rx="1"
+                          fill="currentColor"
+                        />
+                      </svg>
                     </button>
                   </div>
                 </div>
