@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -16,13 +17,14 @@ const coinPackages = [
   { id: "coin_500", amount: 500, price: 399 },
 ];
 
-export default function CoinShop({ userId }) {
+function CoinShop({ userId }) {
   const stripePromise = loadStripe(
     process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
   );
   const [clientSecret, setClientSecret] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedPkg, setSelectedPkg] = useState(null);
+  const navigate = useNavigate();
 
   const handleBuy = async (pkg) => {
     try {
@@ -51,6 +53,15 @@ export default function CoinShop({ userId }) {
 
   return (
     <div className="max-w-4xl mx-auto my-10 p-8 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100">
+      <div className="flex justify-start mb-4">
+        <button
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500 text-white font-semibold shadow hover:bg-green-600 transition focus:outline-none focus:ring-2 focus:ring-green-300 text-sm whitespace-nowrap"
+          style={{ minWidth: "120px" }}
+          onClick={() => navigate("/rooms")}
+        >
+          <span className="text-base">💬</span> Trở Lại Phòng Chát
+        </button>
+      </div>
       <div className="flex items-center justify-center gap-3 mb-8">
         <span className="text-3xl">✨</span>
         <h2 className="text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-amber-600">
@@ -134,6 +145,9 @@ export default function CoinShop({ userId }) {
     </div>
   );
 }
+
+export default CoinShop;
+// ...existing code...
 
 function PaymentModal({ pkg, clientSecret, onClose }) {
   const stripe = useStripe();
