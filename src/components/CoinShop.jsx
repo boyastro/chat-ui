@@ -341,7 +341,31 @@ function PaymentModal({ pkg, clientSecret, onClose, onPaymentSuccess }) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100">
-              <span className="text-sm">🪙</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="gold"
+                  strokeWidth="2"
+                  fill="#ffe066"
+                />
+                <text
+                  x="12"
+                  y="16"
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#bfa100"
+                >
+                  ₵
+                </text>
+              </svg>
             </div>
             <h3 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
               Thanh toán <span className="font-extrabold">{pkg.amount}</span>{" "}
