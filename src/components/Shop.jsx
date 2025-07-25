@@ -1,108 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loadStripe } from "@stripe/stripe-js";
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
-
-// Component hiển thị danh sách vật phẩm từ API Opponent Shop
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
-
-// Hiển thị tổng bill trước khi nhập thẻ
-function PaymentForm({ clientSecret, onSuccess, onCancel, item, quantity }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [paying, setPaying] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setPaying(true);
-    setError("");
-    if (!stripe || !elements) return;
-    const cardElement = elements.getElement(CardElement);
-    const { error: stripeError, paymentIntent } =
-      await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement },
-      });
-    if (stripeError) {
-      setError(stripeError.message);
-      setPaying(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      onSuccess();
-    } else {
-      setError("Thanh toán thất bại. Vui lòng thử lại.");
-      setPaying(false);
-    }
-  };
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4 p-6 bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md mx-auto"
-    >
-      {/* Tổng bill */}
-      {item && (
-        <div className="mb-3 text-center">
-          <div className="text-base text-gray-700 font-semibold mb-1">
-            Tổng thanh toán
-          </div>
-          <div className="text-2xl font-bold text-green-700">
-            {quantity} x {item.name} = {item.price * quantity}{" "}
-            <span className="text-yellow-500">💰</span>
-          </div>
-        </div>
-      )}
-      <div className="mb-1 w-full">
-        <label className="block text-gray-700 font-semibold mb-2 text-lg">
-          Nhập thông tin thẻ
-        </label>
-        <div className="rounded-lg border-2 border-blue-200 focus-within:border-blue-500 transition bg-gray-50 px-1 py-2 w-full">
-          <CardElement
-            options={{
-              hidePostalCode: true,
-              style: {
-                base: {
-                  fontSize: "16px",
-                  color: "#22223b",
-                  "::placeholder": { color: "#a0aec0" },
-                  fontFamily: "inherit",
-                  letterSpacing: "0.03em",
-                },
-                invalid: { color: "#e53e3e" },
-              },
-            }}
-            className="bg-white rounded-xl px-2 py-3 border-none outline-none w-full text-lg focus:ring-2 focus:ring-blue-400 transition min-w-0"
-            inputMode="numeric"
-            autoComplete="cc-number"
-          />
-        </div>
-      </div>
-      {error && (
-        <div className="text-red-500 mb-2 text-sm text-center">{error}</div>
-      )}
-      <div className="flex gap-3 justify-center mt-2">
-        <button
-          type="submit"
-          disabled={paying || !stripe}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-2 rounded-lg font-semibold shadow disabled:opacity-60 text-base"
-        >
-          {paying ? "Đang thanh toán..." : "Xác nhận thanh toán"}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold shadow border border-gray-300 hover:bg-gray-300 text-base"
-        >
-          Huỷ
-        </button>
-      </div>
-    </form>
-  );
-}
+// import Stripe dependencies removed
 
 export default function Shop({ userId }) {
   const navigate = useNavigate();
@@ -112,12 +10,7 @@ export default function Shop({ userId }) {
   const [buyingId, setBuyingId] = useState(null);
   const [buyMessage, setBuyMessage] = useState("");
   const [quantityMap, setQuantityMap] = useState({});
-  const [clientSecret, setClientSecret] = useState("");
-  const [showPayment, setShowPayment] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  // State to store selected item and quantity for payment modal
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL;
@@ -151,18 +44,12 @@ export default function Shop({ userId }) {
   const handleBuy = async (itemId) => {
     setBuyingId(itemId);
     setBuyMessage("");
-    setClientSecret("");
-    setShowPayment(false);
-    // Find the item and quantity at the time of click
-    const item = items.find((i) => (i._id || i.id || i.name) === itemId);
     let quantity = Number(quantityMap[itemId]);
     if (!quantity || quantity < 1) quantity = 1;
-    setSelectedItem(item);
-    setSelectedQuantity(quantity);
     try {
       const API_URL = process.env.REACT_APP_API_URL;
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/items/buy`, {
+      const res = await fetch(`${API_URL}/items/buy-coin-item`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,9 +58,8 @@ export default function Shop({ userId }) {
         body: JSON.stringify({ userId, itemId, quantity }),
       });
       const data = await res.json();
-      if (res.ok && data.clientSecret) {
-        setClientSecret(data.clientSecret);
-        setShowPayment(true);
+      if (res.ok && data.success) {
+        setShowSuccess(true);
         setBuyMessage("");
       } else {
         setBuyMessage(data.message || data.error || "Mua thất bại!");
@@ -202,62 +88,6 @@ export default function Shop({ userId }) {
           {buyMessage}
         </div>
       )}
-      {/* Modal overlay for payment */}
-      {showPayment && clientSecret && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="relative w-full max-w-lg mx-auto">
-            <div className="absolute top-2 right-2 z-10">
-              <button
-                onClick={() => {
-                  setShowPayment(false);
-                  setClientSecret("");
-                  setBuyMessage("");
-                }}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full p-2 shadow border border-gray-300 focus:outline-none"
-                aria-label="Đóng"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div className="bg-white rounded-2xl shadow-2xl border border-blue-200 p-8 pt-10 relative animate-fadeInUp">
-              <h3 className="text-xl font-bold text-blue-700 mb-4 text-center">
-                Thanh toán vật phẩm
-              </h3>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <PaymentForm
-                  clientSecret={clientSecret}
-                  item={selectedItem}
-                  quantity={selectedQuantity}
-                  onSuccess={() => {
-                    setShowPayment(false);
-                    setClientSecret("");
-                    setShowSuccess(true);
-                  }}
-                  onCancel={() => {
-                    setShowPayment(false);
-                    setClientSecret("");
-                    setBuyMessage("");
-                  }}
-                />
-              </Elements>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -279,7 +109,7 @@ export default function Shop({ userId }) {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-green-700 mb-2 text-center">
-                Thanh toán thành công!
+                Mua thành công!
               </h2>
               <p className="text-green-800 text-center mb-6">
                 Vật phẩm đã được cộng vào kho của bạn.
@@ -297,9 +127,7 @@ export default function Shop({ userId }) {
           </div>
         </div>
       )}
-      <div
-        className={showPayment ? "pointer-events-none blur-sm select-none" : ""}
-      >
+      <div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {items.map((item) => (
             <div
