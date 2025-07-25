@@ -55,10 +55,22 @@ function CoinShop({ userId }) {
     <div className="max-w-5xl mx-auto my-6 p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-md border border-gray-100">
       <div className="flex justify-start mb-3">
         <button
-          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500 text-white font-semibold shadow-sm hover:bg-green-600 transition focus:outline-none focus:ring-1 focus:ring-green-300 text-xs whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold shadow-md hover:shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-xs transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 whitespace-nowrap"
           onClick={() => navigate("/rooms")}
         >
-          <span className="text-sm">💬</span> Trở Lại Phòng Chát
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>Trở Lại Phòng Chát</span>
         </button>
       </div>
       <div className="flex items-center justify-center gap-2 mb-4">
@@ -149,6 +161,7 @@ export default CoinShop;
 function PaymentModal({ pkg, clientSecret, onClose }) {
   const stripe = useStripe();
   const elements = useElements();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -339,12 +352,35 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
         )}
 
         {success && (
-          <button
-            className="mt-3 w-full py-1.5 px-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm"
-            onClick={onClose}
-          >
-            Đóng
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              className="mt-1 w-full py-1.5 px-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-sm flex items-center justify-center gap-1.5"
+              onClick={() => {
+                onClose();
+                navigate("/rooms");
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Trở Lại Phòng Chát</span>
+            </button>
+            <button
+              className="w-full py-1.5 px-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm"
+              onClick={onClose}
+            >
+              Đóng
+            </button>
+          </div>
         )}
       </div>
     </div>
