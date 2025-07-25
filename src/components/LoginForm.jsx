@@ -20,7 +20,7 @@ export default function LoginForm({
     <div className="max-w-md mx-auto my-16 bg-gradient-to-br from-gray-900 to-black rounded-2xl shadow-[0_0_15px_rgba(0,180,255,0.5)] p-8 border border-cyan-500/30 backdrop-blur-sm">
       <div className={`mb-8 text-center ${glowEffect ? "animate-pulse" : ""}`}>
         <h2 className="font-gaming text-3xl bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500 tracking-wider">
-          🎮 GAME CHAT LOGIN
+          🎮 GAME CHAT
         </h2>
         <div className="h-1 w-32 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto mt-2"></div>
       </div>
