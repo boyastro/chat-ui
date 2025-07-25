@@ -8,6 +8,11 @@ import {
   CardElement,
 } from "@stripe/react-stripe-js";
 import "./CoinShop.css";
+
+// Khởi tạo stripePromise ngoài component để tránh warning Stripe() was called many times
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
+);
 // Giả sử bạn đã có Stripe public key và backend xử lý thanh toán
 // Các gói coin mẫu
 const coinPackages = [
@@ -52,9 +57,6 @@ function CoinShop({ userId }) {
         });
     },
     [userId]
-  );
-  const stripePromise = loadStripe(
-    process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
   );
   const [clientSecret, setClientSecret] = useState("");
   const [showModal, setShowModal] = useState(false);
