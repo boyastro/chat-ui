@@ -177,7 +177,39 @@ function CoinShop({ userId }) {
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 group-hover:bg-yellow-200 transition-colors">
-                <span className="text-lg">🪙</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="gold"
+                    strokeWidth="2"
+                    fill="#ffe066"
+                  />
+                  <text
+                    x="12"
+                    y="13.5"
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="#bfa100"
+                    alignmentBaseline="middle"
+                    dominantBaseline="middle"
+                    style={{
+                      fontWeight: 700,
+                      fontFamily: "inherit",
+                      alignmentBaseline: "middle",
+                      dominantBaseline: "middle",
+                    }}
+                  >
+                    ₵
+                  </text>
+                </svg>
               </div>
               <span className="font-bold text-yellow-700 text-lg">
                 {pkg.amount}{" "}
