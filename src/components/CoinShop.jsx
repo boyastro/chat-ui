@@ -112,7 +112,7 @@ function CoinShop({ userId }) {
               clipRule="evenodd"
             />
           </svg>
-          <span>Trở Lại Phòng Chát</span>
+          <span>Về phòng chát</span>
         </button>
       </div>
       {/* User Card */}

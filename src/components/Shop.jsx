@@ -117,11 +117,26 @@ export default function Shop({ userId }) {
       {/* Back Button */}
       <div className="flex justify-start mb-6">
         <button
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg font-semibold shadow hover:from-blue-500 hover:to-indigo-600 transition"
+          className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full font-semibold text-sm shadow-md border border-blue-400 transition-all duration-150"
           onClick={() => navigate("/rooms")}
         >
-          <span className="text-lg">⬅️</span>
-          <span>Quay lại chọn phòng</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-0.5"
+            fill="none"
+            viewBox="0 0 20 20"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              fill="none"
+              stroke="white"
+            />
+          </svg>
+          <span>Về phòng chat</span>
         </button>
       </div>
       {/* User Card */}
