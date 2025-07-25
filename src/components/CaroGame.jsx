@@ -397,14 +397,133 @@ export default function CaroGame(props) {
   }
   if (loading) {
     return (
-      <div className="text-center mt-8">Đang tải thông tin người dùng...</div>
+      <div className="flex flex-col items-center justify-center mt-12 px-4">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-blue-100 flex flex-col items-center">
+          <div className="mb-4 flex flex-col items-center">
+            <div className="mb-2">
+              <svg className="w-16 h-16" viewBox="0 0 64 64" fill="none">
+                <defs>
+                  <linearGradient
+                    id="spinner-blue"
+                    x1="0"
+                    y1="0"
+                    x2="64"
+                    y2="64"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#3b82f6" />
+                    <stop offset="1" stopColor="#60a5fa" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="28"
+                  stroke="url(#spinner-blue)"
+                  strokeWidth="8"
+                  strokeDasharray="44 88"
+                  strokeLinecap="round"
+                  fill="none"
+                  style={{ filter: "drop-shadow(0 2px 8px #60a5fa33)" }}
+                >
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 32 32"
+                    to="360 32 32"
+                    dur="1s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+            </div>
+            <div className="text-lg font-bold text-blue-700 mb-1">
+              Đang tải thông tin người dùng...
+            </div>
+            <div className="w-32 h-2 bg-blue-200 rounded-full overflow-hidden">
+              <div
+                className="h-2 bg-blue-500 rounded-full animate-pulse"
+                style={{ width: "60%" }}
+              ></div>
+            </div>
+          </div>
+          <div className="text-xs text-blue-600 text-center mt-2">
+            Vui lòng chờ trong giây lát
+          </div>
+        </div>
+        {/* Spinner SVG đã có hiệu ứng quay, không cần style keyframes nữa */}
+      </div>
     );
   }
   if (error) {
     return <div className="text-center mt-8 text-red-500">{error}</div>;
   }
   if (!room) {
-    return <div className="text-center mt-8">Đang ghép phòng...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center mt-12 px-4">
+        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 border border-blue-100 flex flex-col items-center">
+          <div className="mb-4 flex flex-col items-center">
+            <div className="mb-2">
+              <svg className="w-16 h-16" viewBox="0 0 64 64" fill="none">
+                <defs>
+                  <linearGradient
+                    id="spinner-blue"
+                    x1="0"
+                    y1="0"
+                    x2="64"
+                    y2="64"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#3b82f6" />
+                    <stop offset="1" stopColor="#60a5fa" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="28"
+                  stroke="url(#spinner-blue)"
+                  strokeWidth="8"
+                  strokeDasharray="44 88"
+                  strokeLinecap="round"
+                  fill="none"
+                  style={{ filter: "drop-shadow(0 2px 8px #60a5fa33)" }}
+                >
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 32 32"
+                    to="360 32 32"
+                    dur="0.8s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              </svg>
+            </div>
+            <div className="text-lg font-bold text-blue-700 mb-1">
+              Đang ghép phòng...
+            </div>
+            <div className="w-32 h-2 bg-blue-200 rounded-full overflow-hidden">
+              <div
+                className="h-2 bg-blue-500 rounded-full animate-pulse"
+                style={{ width: "80%" }}
+              ></div>
+            </div>
+          </div>
+          <div className="text-xs text-blue-600 text-center mt-2">
+            Hệ thống đang tìm đối thủ phù hợp cho bạn
+            <br />
+            Vui lòng chờ trong giây lát...
+          </div>
+        </div>
+        <style>{`
+          @keyframes spin-smooth {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   // Đã khai báo phía trên để tránh redeclare
