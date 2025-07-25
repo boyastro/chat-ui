@@ -277,7 +277,10 @@ function PaymentModal({ pkg, clientSecret, onClose, onPaymentSuccess }) {
     ) {
       setSuccess(true);
       if (typeof onPaymentSuccess === "function") {
-        onPaymentSuccess();
+        // Đợi 500ms để backend cập nhật coin, sau đó mới fetch lại user info
+        setTimeout(() => {
+          onPaymentSuccess();
+        }, 500);
       }
     }
   };
