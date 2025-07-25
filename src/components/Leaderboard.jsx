@@ -109,7 +109,7 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
                     Tên
                   </th>
                   <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
-                    Điểm
+                    Score
                   </th>
                   <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
                     Thắng
