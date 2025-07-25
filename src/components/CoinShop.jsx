@@ -192,14 +192,14 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-xl shadow-lg p-5 min-w-[320px] w-full max-w-sm animate-fadeIn transform transition-all duration-300">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100">
-              <span className="text-lg">🪙</span>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50 p-2">
+      <div className="bg-white rounded-lg shadow-lg p-3 w-full max-w-[300px] animate-fadeIn transform transition-all duration-300">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100">
+              <span className="text-sm">🪙</span>
             </div>
-            <h3 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
+            <h3 className="text-sm font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
               Thanh toán <span className="font-extrabold">{pkg.amount}</span>{" "}
               Coin
             </h3>
@@ -212,7 +212,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -228,13 +228,13 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
-          <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-2">
+          <div className="p-2 bg-gray-50 border border-gray-100 rounded-md">
             <CardElement
               options={{
                 style: {
                   base: {
-                    fontSize: "14px",
+                    fontSize: "13px",
                     fontWeight: "500",
                     color: "#4B5563",
                     "::placeholder": {
@@ -248,10 +248,10 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           </div>
 
           {error && (
-            <div className="flex items-center gap-1.5 text-red-600 text-xs bg-red-50 p-2 rounded-lg border border-red-100">
+            <div className="flex items-center gap-1 text-red-600 text-xs bg-red-50 p-1.5 rounded-md border border-red-100">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
+                className="h-3.5 w-3.5"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -266,11 +266,11 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           )}
 
           {success ? (
-            <div className="flex flex-col items-center gap-3 py-2">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-600">
+            <div className="flex flex-col items-center gap-2 py-1">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-100 text-green-600">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-7 w-7"
+                  className="h-6 w-6"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -282,28 +282,28 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
                 </svg>
               </div>
               <div className="text-center">
-                <div className="text-base font-bold text-green-600 mb-0.5">
+                <div className="text-sm font-bold text-green-600 mb-0.5">
                   Thanh toán thành công!
                 </div>
-                <p className="text-gray-600 text-sm">
-                  Bạn được cộng thêm{" "}
+                <p className="text-gray-600 text-xs">
+                  Đã cộng{" "}
                   <span className="font-bold text-yellow-700">
                     {pkg.amount} coin
                   </span>{" "}
-                  vào tài khoản.
+                  vào tài khoản
                 </p>
               </div>
             </div>
           ) : (
             <button
               type="submit"
-              className="py-2 px-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-lg font-bold shadow-sm hover:shadow-md hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-1.5 relative overflow-hidden text-sm"
+              className="py-1.5 px-2 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-md font-bold shadow-sm hover:shadow-md hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-1.5 relative overflow-hidden text-xs"
               disabled={loading || !stripe}
             >
               {loading ? (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <svg
-                    className="animate-spin h-4 w-4 text-white"
+                    className="animate-spin h-3 w-3 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -329,7 +329,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
                   <span>Xác nhận thanh toán</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-4 w-4"
+                    className="h-3 w-3"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -346,15 +346,15 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
         </form>
 
         {!success && (
-          <div className="mt-3 text-center text-xs text-gray-500">
+          <div className="mt-2 text-center text-[10px] text-gray-500">
             <p>Giao dịch được bảo mật bởi Stripe</p>
           </div>
         )}
 
         {success && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5 mt-1">
             <button
-              className="mt-1 w-full py-1.5 px-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-sm flex items-center justify-center gap-1.5"
+              className="w-full py-1 px-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md font-medium shadow-sm hover:shadow-md hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-xs flex items-center justify-center gap-1"
               onClick={() => {
                 onClose();
                 navigate("/rooms");
@@ -362,7 +362,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
+                className="h-3 w-3"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -375,7 +375,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
               <span>Trở Lại Phòng Chát</span>
             </button>
             <button
-              className="w-full py-1.5 px-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm"
+              className="w-full py-1 px-2 bg-gray-100 rounded-md text-gray-700 font-medium hover:bg-gray-200 transition-colors text-xs"
               onClick={onClose}
             >
               Đóng
