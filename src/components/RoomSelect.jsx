@@ -114,7 +114,41 @@ export default function RoomSelect({
               title="Mua Coin"
               onClick={() => navigate("/coinshop")}
             >
-              <span className="text-lg">🪙</span>
+              <span className="text-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="gold"
+                    strokeWidth="2"
+                    fill="#ffe066"
+                  />
+                  <text
+                    x="12"
+                    y="13.5"
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="#bfa100"
+                    alignmentBaseline="middle"
+                    dominantBaseline="middle"
+                    style={{
+                      fontWeight: 700,
+                      fontFamily: "inherit",
+                      alignmentBaseline: "middle",
+                      dominantBaseline: "middle",
+                    }}
+                  >
+                    ₵
+                  </text>
+                </svg>
+              </span>
               <span className="hidden xs:inline ml-1 font-bold truncate">
                 CoinShop
               </span>
