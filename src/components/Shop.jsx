@@ -296,8 +296,43 @@ export default function Shop({ userId }) {
                 )}
                 <div className="flex items-center justify-between gap-2 mt-2">
                   <span className="font-bold text-orange-600 text-base">
-                    Giá: {item.price}{" "}
-                    <span className="text-yellow-500">💰</span>
+                    <span className="inline-flex items-center gap-1 align-middle">
+                      Giá: {item.price}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 align-middle"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        style={{ display: "inline", verticalAlign: "middle" }}
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="gold"
+                          strokeWidth="2"
+                          fill="#ffe066"
+                        />
+                        <text
+                          x="12"
+                          y="13.5"
+                          textAnchor="middle"
+                          fontSize="11"
+                          fill="#bfa100"
+                          alignmentBaseline="middle"
+                          dominantBaseline="middle"
+                          style={{
+                            fontWeight: 700,
+                            fontFamily: "inherit",
+                            alignmentBaseline: "middle",
+                            dominantBaseline: "middle",
+                          }}
+                        >
+                          ₵
+                        </text>
+                      </svg>
+                    </span>
                   </span>
                   <div className="flex items-center gap-2">
                     <button
