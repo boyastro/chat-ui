@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -18,6 +18,7 @@ const coinPackages = [
 ];
 
 function CoinShop({ userId }) {
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
   const stripePromise = loadStripe(
     process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
   );
@@ -26,6 +27,31 @@ function CoinShop({ userId }) {
   const [selectedPkg, setSelectedPkg] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL;
+    const token = localStorage.getItem("token");
+    fetch(`${API_URL}/users/${userId || "me"}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setUserInfo({
+            name: data.name || data.username || "User",
+            avatar:
+              data.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                data.name || data.username || "U"
+              )}&background=random`,
+            coin: data.coin || data.coins || 0,
+          });
+        }
+      });
+  }, [userId]);
+
+  // ...existing code...
   const handleBuy = async (pkg) => {
     try {
       const token = localStorage.getItem("token");
@@ -72,6 +98,47 @@ function CoinShop({ userId }) {
           </svg>
           <span>Trở Lại Phòng Chát</span>
         </button>
+      </div>
+      {/* User Card */}
+      <div className="flex items-center gap-4 mb-8 p-4 rounded-xl bg-gradient-to-r from-blue-100/80 to-indigo-100/60 shadow border border-blue-200 w-fit mx-auto">
+        <img
+          src={userInfo.avatar}
+          alt="avatar"
+          className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white"
+        />
+        <div className="flex flex-col gap-1">
+          <span className="font-semibold text-lg text-blue-900">
+            {userInfo.name}
+          </span>
+          <span className="flex items-center gap-1 text-yellow-600 font-bold text-base">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="gold"
+                strokeWidth="2"
+                fill="#ffe066"
+              />
+              <text
+                x="12"
+                y="16"
+                textAnchor="middle"
+                fontSize="10"
+                fill="#bfa100"
+              >
+                ₵
+              </text>
+            </svg>
+            {userInfo.coin} coin
+          </span>
+        </div>
       </div>
       <div className="flex items-center justify-center gap-2 mb-4">
         <span className="text-xl">✨</span>

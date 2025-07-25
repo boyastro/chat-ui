@@ -12,10 +12,13 @@ export default function Shop({ userId }) {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [quantityMap, setQuantityMap] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
+  // User info state
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
 
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL;
     const token = localStorage.getItem("token");
+    // Fetch items
     fetch(`${API_URL}/items`, {
       headers: {
         Authorization: token ? `Bearer ${token}` : undefined,
@@ -33,7 +36,27 @@ export default function Shop({ userId }) {
         setError(err.message || "Lỗi không xác định");
         setLoading(false);
       });
-  }, []);
+    // Fetch user info
+    fetch(`${API_URL}/users/${userId || "me"}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setUserInfo({
+            name: data.name || data.username || "User",
+            avatar:
+              data.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                data.name || data.username || "U"
+              )}&background=random`,
+            coin: data.coin || data.coins || 0,
+          });
+        }
+      });
+  }, [userId]);
 
   if (loading)
     return (
@@ -62,6 +85,26 @@ export default function Shop({ userId }) {
       if (res.ok && data.success) {
         setShowSuccess(true);
         setBuyMessage("");
+        // Fetch user info again to update coin
+        fetch(`${API_URL}/users/${userId || "me"}`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data) {
+              setUserInfo({
+                name: data.name || data.username || "User",
+                avatar:
+                  data.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    data.name || data.username || "U"
+                  )}&background=random`,
+                coin: data.coin || data.coins || 0,
+              });
+            }
+          });
       } else {
         setBuyMessage(data.message || data.error || "Mua thất bại!");
         setShowErrorModal(true);
@@ -75,14 +118,58 @@ export default function Shop({ userId }) {
   };
 
   return (
-    <div className="max-w-xl mx-auto my-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200 relative">
-      <button
-        className="mb-4 flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg font-semibold shadow hover:from-blue-500 hover:to-indigo-600 transition"
-        onClick={() => navigate("/rooms")}
-      >
-        <span className="text-lg">⬅️</span>
-        <span>Quay lại chọn phòng</span>
-      </button>
+    <div className="max-w-4xl mx-auto my-8 bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-xl p-8 border border-blue-100 relative overflow-hidden">
+      {/* Back Button */}
+      <div className="flex justify-start mb-6">
+        <button
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg font-semibold shadow hover:from-blue-500 hover:to-indigo-600 transition"
+          onClick={() => navigate("/rooms")}
+        >
+          <span className="text-lg">⬅️</span>
+          <span>Quay lại chọn phòng</span>
+        </button>
+      </div>
+      {/* User Card */}
+      <div className="flex items-center gap-4 mb-8 p-4 rounded-xl bg-gradient-to-r from-blue-100/80 to-indigo-100/60 shadow border border-blue-200 w-fit mx-auto">
+        <img
+          src={userInfo.avatar}
+          alt="avatar"
+          className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white"
+        />
+        <div className="flex flex-col gap-1">
+          <span className="font-semibold text-lg text-blue-900">
+            {userInfo.name}
+          </span>
+          <span className="flex items-center gap-1 text-yellow-600 font-bold text-base">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="gold"
+                strokeWidth="2"
+                fill="#ffe066"
+              />
+              <text
+                x="12"
+                y="16"
+                textAnchor="middle"
+                fontSize="10"
+                fill="#bfa100"
+              >
+                ₵
+              </text>
+            </svg>
+            {userInfo.coin} coin
+          </span>
+        </div>
+      </div>
       <h2 className="text-2xl font-bold text-blue-700 mb-4">
         🛒 Shop - Danh Sách Vật Phẩm
       </h2>
