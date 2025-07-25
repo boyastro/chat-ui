@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import CoinIcon from "./CoinIcon";
 
 // Dữ liệu giải thưởng với màu sắc được định nghĩa sẵn
 const prizes = [
-  { label: "10💰", value: 10, color: "#fef08a" },
-  { label: "Quay lại", value: "retry", color: "#e5e7eb" },
-  { label: "50💰", value: 50, color: "#fcd34d" },
-  { label: "10💰", value: 10, color: "#a5b4fc" },
-  { label: "5💰", value: 5, color: "#e5e7eb" },
-  { label: "20💰", value: 20, color: "#fcd34d" },
-  { label: "Vật Phẩm", value: "rare", color: "#a5b4fc" },
-  { label: "30💰", value: 30, color: "#fef08a" },
+  { label: "10   ", value: 10, color: "#fef08a", showCoin: true },
+  { label: "Quay lại", value: "retry", color: "#e5e7eb", showCoin: false },
+  { label: "50   ", value: 50, color: "#fcd34d", showCoin: true },
+  { label: "10   ", value: 10, color: "#a5b4fc", showCoin: true },
+  { label: "5   ", value: 5, color: "#e5e7eb", showCoin: true },
+  { label: "20   ", value: 20, color: "#fcd34d", showCoin: true },
+  { label: "Vật Phẩm", value: "rare", color: "#a5b4fc", showCoin: false },
+  { label: "30   ", value: 30, color: "#fef08a", showCoin: true },
 ];
 
 const segmentCount = prizes.length;
@@ -197,6 +198,37 @@ export default function LuckyWheel({ onWin, userId }) {
       ctx.fillText(prize.label, 0, 0);
       // Xóa hiệu ứng đổ bóng sau khi vẽ
       ctx.shadowColor = "transparent";
+
+      // Vẽ icon đồng xu nếu cần
+      if (prize.showCoin) {
+        // Lưu context hiện tại
+        ctx.save();
+        // Di chuyển về vị trí ban đầu (0, 0) trong hệ tọa độ hiện tại
+
+        // Nếu màn hình là mobile, giảm kích thước icon
+        const coinSize = isMobile ? 10 : 12;
+        // Vẽ đồng xu bên phải text
+        ctx.translate(textWidth / 4, 0);
+
+        // Vẽ vòng tròn nền vàng
+        ctx.beginPath();
+        ctx.arc(0, 0, coinSize / 2, 0, 2 * Math.PI);
+        ctx.fillStyle = "#ffe066";
+        ctx.fill();
+        ctx.lineWidth = coinSize / 10;
+        ctx.strokeStyle = "#bfa100";
+        ctx.stroke();
+
+        // Vẽ ký hiệu đồng xu "₵"
+        ctx.fillStyle = "#bfa100";
+        ctx.font = `bold ${coinSize * 0.8}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("₵", 0, 1);
+
+        // Khôi phục context
+        ctx.restore();
+      }
 
       // Khôi phục trạng thái canvas
       ctx.restore();
@@ -430,7 +462,10 @@ export default function LuckyWheel({ onWin, userId }) {
               "Tuyệt vời! Bạn nhận vật phẩm"
             )
           ) : (
-            `Chúc mừng! Bạn nhận được: ${result.label}`
+            <div className="flex items-center justify-center">
+              Chúc mừng! Bạn nhận được: {result.label}
+              {result.showCoin && <CoinIcon size={18} />}
+            </div>
           )}
         </div>
       )}
