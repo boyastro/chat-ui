@@ -376,22 +376,45 @@ export default function CaroGame(props) {
 
   if (showNoOpponentFound) {
     return (
-      <div className="flex flex-col items-center mt-8">
-        <div className="mb-4 text-red-600 font-semibold">
-          Không tìm thấy đối thủ. Vui lòng thử lại.
+      <div className="flex flex-col items-center justify-center mt-16 px-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-red-200 flex flex-col items-center animate-fade-in">
+          <div className="mb-4 flex flex-col items-center">
+            <div className="mb-2">
+              <svg className="w-14 h-14" viewBox="0 0 56 56" fill="none">
+                <circle cx="28" cy="28" r="24" fill="#fee2e2" />
+                <path
+                  d="M18 34c0-5 8-5 8 0"
+                  stroke="#ef4444"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                <circle cx="22" cy="24" r="2.5" fill="#ef4444" />
+                <circle cx="34" cy="24" r="2.5" fill="#ef4444" />
+              </svg>
+            </div>
+            <div className="text-xl font-bold text-red-600 mb-1 text-center drop-shadow">
+              Không tìm thấy đối thủ
+            </div>
+          </div>
+          <button
+            className="mt-2 px-6 py-2.5 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 font-semibold text-base transition-all focus:outline-none focus:ring-2 focus:ring-blue-300"
+            onClick={() => {
+              setShowNoOpponentFound(false);
+              setRoom(null);
+              setGameStatus("");
+              setMySymbol("");
+              setEnabled(true);
+            }}
+          >
+            <span className="text-lg"></span> Thử lại ghép phòng
+          </button>
+          <button
+            className="mt-3 px-6 py-2.5 bg-green-500 text-white rounded-full shadow hover:bg-green-600 font-semibold text-base transition-all focus:outline-none focus:ring-2 focus:ring-green-300 border border-green-600"
+            onClick={() => navigate("/rooms")}
+          >
+            <span className="text-lg">💬</span> Về phòng chát
+          </button>
         </div>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded shadow hover:bg-blue-600"
-          onClick={() => {
-            setShowNoOpponentFound(false);
-            setRoom(null);
-            setGameStatus("");
-            setMySymbol("");
-            setEnabled(true);
-          }}
-        >
-          Thử lại ghép phòng
-        </button>
       </div>
     );
   }
