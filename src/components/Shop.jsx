@@ -130,21 +130,21 @@ export default function Shop({ userId }) {
           <img
             src={userInfo.avatar}
             alt="avatar"
-            className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white"
+            className="w-16 h-16 rounded-full border-2 border-blue-400 shadow-md object-cover bg-white"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full border-2 border-blue-300 shadow-sm object-cover bg-white flex items-center justify-center text-2xl text-blue-400 font-bold">
+          <div className="w-16 h-16 rounded-full border-2 border-blue-400 shadow-md object-cover bg-white flex items-center justify-center text-2xl text-blue-400 font-bold">
             {userInfo.name ? userInfo.name[0] : "U"}
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <span className="font-semibold text-lg text-blue-900">
+          <span className="font-semibold text-xl text-blue-900">
             {userInfo.name}
           </span>
-          <span className="flex items-center gap-1 text-yellow-600 font-bold text-base">
+          <span className="flex items-center gap-1 text-yellow-600 font-bold text-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -251,58 +251,131 @@ export default function Shop({ userId }) {
         </div>
       )}
       <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {items.map((item) => (
-            <div
-              key={item._id || item.id || item.name}
-              className="border rounded-xl p-4 bg-gray-50 shadow-sm flex flex-col gap-2"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-lg text-gray-800">
-                  {item.name}
-                </span>
-                <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-700 font-medium capitalize">
-                  {item.type}
-                </span>
-              </div>
-              {item.description && (
-                <div className="text-gray-600 text-sm">{item.description}</div>
-              )}
-              {item.effect && (
-                <div className="text-green-700 text-xs italic">
-                  Hiệu ứng: {item.effect}
-                </div>
-              )}
-              <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="font-bold text-orange-600">
-                  Giá: {item.price} 💰
-                </span>
-                <input
-                  type="number"
-                  min={1}
-                  value={quantityMap[item._id || item.id || item.name] || 1}
-                  onChange={(e) =>
-                    setQuantityMap((q) => ({
-                      ...q,
-                      [item._id || item.id || item.name]: e.target.value,
-                    }))
-                  }
-                  className="w-16 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:ring-2 focus:ring-green-400 outline-none"
-                  style={{ minWidth: 48 }}
-                  title="Số lượng"
-                />
-              </div>
-              <button
-                className="mt-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-4 py-2 font-semibold text-sm shadow-md transition border border-green-400 disabled:opacity-60"
-                disabled={buyingId === (item._id || item.id || item.name)}
-                onClick={() => handleBuy(item._id || item.id || item.name)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {items.map((item) => {
+            const itemKey = item._id || item.id || item.name;
+            const quantity = Number(quantityMap[itemKey]) || 1;
+            return (
+              <div
+                key={itemKey}
+                className="group border-2 border-blue-100 rounded-2xl p-5 bg-white shadow-lg flex flex-col gap-3 hover:border-blue-300 hover:shadow-xl transition-all duration-300 relative overflow-hidden"
               >
-                {buyingId === (item._id || item.id || item.name)
-                  ? "Đang mua..."
-                  : "Mua"}
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-bold text-lg text-blue-800 flex items-center gap-2">
+                    <span className="inline-block text-2xl">🎁</span>{" "}
+                    {item.name}
+                  </span>
+                  <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold uppercase tracking-wide">
+                    {item.type}
+                  </span>
+                </div>
+                {item.description && (
+                  <div className="text-gray-600 text-sm mb-1">
+                    {item.description}
+                  </div>
+                )}
+                {item.effect && (
+                  <div className="text-green-700 text-xs italic mb-1">
+                    Hiệu ứng: {item.effect}
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2 mt-2">
+                  <span className="font-bold text-orange-600 text-base">
+                    Giá: {item.price}{" "}
+                    <span className="text-yellow-500">💰</span>
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="w-7 h-7 flex items-center justify-center rounded-l bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold text-lg border border-r-0 border-blue-200"
+                      onClick={() =>
+                        setQuantityMap((q) => ({
+                          ...q,
+                          [itemKey]: Math.max(1, quantity - 1),
+                        }))
+                      }
+                      disabled={quantity <= 1}
+                      tabIndex={-1}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      value={quantity}
+                      onChange={(e) =>
+                        setQuantityMap((q) => ({
+                          ...q,
+                          [itemKey]: Math.max(1, Number(e.target.value)),
+                        }))
+                      }
+                      className="w-12 px-2 py-1 border-t border-b border-blue-200 text-center text-sm focus:ring-2 focus:ring-blue-300 outline-none"
+                      style={{ minWidth: 40 }}
+                      title="Số lượng"
+                    />
+                    <button
+                      type="button"
+                      className="w-7 h-7 flex items-center justify-center rounded-r bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold text-lg border border-l-0 border-blue-200"
+                      onClick={() =>
+                        setQuantityMap((q) => ({
+                          ...q,
+                          [itemKey]: quantity + 1,
+                        }))
+                      }
+                      tabIndex={-1}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <button
+                  className="mt-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg px-5 py-2 font-bold text-base shadow-md transition-all duration-200 border border-green-400 disabled:opacity-60 flex items-center justify-center gap-2 group-hover:scale-105 group-active:scale-95"
+                  disabled={buyingId === itemKey}
+                  onClick={() => handleBuy(itemKey)}
+                >
+                  {buyingId === itemKey ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4 mr-1"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Đang mua...
+                    </>
+                  ) : (
+                    <>
+                      <span>Mua</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
