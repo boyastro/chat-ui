@@ -327,7 +327,7 @@ export default function Shop({ userId }) {
                             fontFamily: "inherit",
                             alignmentBaseline: "middle",
                             dominantBaseline: "middle",
-                            filter: "drop-shadow(0 0 2px #d63508ff)",
+                            filter: "drop-shadow(0 0 2px #b97612ff)",
                           }}
                         >
                           ₵
