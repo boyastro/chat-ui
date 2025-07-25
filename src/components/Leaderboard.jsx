@@ -25,15 +25,15 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
   }, [type, limit]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 sm:p-5 max-w-xl mx-auto my-6">
-      <div className="mb-3">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-2 sm:p-5 max-w-full sm:max-w-xl mx-auto my-3 sm:my-6">
+      <div className="mb-2 sm:mb-3">
         <button
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-4 py-1.5 font-semibold text-sm shadow-md transition-all duration-200 w-max"
+          className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded px-2 sm:px-4 py-1 sm:py-1.5 font-semibold text-xs sm:text-sm shadow-md transition-all duration-200 w-max"
           onClick={() => navigate("/rooms")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
+            className="h-3 w-3 sm:h-4 sm:w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -48,14 +48,17 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
           <span>Về phòng Chat</span>
         </button>
       </div>
-      <div className="mb-5 flex justify-center">
-        <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 flex items-center gap-2">
+      <div className="mb-3 sm:mb-5 flex justify-center">
+        <h3 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-800 flex items-center gap-2">
           🏆 Bảng xếp hạng
         </h3>
       </div>
       {loading ? (
-        <div className="flex items-center justify-center py-8 text-blue-600">
-          <svg className="animate-spin h-8 w-8 mr-2" viewBox="0 0 24 24">
+        <div className="flex items-center justify-center py-4 sm:py-8 text-blue-600">
+          <svg
+            className="animate-spin h-5 w-5 sm:h-8 sm:w-8 mr-2"
+            viewBox="0 0 24 24"
+          >
             <circle
               className="opacity-25"
               cx="12"
@@ -70,14 +73,16 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <span className="text-lg font-medium">Đang tải dữ liệu...</span>
+          <span className="text-sm sm:text-lg font-medium">
+            Đang tải dữ liệu...
+          </span>
         </div>
       ) : error ? (
-        <div className="text-center p-4 text-red-600 bg-red-50 rounded-lg border border-red-200">
-          <div className="flex items-center justify-center mb-2">
+        <div className="text-center p-3 sm:p-4 text-red-600 bg-red-50 rounded-lg border border-red-200">
+          <div className="flex items-center justify-center mb-1 sm:mb-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-1"
+              className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -89,108 +94,111 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
             </svg>
             <span className="font-semibold">Lỗi</span>
           </div>
-          <p>{error}</p>
+          <p className="text-xs sm:text-sm">{error}</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-          <table className="w-full text-xs sm:text-sm">
-            <thead>
-              <tr className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800">
-                <th className="py-3 px-3 text-left whitespace-nowrap font-semibold">
-                  #
-                </th>
-                <th className="py-3 px-3 text-left whitespace-nowrap font-semibold">
-                  Tên
-                </th>
-                <th className="py-3 px-3 text-center whitespace-nowrap font-semibold">
-                  Điểm
-                </th>
-                <th className="py-3 px-3 text-center whitespace-nowrap font-semibold">
-                  Thắng
-                </th>
-                <th className="py-3 px-3 text-center whitespace-nowrap font-semibold">
-                  Thua
-                </th>
-                <th className="py-3 px-3 text-center whitespace-nowrap font-semibold">
-                  Hòa
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u, idx) => {
-                let rowClass = "border-b hover:bg-blue-50/40 transition-colors";
-                let rankElement = idx + 1;
+        <div className="overflow-x-auto -mx-2 px-2">
+          <div className="rounded-lg border border-gray-200 shadow-sm">
+            <table className="w-full text-[10px] sm:text-sm">
+              <thead>
+                <tr className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800">
+                  <th className="py-2 sm:py-3 px-2 sm:px-3 text-left whitespace-nowrap font-semibold">
+                    #
+                  </th>
+                  <th className="py-2 sm:py-3 px-2 sm:px-3 text-left whitespace-nowrap font-semibold">
+                    Tên
+                  </th>
+                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                    Điểm
+                  </th>
+                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                    Thắng
+                  </th>
+                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                    Thua
+                  </th>
+                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                    Hòa
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((u, idx) => {
+                  let rowClass =
+                    "border-b hover:bg-blue-50/40 transition-colors";
+                  let rankElement = idx + 1;
 
-                // Top 3 có style đặc biệt
-                if (idx === 0) {
-                  rowClass =
-                    "border-b bg-yellow-50 hover:bg-yellow-100/70 transition-colors";
-                  rankElement = (
-                    <span className="inline-flex items-center justify-center w-6 h-6 bg-yellow-500 text-white rounded-full shadow-sm font-bold">
-                      1
-                    </span>
-                  );
-                } else if (idx === 1) {
-                  rowClass =
-                    "border-b bg-gray-50 hover:bg-gray-100/70 transition-colors";
-                  rankElement = (
-                    <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-400 text-white rounded-full shadow-sm font-bold">
-                      2
-                    </span>
-                  );
-                } else if (idx === 2) {
-                  rowClass =
-                    "border-b bg-amber-50 hover:bg-amber-100/70 transition-colors";
-                  rankElement = (
-                    <span className="inline-flex items-center justify-center w-6 h-6 bg-amber-600 text-white rounded-full shadow-sm font-bold">
-                      3
-                    </span>
-                  );
-                }
-
-                return (
-                  <tr key={u._id || u.id} className={rowClass}>
-                    <td className="py-2 px-3 font-semibold text-blue-600 text-center sm:text-left">
-                      {rankElement}
-                    </td>
-                    <td className="py-2 px-3 flex items-center gap-2 min-w-[120px]">
-                      {u.avatar ? (
-                        <img
-                          src={u.avatar}
-                          alt="avatar"
-                          className="w-8 h-8 rounded-full border-2 border-blue-100 flex-shrink-0 object-cover shadow-sm"
-                        />
-                      ) : (
-                        <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-700 border border-blue-200 text-xs flex-shrink-0 font-bold shadow-sm">
-                          {u.name ? u.name[0].toUpperCase() : "?"}
-                        </span>
-                      )}
-                      <span className="truncate max-w-[80px] sm:max-w-none font-medium">
-                        {u.name}
+                  // Top 3 có style đặc biệt
+                  if (idx === 0) {
+                    rowClass =
+                      "border-b bg-yellow-50 hover:bg-yellow-100/70 transition-colors";
+                    rankElement = (
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-yellow-500 text-white rounded-full shadow-sm font-bold">
+                        1
                       </span>
-                    </td>
-                    <td className="py-2 px-3 text-center font-bold whitespace-nowrap text-blue-700">
-                      {u.totalScore ?? "-"}
-                    </td>
-                    <td className="py-2 px-3 text-center whitespace-nowrap text-green-600 font-medium">
-                      {u.winCount ?? "-"}
-                    </td>
-                    <td className="py-2 px-3 text-center whitespace-nowrap text-red-600 font-medium">
-                      {u.loseCount ?? "-"}
-                    </td>
-                    <td className="py-2 px-3 text-center whitespace-nowrap text-gray-600 font-medium">
-                      {u.drawCount ?? "-"}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {users.length === 0 && (
-            <div className="text-center p-6 text-gray-500 italic bg-gray-50">
-              Chưa có dữ liệu người chơi
-            </div>
-          )}
+                    );
+                  } else if (idx === 1) {
+                    rowClass =
+                      "border-b bg-gray-50 hover:bg-gray-100/70 transition-colors";
+                    rankElement = (
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-gray-400 text-white rounded-full shadow-sm font-bold">
+                        2
+                      </span>
+                    );
+                  } else if (idx === 2) {
+                    rowClass =
+                      "border-b bg-amber-50 hover:bg-amber-100/70 transition-colors";
+                    rankElement = (
+                      <span className="inline-flex items-center justify-center w-6 h-6 bg-amber-600 text-white rounded-full shadow-sm font-bold">
+                        3
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <tr key={u._id || u.id} className={rowClass}>
+                      <td className="py-2 px-3 font-semibold text-blue-600 text-center sm:text-left">
+                        {rankElement}
+                      </td>
+                      <td className="py-2 px-3 flex items-center gap-2 min-w-[120px]">
+                        {u.avatar ? (
+                          <img
+                            src={u.avatar}
+                            alt="avatar"
+                            className="w-8 h-8 rounded-full border-2 border-blue-100 flex-shrink-0 object-cover shadow-sm"
+                          />
+                        ) : (
+                          <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-blue-700 border border-blue-200 text-xs flex-shrink-0 font-bold shadow-sm">
+                            {u.name ? u.name[0].toUpperCase() : "?"}
+                          </span>
+                        )}
+                        <span className="truncate max-w-[80px] sm:max-w-none font-medium">
+                          {u.name}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 text-center font-bold whitespace-nowrap text-blue-700">
+                        {u.totalScore ?? "-"}
+                      </td>
+                      <td className="py-2 px-3 text-center whitespace-nowrap text-green-600 font-medium">
+                        {u.winCount ?? "-"}
+                      </td>
+                      <td className="py-2 px-3 text-center whitespace-nowrap text-red-600 font-medium">
+                        {u.loseCount ?? "-"}
+                      </td>
+                      <td className="py-2 px-3 text-center whitespace-nowrap text-gray-600 font-medium">
+                        {u.drawCount ?? "-"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {users.length === 0 && (
+              <div className="text-center py-4 sm:py-6 px-2 sm:px-6 text-gray-500 text-xs sm:text-sm italic bg-gray-50">
+                Chưa có dữ liệu người chơi
+              </div>
+            )}
+          </div>
         </div>
       )}
 
