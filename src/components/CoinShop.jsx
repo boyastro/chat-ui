@@ -52,55 +52,52 @@ function CoinShop({ userId }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto my-10 p-8 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100">
-      <div className="flex justify-start mb-4">
+    <div className="max-w-5xl mx-auto my-6 p-6 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-md border border-gray-100">
+      <div className="flex justify-start mb-3">
         <button
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500 text-white font-semibold shadow hover:bg-green-600 transition focus:outline-none focus:ring-2 focus:ring-green-300 text-sm whitespace-nowrap"
-          style={{ minWidth: "120px" }}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500 text-white font-semibold shadow-sm hover:bg-green-600 transition focus:outline-none focus:ring-1 focus:ring-green-300 text-xs whitespace-nowrap"
           onClick={() => navigate("/rooms")}
         >
-          <span className="text-base">💬</span> Trở Lại Phòng Chát
+          <span className="text-sm">💬</span> Trở Lại Phòng Chát
         </button>
       </div>
-      <div className="flex items-center justify-center gap-3 mb-8">
-        <span className="text-3xl">✨</span>
-        <h2 className="text-3xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-amber-600">
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <span className="text-xl">✨</span>
+        <h2 className="text-2xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-amber-600">
           Mua Coin
         </h2>
-        <span className="text-3xl">✨</span>
+        <span className="text-xl">✨</span>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {coinPackages.map((pkg) => (
           <div
             key={pkg.id}
-            className="group flex flex-col h-full bg-white border-2 border-yellow-100 rounded-2xl p-6 shadow-md hover:shadow-xl hover:border-yellow-300 transition-all duration-300 transform hover:-translate-y-1"
+            className="group flex flex-col bg-white border border-yellow-100 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-yellow-300 transition-all duration-300 transform hover:-translate-y-0.5"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100 group-hover:bg-yellow-200 transition-colors">
-                <span className="text-2xl">🪙</span>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100 group-hover:bg-yellow-200 transition-colors">
+                <span className="text-lg">🪙</span>
               </div>
-              <span className="font-extrabold text-yellow-700 text-2xl">
+              <span className="font-bold text-yellow-700 text-lg">
                 {pkg.amount}{" "}
-                <span className="text-yellow-600 text-lg">Coin</span>
+                <span className="text-yellow-600 text-sm">Coin</span>
               </span>
             </div>
-            <div className="mt-auto pt-4 border-t border-yellow-100">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-base font-medium text-gray-500">
-                  Giá:
-                </span>
-                <span className="text-xl font-bold text-green-600">
+            <div className="mt-auto pt-2 border-t border-yellow-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-gray-500">Giá:</span>
+                <span className="text-base font-bold text-green-600">
                   {pkg.price.toLocaleString()}$
                 </span>
               </div>
               <button
-                className="w-full py-3 px-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-xl font-bold shadow-md hover:shadow-lg hover:from-yellow-500 hover:to-amber-600 transition-all duration-300 flex items-center justify-center gap-2"
+                className="w-full py-2 px-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-lg font-bold shadow-sm hover:shadow-md hover:from-yellow-500 hover:to-amber-600 transition-all duration-300 flex items-center justify-center gap-1 text-sm"
                 onClick={() => handleBuy(pkg)}
               >
                 <span>Mua ngay</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-4 w-4"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -125,11 +122,11 @@ function CoinShop({ userId }) {
         </Elements>
       )}
 
-      <div className="mt-8 text-center">
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+      <div className="mt-4 text-center">
+        <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-green-500"
+            className="h-4 w-4 text-green-500"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -183,13 +180,13 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 min-w-[380px] w-full max-w-md animate-fadeIn transform transition-all duration-300">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-100">
-              <span className="text-xl">🪙</span>
+      <div className="bg-white rounded-xl shadow-lg p-5 min-w-[320px] w-full max-w-sm animate-fadeIn transform transition-all duration-300">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-100">
+              <span className="text-lg">🪙</span>
             </div>
-            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
+            <h3 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 to-amber-700">
               Thanh toán <span className="font-extrabold">{pkg.amount}</span>{" "}
               Coin
             </h3>
@@ -202,7 +199,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -218,13 +215,13 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
-          <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3">
+          <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg">
             <CardElement
               options={{
                 style: {
                   base: {
-                    fontSize: "16px",
+                    fontSize: "14px",
                     fontWeight: "500",
                     color: "#4B5563",
                     "::placeholder": {
@@ -238,10 +235,10 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
+            <div className="flex items-center gap-1.5 text-red-600 text-xs bg-red-50 p-2 rounded-lg border border-red-100">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
+                className="h-4 w-4"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -256,11 +253,11 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           )}
 
           {success ? (
-            <div className="flex flex-col items-center gap-4 py-4">
-              <div className="w-16 h-16 flex items-center justify-center rounded-full bg-green-100 text-green-600">
+            <div className="flex flex-col items-center gap-3 py-2">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-600">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10"
+                  className="h-7 w-7"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -272,10 +269,10 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
                 </svg>
               </div>
               <div className="text-center">
-                <div className="text-xl font-bold text-green-600 mb-1">
+                <div className="text-base font-bold text-green-600 mb-0.5">
                   Thanh toán thành công!
                 </div>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Bạn được cộng thêm{" "}
                   <span className="font-bold text-yellow-700">
                     {pkg.amount} coin
@@ -287,13 +284,13 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
           ) : (
             <button
               type="submit"
-              className="py-3 px-4 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-xl font-bold shadow-md hover:shadow-lg hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-2 relative overflow-hidden"
+              className="py-2 px-3 bg-gradient-to-r from-yellow-500 to-amber-600 text-white rounded-lg font-bold shadow-sm hover:shadow-md hover:from-yellow-600 hover:to-amber-700 transition-all duration-300 flex items-center justify-center gap-1.5 relative overflow-hidden text-sm"
               disabled={loading || !stripe}
             >
               {loading ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <svg
-                    className="animate-spin h-5 w-5 text-white"
+                    className="animate-spin h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -319,7 +316,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
                   <span>Xác nhận thanh toán</span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
+                    className="h-4 w-4"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -336,14 +333,14 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
         </form>
 
         {!success && (
-          <div className="mt-5 text-center text-sm text-gray-500">
+          <div className="mt-3 text-center text-xs text-gray-500">
             <p>Giao dịch được bảo mật bởi Stripe</p>
           </div>
         )}
 
         {success && (
           <button
-            className="mt-4 w-full py-2 px-4 bg-gray-100 rounded-xl text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+            className="mt-3 w-full py-1.5 px-3 bg-gray-100 rounded-lg text-gray-700 font-medium hover:bg-gray-200 transition-colors text-sm"
             onClick={onClose}
           >
             Đóng
