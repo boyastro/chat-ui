@@ -454,10 +454,22 @@ function PaymentModal({ pkg, clientSecret, onClose, onPaymentSuccess }) {
         {success && (
           <div className="flex flex-col gap-1.5 mt-1">
             <button
-              className="w-full py-1 px-2 bg-gray-100 rounded-md text-gray-700 font-medium hover:bg-gray-200 transition-colors text-xs"
+              className="w-full py-1 px-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-md font-medium shadow-sm hover:shadow-md hover:from-green-600 hover:to-emerald-700 transition-all duration-300 text-xs flex items-center justify-center gap-1"
               onClick={onClose}
             >
-              Đóng
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3 w-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6 18L18 6M6 6l12 12"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Đóng</span>
             </button>
           </div>
         )}
