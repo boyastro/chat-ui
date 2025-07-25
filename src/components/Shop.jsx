@@ -9,6 +9,7 @@ export default function Shop({ userId }) {
   const [error, setError] = useState(null);
   const [buyingId, setBuyingId] = useState(null);
   const [buyMessage, setBuyMessage] = useState("");
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const [quantityMap, setQuantityMap] = useState({});
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -63,9 +64,11 @@ export default function Shop({ userId }) {
         setBuyMessage("");
       } else {
         setBuyMessage(data.message || data.error || "Mua thất bại!");
+        setShowErrorModal(true);
       }
     } catch (err) {
       setBuyMessage("Lỗi khi mua vật phẩm!");
+      setShowErrorModal(true);
     } finally {
       setBuyingId(null);
     }
@@ -83,9 +86,41 @@ export default function Shop({ userId }) {
       <h2 className="text-2xl font-bold text-blue-700 mb-4">
         🛒 Shop - Danh Sách Vật Phẩm
       </h2>
-      {buyMessage && (
-        <div className="mb-4 text-center font-semibold text-green-700 bg-green-50 border border-green-200 rounded-lg py-2 px-4">
-          {buyMessage}
+      {/* Error Modal */}
+      {showErrorModal && buyMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-2xl border border-red-300 p-6 max-w-sm w-full flex flex-col items-center animate-fadeInUp">
+            <div className="flex flex-col items-center">
+              <div className="bg-red-100 rounded-full p-3 mb-4 border-4 border-red-200">
+                <svg
+                  className="w-10 h-10 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-red-700 mb-2 text-center">
+                Có lỗi xảy ra
+              </h2>
+              <p className="text-red-800 text-center mb-6">{buyMessage}</p>
+              <button
+                className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg font-semibold shadow hover:from-red-600 hover:to-pink-600 transition text-base"
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setBuyMessage("");
+                }}
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
         </div>
       )}
       {/* Success Modal */}
