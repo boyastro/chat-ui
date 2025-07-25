@@ -26,17 +26,18 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
 
   return (
     <div className="bg-white rounded-xl shadow p-2 sm:p-4 max-w-xl mx-auto my-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-2">
+        <button
+          className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white rounded px-3 py-1 font-semibold text-sm shadow transition w-max"
+          onClick={() => navigate("/rooms")}
+        >
+          <span>Về phòng Chat</span>
+        </button>
+      </div>
+      <div className="mb-4 flex justify-center">
         <h3 className="text-xl font-bold text-blue-700 flex items-center gap-2">
           🏆 Bảng xếp hạng
         </h3>
-        <button
-          className="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white rounded px-3 py-1 font-semibold text-sm shadow transition"
-          onClick={() => navigate("/rooms")}
-        >
-          <span className="text-base">💬</span>
-          <span>Trở lại Phòng Chat</span>
-        </button>
       </div>
       {loading ? (
         <div>Đang tải...</div>
