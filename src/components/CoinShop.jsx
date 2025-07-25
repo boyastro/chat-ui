@@ -168,6 +168,17 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
 
   // clientSecret nhận từ prop
 
+  // Thêm useEffect để xử lý thêm/xóa class khi modal mở
+  React.useEffect(() => {
+    // Thêm class vào body khi component được mount
+    document.body.classList.add("payment-modal-open");
+
+    // Clean up function để xóa class khi component unmount
+    return () => {
+      document.body.classList.remove("payment-modal-open");
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -192,8 +203,14 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50 p-2">
-      <div className="bg-white rounded-lg shadow-lg p-3 w-full max-w-[300px] animate-fadeIn transform transition-all duration-300">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm z-50 p-2"
+      style={{ touchAction: "none" }}
+    >
+      <div
+        className="payment-wrapper bg-white rounded-lg shadow-lg p-3 w-full max-w-[300px] animate-fadeIn transform transition-all duration-300"
+        style={{ touchAction: "pan-y", userSelect: "none" }}
+      >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
             <div className="flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100">
@@ -234,7 +251,7 @@ function PaymentModal({ pkg, clientSecret, onClose }) {
               options={{
                 style: {
                   base: {
-                    fontSize: "13px",
+                    fontSize: "16px", // Tăng kích thước font để tránh bị zoom
                     fontWeight: "500",
                     color: "#4B5563",
                     "::placeholder": {

@@ -29,6 +29,25 @@
   animation: fadeIn 0.4s ease-out forwards;
 }
 
+/* Ngăn chặn zoom trên mobile khi focus vào input */
+input,
+select,
+textarea,
+button {
+  font-size: 16px !important; /* Ngăn chặn zoom tự động trên iOS */
+}
+
+/* Đảm bảo CardElement không bị zoom */
+.StripeElement {
+  font-size: 16px !important;
+}
+
+/* Vô hiệu hóa zoom cho toàn bộ modal khi đang hiển thị */
+.payment-modal-open {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+
 .group:hover .group-hover\:animate-pulse {
   animation: pulse 1.5s infinite;
 }
