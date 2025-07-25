@@ -6,42 +6,57 @@ function ResultModal({ open, result, onClose }) {
   if (!open) return null;
   let title = "";
   let color = "";
+  let bg = "";
+  let icon = "";
+  let desc = "";
   if (result === "win") {
     title = "Bạn đã thắng!";
-    color = "text-green-600";
+    color = "text-green-700";
+    bg = "bg-green-50";
+    icon = "🏆";
+    desc = "Chúc mừng! Bạn nhận được +20 điểm, +10 coin.";
   } else if (result === "lose") {
     title = "Bạn đã thua!";
-    color = "text-red-600";
+    color = "text-red-700";
+    bg = "bg-red-50";
+    icon = "😢";
+    desc = "Bạn bị trừ 20 điểm. Hãy thử lại nhé!";
   } else if (result === "draw") {
     title = "Hai bên hòa nhau!";
     color = "text-gray-700";
+    bg = "bg-gray-50";
+    icon = "🤝";
+    desc = "Không ai thắng, không ai thua!";
   }
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-      <div className="bg-white rounded-lg shadow-lg p-8 min-w-[300px] flex flex-col items-center">
-        <div className={`text-2xl font-bold mb-4 ${color}`}>{title}</div>
-        {result === "win" && (
-          <div className="mb-2 text-green-700 text-base font-semibold">
-            <span className="inline-block mr-2">🏆</span>Score +20, Coin +10
-          </div>
-        )}
-        {result === "lose" && (
-          <div className="mb-2 text-red-600 text-base font-semibold">
-            <span className="inline-block mr-2">😢</span>Score -20
-          </div>
-        )}
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 animate-fade-in">
+      <div
+        className={`rounded-2xl shadow-2xl p-8 min-w-[320px] flex flex-col items-center border ${bg}`}
+        style={{
+          borderColor:
+            result === "win"
+              ? "#22c55e"
+              : result === "lose"
+              ? "#ef4444"
+              : "#a3a3a3",
+        }}
+      >
+        <div className="mb-3">
+          <span className={`text-6xl drop-shadow-lg ${color}`}>{icon}</span>
+        </div>
+        <div className={`text-2xl font-bold mb-2 ${color}`}>{title}</div>
+        <div className={`mb-4 text-base font-semibold text-center ${color}`}>
+          {desc}
+        </div>
         <button
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-2 px-6 py-2.5 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 font-semibold text-base transition-all focus:outline-none focus:ring-2 focus:ring-blue-300"
           onClick={async () => {
             if (typeof onClose === "function") onClose();
-            // Sau khi đóng modal, chỉ cập nhật score (và level nếu muốn) của user và đối thủ
             try {
               const token = localStorage.getItem("token");
               const apiUrl = process.env.REACT_APP_API_URL;
-              // Cập nhật score cho user
               if (window.updateUserScore)
                 await window.updateUserScore(token, apiUrl);
-              // Cập nhật score cho đối thủ
               if (window.updateOpponentScore)
                 await window.updateOpponentScore(token, apiUrl);
             } catch {}
