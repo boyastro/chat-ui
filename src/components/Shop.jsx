@@ -318,8 +318,8 @@ export default function Shop({ userId }) {
                           x="12"
                           y="13.5"
                           textAnchor="middle"
-                          fontSize="11"
-                          fill="#bfa100"
+                          fontSize="12"
+                          fill="#FFD700"
                           alignmentBaseline="middle"
                           dominantBaseline="middle"
                           style={{
@@ -327,6 +327,7 @@ export default function Shop({ userId }) {
                             fontFamily: "inherit",
                             alignmentBaseline: "middle",
                             dominantBaseline: "middle",
+                            filter: "drop-shadow(0 0 2px #d63508ff)",
                           }}
                         >
                           ₵
