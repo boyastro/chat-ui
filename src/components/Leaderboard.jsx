@@ -99,25 +99,25 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
       ) : (
         <div className="overflow-x-auto -mx-2 px-2">
           <div className="rounded-lg border border-gray-200 shadow-sm">
-            <table className="w-full text-[10px] sm:text-sm">
+            <table className="w-full text-xs sm:text-lg">
               <thead>
-                <tr className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800">
-                  <th className="py-2 sm:py-3 px-2 sm:px-3 text-left whitespace-nowrap font-semibold">
+                <tr className="bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 text-xs sm:text-lg">
+                  <th className="py-2 sm:py-4 px-2 sm:px-4 text-left whitespace-nowrap font-bold">
                     #
                   </th>
-                  <th className="py-2 sm:py-3 px-2 sm:px-3 text-left whitespace-nowrap font-semibold">
+                  <th className="py-2 sm:py-4 px-2 sm:px-4 text-left whitespace-nowrap font-bold">
                     Tên
                   </th>
-                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                  <th className="py-2 sm:py-4 px-1 sm:px-4 text-center whitespace-nowrap font-bold">
                     Score
                   </th>
-                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                  <th className="py-2 sm:py-4 px-1 sm:px-4 text-center whitespace-nowrap font-bold">
                     Thắng
                   </th>
-                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                  <th className="py-2 sm:py-4 px-1 sm:px-4 text-center whitespace-nowrap font-bold">
                     Thua
                   </th>
-                  <th className="py-2 sm:py-3 px-1 sm:px-3 text-center whitespace-nowrap font-semibold">
+                  <th className="py-2 sm:py-4 px-1 sm:px-4 text-center whitespace-nowrap font-bold">
                     Hòa
                   </th>
                 </tr>
@@ -157,10 +157,10 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
 
                   return (
                     <tr key={u._id || u.id} className={rowClass}>
-                      <td className="py-2 px-3 font-semibold text-blue-600 text-center sm:text-left">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 font-bold text-blue-600 text-center sm:text-left text-xs sm:text-lg">
                         {rankElement}
                       </td>
-                      <td className="py-2 px-3 flex items-center gap-2 min-w-[120px]">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 flex items-center gap-2 min-w-[120px] text-xs sm:text-lg">
                         {u.avatar ? (
                           <img
                             src={u.avatar}
@@ -172,20 +172,20 @@ export default function Leaderboard({ type = "totalScore", limit = 10 }) {
                             {u.name ? u.name[0].toUpperCase() : "?"}
                           </span>
                         )}
-                        <span className="truncate max-w-[80px] sm:max-w-none font-medium">
+                        <span className="truncate max-w-[80px] sm:max-w-none font-bold">
                           {u.name}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-center font-bold whitespace-nowrap text-blue-700">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-center font-bold whitespace-nowrap text-blue-700 text-xs sm:text-lg">
                         {u.totalScore ?? "-"}
                       </td>
-                      <td className="py-2 px-3 text-center whitespace-nowrap text-green-600 font-medium">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-center whitespace-nowrap text-green-600 font-bold text-xs sm:text-lg">
                         {u.winCount ?? "-"}
                       </td>
-                      <td className="py-2 px-3 text-center whitespace-nowrap text-red-600 font-medium">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-center whitespace-nowrap text-red-600 font-bold text-xs sm:text-lg">
                         {u.loseCount ?? "-"}
                       </td>
-                      <td className="py-2 px-3 text-center whitespace-nowrap text-gray-600 font-medium">
+                      <td className="py-2 sm:py-3 px-3 sm:px-4 text-center whitespace-nowrap text-gray-600 font-bold text-xs sm:text-lg">
                         {u.drawCount ?? "-"}
                       </td>
                     </tr>
