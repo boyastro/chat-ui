@@ -85,7 +85,7 @@ export default function Shop({ userId }) {
       if (res.ok && data.success) {
         setShowSuccess(true);
         setBuyMessage("");
-        // Fetch user info again to update coin
+        // Fetch only coin value to update
         fetch(`${API_URL}/users/${userId || "me"}`, {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined,
@@ -94,15 +94,10 @@ export default function Shop({ userId }) {
           .then((res) => (res.ok ? res.json() : null))
           .then((data) => {
             if (data) {
-              setUserInfo({
-                name: data.name || data.username || "User",
-                avatar:
-                  data.avatar ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    data.name || data.username || "U"
-                  )}&background=random`,
+              setUserInfo((prev) => ({
+                ...prev,
                 coin: data.coin || data.coins || 0,
-              });
+              }));
             }
           });
       } else {

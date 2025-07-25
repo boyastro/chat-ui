@@ -20,29 +20,39 @@ const coinPackages = [
 function CoinShop({ userId }) {
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
   // Hàm fetch user info để tái sử dụng, dùng useCallback để tránh warning
-  const fetchUserInfo = React.useCallback(() => {
-    const API_URL = process.env.REACT_APP_API_URL;
-    const token = localStorage.getItem("token");
-    fetch(`${API_URL}/users/${userId || "me"}`, {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-    })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data) {
-          setUserInfo({
-            name: data.name || data.username || "User",
-            avatar:
-              data.avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                data.name || data.username || "U"
-              )}&background=random`,
-            coin: data.coin || data.coins || 0,
-          });
-        }
-      });
-  }, [userId]);
+  const fetchUserInfo = React.useCallback(
+    (onlyCoin = false) => {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const token = localStorage.getItem("token");
+      fetch(`${API_URL}/users/${userId || "me"}`, {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data) {
+            if (onlyCoin) {
+              setUserInfo((prev) => ({
+                ...prev,
+                coin: data.coin || data.coins || 0,
+              }));
+            } else {
+              setUserInfo({
+                name: data.name || data.username || "User",
+                avatar:
+                  data.avatar ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    data.name || data.username || "U"
+                  )}&background=random`,
+                coin: data.coin || data.coins || 0,
+              });
+            }
+          }
+        });
+    },
+    [userId]
+  );
   const stripePromise = loadStripe(
     process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || ""
   );
@@ -207,7 +217,7 @@ function CoinShop({ userId }) {
             pkg={selectedPkg}
             clientSecret={clientSecret}
             onClose={() => setShowModal(false)}
-            onPaymentSuccess={fetchUserInfo}
+            onPaymentSuccess={() => fetchUserInfo(true)}
           />
         </Elements>
       )}
