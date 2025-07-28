@@ -142,7 +142,7 @@ export default function MillionaireGame({ userId }) {
   }, [step]);
 
   const handleSelect = (idx) => {
-    if (locked) return;
+    if (locked || loading || !current) return;
     setSelected(idx);
     setLocked(true);
     setTimerActive(false);
@@ -211,7 +211,15 @@ export default function MillionaireGame({ userId }) {
 
   // Hàm lấy câu hỏi từ API
   const fetchQuestion = useCallback(async (stepIdx) => {
-    setLoading(true);
+    // Chỉ đặt trạng thái loading cho những câu hỏi chưa có dữ liệu
+    // Điều này giúp giữ giao diện ổn định
+    if (!questions.some((q) => q !== null)) {
+      setLoading(true); // Chỉ loading lần đầu tiên khi chưa có câu hỏi nào
+    } else {
+      // Với những câu sau, đánh dấu đang tải nhưng không thay đổi giao diện hoàn toàn
+      setLoading(true);
+    }
+
     const level = LEVELS[stepIdx];
     try {
       const API_URL = process.env.REACT_APP_API_URL;
@@ -224,6 +232,8 @@ export default function MillionaireGame({ userId }) {
       );
       if (!res.ok) throw new Error("Không lấy được câu hỏi");
       const data = await res.json();
+
+      // Cập nhật câu hỏi chỉ khi đã lấy được dữ liệu
       setQuestions((prev) => {
         const newArr = [...prev];
         newArr[stepIdx] = {
@@ -236,6 +246,11 @@ export default function MillionaireGame({ userId }) {
         };
         return newArr;
       });
+
+      // Đợi một chút để tránh nhấp nháy giao diện
+      setTimeout(() => {
+        setLoading(false);
+      }, 100);
     } catch (e) {
       setQuestions((prev) => {
         const newArr = [...prev];
@@ -246,7 +261,6 @@ export default function MillionaireGame({ userId }) {
         };
         return newArr;
       });
-    } finally {
       setLoading(false);
     }
   }, []);
@@ -266,16 +280,6 @@ export default function MillionaireGame({ userId }) {
       btns.forEach((btn) => btn.blur());
     }, 0);
   }, [step]);
-
-  // Trong phần render:
-  // Nếu loading hoặc chưa có câu hỏi thì hiển thị loading
-  if (loading || !current) {
-    return (
-      <div className="flex items-center justify-center h-64 text-lg font-bold text-blue-400">
-        Đang tải câu hỏi...
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
@@ -567,16 +571,24 @@ export default function MillionaireGame({ userId }) {
                 key={`question-${step}`}
                 className="mb-4 text-base sm:text-lg font-semibold p-4 sm:p-5 rounded-lg millionaire-question millionaire-pulse"
               >
-                {current.question}
+                {loading || !current ? (
+                  <div className="flex justify-center items-center py-4 opacity-60">
+                    {/* Empty placeholder with same height to keep layout stable */}
+                    <span className="invisible">Loading placeholder</span>
+                  </div>
+                ) : (
+                  current.question
+                )}
               </div>
               <div
                 key={`answers-${step}`}
                 className="grid grid-cols-1 gap-3 sm:gap-4"
               >
-                {current.answers.map((ans, idx) => (
-                  <button
-                    key={`step${step}-ans${idx}-${Date.now()}`}
-                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 millionaire-option
+                {!loading && current && current.answers
+                  ? current.answers.map((ans, idx) => (
+                      <button
+                        key={`step${step}-ans${idx}-${Date.now()}`}
+                        className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 millionaire-option
                       ${
                         selected === idx
                           ? idx === current.correct
@@ -590,21 +602,38 @@ export default function MillionaireGame({ userId }) {
                           : ""
                       }
                     `}
-                    disabled={locked}
-                    onClick={() => handleSelect(idx)}
-                  >
-                    <span className="flex items-center">
-                      <span className="inline-flex items-center justify-center millionaire-option-label w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
-                        {String.fromCharCode(65 + idx)}
-                      </span>
-                      <span className="text-left">{ans}</span>
-                    </span>
-                  </button>
-                ))}
+                        disabled={locked}
+                        onClick={() => handleSelect(idx)}
+                      >
+                        <span className="flex items-center">
+                          <span className="inline-flex items-center justify-center millionaire-option-label w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          <span className="text-left">{ans}</span>
+                        </span>
+                      </button>
+                    ))
+                  : // Placeholder buttons when loading or no data
+                    Array(4)
+                      .fill(0)
+                      .map((_, idx) => (
+                        <button
+                          key={`placeholder-${idx}`}
+                          className="w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 millionaire-option opacity-40"
+                          disabled={true}
+                        >
+                          <span className="flex items-center">
+                            <span className="inline-flex items-center justify-center millionaire-option-label w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
+                              {String.fromCharCode(65 + idx)}
+                            </span>
+                            <span className="text-left">&nbsp;</span>
+                          </span>
+                        </button>
+                      ))}
               </div>
 
               {/* Nút dừng cuộc chơi và nhận thưởng (chỉ hiển thị khi đã qua câu hỏi đầu tiên) */}
-              {step > 0 && !locked && (
+              {step > 0 && !locked && !loading && current && (
                 <button
                   className="mt-4 py-3 w-full rounded-lg millionaire-stop-button font-semibold transition-all"
                   onClick={handleStop}
