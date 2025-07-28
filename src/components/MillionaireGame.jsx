@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const QUESTIONS = [
   {
@@ -38,6 +39,7 @@ const PRIZES = [
 ];
 
 export default function MillionaireGame({ userId }) {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [locked, setLocked] = useState(false);
@@ -75,6 +77,13 @@ export default function MillionaireGame({ userId }) {
 
   return (
     <div className="max-w-lg mx-auto my-8 p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-2xl shadow-xl border-2 border-yellow-400">
+      <button
+        className="mb-2 self-start flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+        onClick={() => navigate("/rooms")}
+      >
+        <span className="text-sm">⬅️</span>
+        <span>Về phòng chát</span>
+      </button>
       <h2 className="text-2xl font-bold text-yellow-700 text-center mb-4">
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
