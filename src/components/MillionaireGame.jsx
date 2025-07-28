@@ -115,7 +115,8 @@ export default function MillionaireGame({ userId }) {
   const [locked, setLocked] = useState(false);
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
-  const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
+  const [coinEarned, setCoinEarned] = useState(0); // Coin mới kiếm được trong lượt chơi
 
   // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
@@ -139,10 +140,55 @@ export default function MillionaireGame({ userId }) {
               `https://ui-avatars.com/api/?name=${encodeURIComponent(
                 data.name || data.username || "U"
               )}&background=random`,
+            coin: data.coin || 0, // Lấy số coin từ thông tin user
           });
         }
       });
   }, [userId]);
+
+  // Hàm gọi API để cộng coin cho user
+  const addCoinForUser = (coin) => {
+    if (!userId) return;
+
+    // Cập nhật UI ngay lập tức để không bị lag
+    const earnedCoin = parseInt(coin, 10);
+    setCoinEarned(earnedCoin);
+
+    // Cập nhật tạm thời userInfo.coin ở UI để người dùng thấy ngay
+    setUserInfo((prev) => ({
+      ...prev,
+      coin: prev.coin + earnedCoin,
+    }));
+
+    const API_URL = process.env.REACT_APP_API_URL;
+    const token = localStorage.getItem("token");
+
+    fetch(`${API_URL}/millionaire/add-coin`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+      body: JSON.stringify({
+        userId,
+        coin: earnedCoin,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          // Cập nhật lại chính xác số coin từ server
+          setUserInfo((prev) => ({
+            ...prev,
+            coin: data.coin,
+          }));
+          console.log(
+            `Thêm ${earnedCoin} coin thành công, số coin hiện tại: ${data.coin}`
+          );
+        }
+      })
+      .catch((err) => console.error("Lỗi khi cộng coin:", err));
+  };
 
   const handleSelect = (idx) => {
     if (locked) return;
@@ -152,6 +198,8 @@ export default function MillionaireGame({ userId }) {
       if (idx === current.correct) {
         if (step === QUESTIONS.length - 1) {
           setWon(true);
+          // Thêm coin khi hoàn thành toàn bộ câu hỏi
+          addCoinForUser(PRIZES[step]);
         } else {
           // Cách mới: reset state hoàn toàn TRƯỚC khi set step mới
           // Lưu step mới vào biến tạm để tránh closure effect
@@ -163,6 +211,10 @@ export default function MillionaireGame({ userId }) {
         }
       } else {
         setLost(true);
+        // Thêm coin khi thua, dựa theo số câu đã trả lời đúng
+        if (step > 0) {
+          addCoinForUser(PRIZES[step - 1]);
+        }
       }
     }, 1200);
   };
@@ -173,6 +225,7 @@ export default function MillionaireGame({ userId }) {
     setLocked(false);
     setWon(false);
     setLost(false);
+    setCoinEarned(0);
   };
 
   return (
@@ -197,9 +250,46 @@ export default function MillionaireGame({ userId }) {
               style={{ minWidth: 36, minHeight: 36 }}
             />
           ) : null}
-          <span className="font-bold text-yellow-800 text-sm truncate max-w-[150px] sm:max-w-[180px]">
-            {userInfo.name}
-          </span>
+          <div className="flex flex-col">
+            <span className="font-bold text-yellow-800 text-sm truncate max-w-[150px] sm:max-w-[180px]">
+              {userInfo.name}
+            </span>
+            <div className="flex items-center text-xs text-yellow-600">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="gold"
+                  strokeWidth="2"
+                  fill="#ffe066"
+                />
+                <text
+                  x="12"
+                  y="16"
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#bfa100"
+                >
+                  ₵
+                </text>
+              </svg>
+              <span className="font-semibold">
+                {userInfo.coin}
+                {coinEarned > 0 && (
+                  <span className="text-green-500 ml-1 animate-pulse">
+                    +{coinEarned}
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -258,6 +348,13 @@ export default function MillionaireGame({ userId }) {
             <div className="text-center text-green-700 font-bold text-lg sm:text-xl px-3 py-6 bg-green-50 rounded-lg border-2 border-green-200">
               <div className="mb-2 text-4xl">🏆</div>
               Chúc mừng! Bạn đã trở thành TRIỆU PHÚ!
+              <div className="mt-2 text-sm">
+                (Bạn đã nhận được{" "}
+                <span className="font-semibold text-yellow-600">
+                  {PRIZES[step]} coin
+                </span>
+                !)
+              </div>
             </div>
           ) : lost ? (
             <div className="text-center text-red-600 font-bold text-lg sm:text-xl px-3 py-6 bg-red-50 rounded-lg border-2 border-red-200">
@@ -266,6 +363,15 @@ export default function MillionaireGame({ userId }) {
               <br />
               <span className="mt-2 inline-block">
                 Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
+                {step > 0 && (
+                  <div className="text-sm mt-1">
+                    (Bạn đã nhận được{" "}
+                    <span className="font-semibold text-yellow-600">
+                      {PRIZES[step - 1]} coin
+                    </span>
+                    !)
+                  </div>
+                )}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="inline h-5 w-5 ml-1 align-middle"
