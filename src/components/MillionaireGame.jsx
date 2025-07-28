@@ -17,7 +17,77 @@ const QUESTIONS = [
     answers: ["Sông Hồng", "Sông Mekong", "Sông Đà", "Sông Đồng Nai"],
     correct: 1,
   },
-  // ... thêm câu hỏi tuỳ ý
+  {
+    question:
+      "Vịnh nào được UNESCO công nhận là Di sản thiên nhiên thế giới ở Việt Nam?",
+    answers: [
+      "Vịnh Hạ Long",
+      "Vịnh Cam Ranh",
+      "Vịnh Vân Phong",
+      "Vịnh Xuân Đài",
+    ],
+    correct: 0,
+  },
+  {
+    question: "Chùa Một Cột nằm ở thành phố nào?",
+    answers: ["Hà Nội", "Huế", "Hải Phòng", "Đà Nẵng"],
+    correct: 0,
+  },
+  {
+    question: "Đơn vị tiền tệ của Việt Nam là gì?",
+    answers: ["Đồng", "Yên", "Baht", "Ringgit"],
+    correct: 0,
+  },
+  {
+    question: "Ai là vị vua đầu tiên của triều đại nhà Nguyễn?",
+    answers: ["Gia Long", "Minh Mạng", "Tự Đức", "Duy Tân"],
+    correct: 0,
+  },
+  {
+    question: "Đỉnh núi cao nhất Việt Nam là?",
+    answers: ["Fansipan", "Bạch Mã", "Tây Côn Lĩnh", "Langbiang"],
+    correct: 0,
+  },
+  {
+    question: "Ngày Quốc khánh Việt Nam là ngày nào?",
+    answers: ["2/9", "30/4", "1/5", "19/8"],
+    correct: 0,
+  },
+  {
+    question: "Đội tuyển bóng đá nam Việt Nam vô địch AFF Cup lần đầu năm nào?",
+    answers: ["2008", "2018", "2010", "2004"],
+    correct: 0,
+  },
+  {
+    question: "Tỉnh nào có diện tích lớn nhất Việt Nam?",
+    answers: ["Nghệ An", "Thanh Hóa", "Đắk Lắk", "Sơn La"],
+    correct: 0,
+  },
+  {
+    question: "Ai là Tổng Bí thư đầu tiên của Đảng Cộng sản Việt Nam?",
+    answers: ["Trần Phú", "Lê Duẩn", "Nguyễn Văn Linh", "Hồ Chí Minh"],
+    correct: 0,
+  },
+  {
+    question: "Địa danh nào được mệnh danh là 'thành phố ngàn hoa'?",
+    answers: ["Đà Lạt", "Huế", "Hà Nội", "Sapa"],
+    correct: 0,
+  },
+  {
+    question: "Tên gọi cũ của thành phố Hồ Chí Minh là gì?",
+    answers: ["Sài Gòn", "Gia Định", "Thủ Đức", "Chợ Lớn"],
+    correct: 0,
+  },
+  {
+    question: "Ai là người phát minh ra bảng chữ cái tiếng Việt hiện đại?",
+    answers: [
+      "Alexandre de Rhodes",
+      "Trương Vĩnh Ký",
+      "Nguyễn Trãi",
+      "Lê Quý Đôn",
+    ],
+    correct: 0,
+  },
 ];
 
 const PRIZES = [
