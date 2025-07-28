@@ -117,6 +117,7 @@ export default function MillionaireGame({ userId }) {
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
 
+  // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
 
   useEffect(() => {
@@ -152,9 +153,13 @@ export default function MillionaireGame({ userId }) {
         if (step === QUESTIONS.length - 1) {
           setWon(true);
         } else {
-          setStep(step + 1);
+          // Cách mới: reset state hoàn toàn TRƯỚC khi set step mới
+          // Lưu step mới vào biến tạm để tránh closure effect
+          const nextStep = step + 1;
           setSelected(null);
           setLocked(false);
+          // Set step sau cùng để trigger render sau khi đã reset state
+          setTimeout(() => setStep(nextStep), 0);
         }
       } else {
         setLost(true);
@@ -325,10 +330,16 @@ export default function MillionaireGame({ userId }) {
                 </span>
               </div>
 
-              <div className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200">
+              <div
+                key={`question-${step}`}
+                className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200"
+              >
                 {current.question}
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:gap-3">
+              <div
+                key={`answers-${step}`}
+                className="grid grid-cols-1 gap-2 sm:gap-3"
+              >
                 {current.answers.map((ans, idx) => (
                   <button
                     key={idx}
