@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "../touchFix.css";
 
 const QUESTIONS = [
   {
@@ -118,36 +117,6 @@ export default function MillionaireGame({ userId }) {
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
 
-  // Blur focus khỏi button khi chuyển step (chống lưu highlight trên mobile)
-  useEffect(() => {
-    // Loại bỏ focus và highlight khi chuyển câu hỏi
-    const removeFocusAndHighlight = () => {
-      // Blur active element
-      if (document.activeElement && document.activeElement.blur) {
-        document.activeElement.blur();
-      }
-
-      // Reset trạng thái focus/active của tất cả button
-      const allButtons = document.querySelectorAll("button");
-      allButtons.forEach((btn) => {
-        btn.blur();
-        btn.classList.remove("active", "focus", "hover");
-      });
-    };
-
-    removeFocusAndHighlight();
-
-    // Đảm bảo CSS reset sau render và khôi phục tương tác
-    const timer = setTimeout(() => {
-      const allButtons = document.querySelectorAll("button");
-      allButtons.forEach((btn) => {
-        btn.style.pointerEvents = "auto";
-      });
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, [step]);
-
   // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
 
@@ -219,46 +188,28 @@ export default function MillionaireGame({ userId }) {
       .catch((err) => console.error("Lỗi khi cộng coin:", err));
   };
 
-  // State để kiểm soát giai đoạn chuyển tiếp giữa các câu hỏi
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   const handleSelect = (idx) => {
-    if (locked || isTransitioning) return;
+    if (locked) return;
     setSelected(idx);
     setLocked(true);
-
     setTimeout(() => {
       if (idx === current.correct) {
         if (step === QUESTIONS.length - 1) {
           setWon(true);
+          // Thêm coin khi hoàn thành toàn bộ câu hỏi
           addCoinForUser(PRIZES[step]);
         } else {
-          // Chuẩn bị reset state và chuyển sang câu hỏi tiếp theo
+          // Cách mới: reset state hoàn toàn TRƯỚC khi set step mới
+          // Lưu step mới vào biến tạm để tránh closure effect
           const nextStep = step + 1;
-
-          // Blur focus khỏi button đang được chọn và reset state
-          if (document.activeElement && document.activeElement.blur) {
-            document.activeElement.blur();
-          }
-
-          // Reset state và chờ DOM cập nhật
           setSelected(null);
           setLocked(false);
-
-          // Triệt để loại bỏ highlight trên mobile trước khi chuyển step
-          const allButtons = document.querySelectorAll("button");
-          allButtons.forEach((btn) => {
-            btn.blur();
-            btn.classList.remove("active", "focus", "hover");
-            // Xóa bỏ sự kiện touch và focus tạm thời
-            btn.style.pointerEvents = "none";
-          });
-
-          // Set step sau khi đã reset hoàn toàn
-          setTimeout(() => setStep(nextStep), 10);
+          // Set step sau cùng để trigger render sau khi đã reset state
+          setTimeout(() => setStep(nextStep), 0);
         }
       } else {
         setLost(true);
+        // Thêm coin khi thua, dựa theo số câu đã trả lời đúng
         if (step > 0) {
           addCoinForUser(PRIZES[step - 1]);
         }
@@ -267,27 +218,11 @@ export default function MillionaireGame({ userId }) {
   };
 
   const handleRestart = () => {
-    // Reset tất cả state
+    setStep(0);
     setSelected(null);
     setLocked(false);
     setWon(false);
     setLost(false);
-
-    // Blur tất cả button và loại bỏ focus
-    if (document.activeElement && document.activeElement.blur) {
-      document.activeElement.blur();
-    }
-
-    const allButtons = document.querySelectorAll("button");
-    allButtons.forEach((btn) => {
-      btn.blur();
-      btn.classList.remove("active", "focus", "hover");
-      // Tạm thời vô hiệu hóa tương tác
-      btn.style.pointerEvents = "none";
-    });
-
-    // Set step cuối cùng để trigger re-render
-    setTimeout(() => setStep(0), 10);
   };
 
   return (
@@ -482,11 +417,6 @@ export default function MillionaireGame({ userId }) {
                 </span>
               </div>
 
-              {/* Hiển thị lớp overlay khi đang chuyển câu hỏi để ngăn tương tác */}
-              {isTransitioning && (
-                <div className="fixed inset-0 z-50 bg-transparent"></div>
-              )}
-
               <div
                 key={`question-${step}`}
                 className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200"
@@ -499,18 +429,8 @@ export default function MillionaireGame({ userId }) {
               >
                 {current.answers.map((ans, idx) => (
                   <button
-                    key={`step${step}-ans${idx}-${Date.now()}`}
-                    tabIndex={-1}
-                    onTouchStart={(e) => {
-                      // Ngăn highlight mặc định của browser
-                      e.currentTarget.style.webkitTapHighlightColor =
-                        "transparent";
-                    }}
-                    style={{
-                      WebkitTapHighlightColor: "transparent",
-                      touchAction: "manipulation",
-                    }}
-                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-100
+                    key={idx}
+                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-200
                       ${
                         selected === idx
                           ? idx === current.correct
