@@ -285,14 +285,6 @@ export default function MillionaireGame({ userId }) {
     }
   }, [step, fetchQuestion, questions]);
 
-  // Xóa vết highlight/focus trên button khi chuyển câu hỏi (fix Chrome mobile)
-  useEffect(() => {
-    setTimeout(() => {
-      const btns = document.querySelectorAll("button");
-      btns.forEach((btn) => btn.blur());
-    }, 0);
-  }, [step]);
-
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
       <div className="flex justify-start mb-2">
