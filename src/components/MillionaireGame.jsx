@@ -429,7 +429,7 @@ export default function MillionaireGame({ userId }) {
               >
                 {current.answers.map((ans, idx) => (
                   <button
-                    key={idx}
+                    key={`step${step}-ans${idx}`}
                     className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-200
                       ${
                         selected === idx
