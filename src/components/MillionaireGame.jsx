@@ -28,6 +28,7 @@ export default function MillionaireGame({ userId }) {
   const [selected, setSelected] = useState(null);
   const [locked, setLocked] = useState(false);
   const [won, setWon] = useState(false);
+  const [usedQuestionIds, setUsedQuestionIds] = useState([]);
   const [lost, setLost] = useState(false);
   const [stopped, setStopped] = useState(false); // Trạng thái khi người chơi dừng cuộc chơi
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
@@ -207,6 +208,7 @@ export default function MillionaireGame({ userId }) {
     setStopped(false);
     setTimeLeft(30);
     setTimerActive(true);
+    setUsedQuestionIds([]); // Xóa danh sách câu hỏi đã sử dụng khi chơi lại
   };
 
   // Hàm lấy câu hỏi từ API
@@ -225,12 +227,16 @@ export default function MillionaireGame({ userId }) {
       try {
         const API_URL = process.env.REACT_APP_API_URL;
         const token = localStorage.getItem("token");
-        const res = await fetch(
-          `${API_URL}/millionaire/question?level=${level}`,
-          {
-            headers: { Authorization: token ? `Bearer ${token}` : undefined },
-          }
-        );
+        // Thêm excludeIds vào URL để tránh lặp lại câu hỏi đã sử dụng
+        const excludeIds =
+          usedQuestionIds.length > 0 ? usedQuestionIds.join(",") : "";
+        const url =
+          `${API_URL}/millionaire/question?level=${level}` +
+          (excludeIds ? `&excludeIds=${excludeIds}` : "");
+
+        const res = await fetch(url, {
+          headers: { Authorization: token ? `Bearer ${token}` : undefined },
+        });
         if (!res.ok) throw new Error("Không lấy được câu hỏi");
         const data = await res.json();
 
@@ -247,6 +253,9 @@ export default function MillionaireGame({ userId }) {
           };
           return newArr;
         });
+
+        // Lưu lại ID của câu hỏi đã sử dụng
+        setUsedQuestionIds((prevIds) => [...prevIds, data._id]);
 
         // Đợi một chút để tránh nhấp nháy giao diện
         setTimeout(() => {
@@ -265,8 +274,8 @@ export default function MillionaireGame({ userId }) {
         setLoading(false);
       }
     },
-    [questions]
-  ); // Added questions to the dependency array
+    [questions, usedQuestionIds]
+  ); // Added questions and usedQuestionIds to the dependency array
 
   // Lấy câu hỏi khi bắt đầu game hoặc chuyển câu
   useEffect(() => {
