@@ -21,21 +21,21 @@ const QUESTIONS = [
 ];
 
 const PRIZES = [
-  "200.000",
-  "400.000",
-  "600.000",
-  "1.000.000",
-  "2.000.000",
-  "3.000.000",
-  "6.000.000",
-  "10.000.000",
-  "14.000.000",
-  "22.000.000",
-  "30.000.000",
-  "40.000.000",
-  "60.000.000",
-  "85.000.000",
-  "150.000.000",
+  "2",
+  "4",
+  "6",
+  "10",
+  "20",
+  "30",
+  "60",
+  "100",
+  "140",
+  "220",
+  "300",
+  "400",
+  "600",
+  "850",
+  "1500",
 ];
 
 export default function MillionaireGame({ userId }) {
@@ -150,7 +150,32 @@ export default function MillionaireGame({ userId }) {
                 }
               `}
             >
-              Câu {i + 1}: {p} VNĐ
+              Câu {i + 1}: {p}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="inline h-5 w-5 ml-1 align-middle"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="gold"
+                  strokeWidth="2"
+                  fill="#ffe066"
+                />
+                <text
+                  x="12"
+                  y="16"
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#bfa100"
+                >
+                  ₵
+                </text>
+              </svg>
             </div>
           ))}
         </div>
