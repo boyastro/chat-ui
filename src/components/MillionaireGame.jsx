@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./millionaire.css";
 
@@ -118,6 +118,9 @@ export default function MillionaireGame({ userId }) {
   const [lost, setLost] = useState(false);
   const [stopped, setStopped] = useState(false); // Trạng thái khi người chơi dừng cuộc chơi
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [timerActive, setTimerActive] = useState(true);
+  const timerRef = useRef(null);
 
   // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
@@ -148,52 +151,87 @@ export default function MillionaireGame({ userId }) {
   }, [userId]);
 
   // Hàm gọi API để cộng coin cho user
-  const addCoinForUser = (coin) => {
-    if (!userId) return;
-
-    // Cập nhật UI ngay lập tức để không bị lag
-    const earnedCoin = parseInt(coin, 10);
-
-    // Cập nhật tạm thời userInfo.coin ở UI để người dùng thấy ngay
-    setUserInfo((prev) => ({
-      ...prev,
-      coin: prev.coin + earnedCoin,
-    }));
-
-    const API_URL = process.env.REACT_APP_API_URL;
-    const token = localStorage.getItem("token");
-
-    fetch(`${API_URL}/millionaire/add-coin`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : undefined,
-      },
-      body: JSON.stringify({
-        userId,
-        coin: earnedCoin,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          // Cập nhật lại chính xác số coin từ server
-          setUserInfo((prev) => ({
-            ...prev,
-            coin: data.coin,
-          }));
-          console.log(
-            `Thêm ${earnedCoin} coin thành công, số coin hiện tại: ${data.coin}`
-          );
-        }
+  const addCoinForUser = useCallback(
+    (coin) => {
+      if (!userId) return;
+      const earnedCoin = parseInt(coin, 10);
+      setUserInfo((prev) => ({
+        ...prev,
+        coin: prev.coin + earnedCoin,
+      }));
+      const API_URL = process.env.REACT_APP_API_URL;
+      const token = localStorage.getItem("token");
+      fetch(`${API_URL}/millionaire/add-coin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify({ userId, coin: earnedCoin }),
       })
-      .catch((err) => console.error("Lỗi khi cộng coin:", err));
-  };
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setUserInfo((prev) => ({ ...prev, coin: data.coin }));
+            console.log(
+              `Thêm ${earnedCoin} coin thành công, số coin hiện tại: ${data.coin}`
+            );
+          }
+        })
+        .catch((err) => console.error("Lỗi khi cộng coin:", err));
+    },
+    [userId]
+  );
+
+  // Xử lý khi hết thời gian
+  const handleTimeOut = useCallback(() => {
+    setLocked(true);
+    setLost(true);
+    let guaranteedPrize = "0";
+    const checkpoints = [4, 9, 14];
+    for (let i = checkpoints.length - 1; i >= 0; i--) {
+      if (step > checkpoints[i]) {
+        guaranteedPrize = PRIZES[checkpoints[i]];
+        break;
+      }
+    }
+    if (guaranteedPrize !== "0") {
+      addCoinForUser(guaranteedPrize);
+    }
+  }, [step, addCoinForUser]);
+
+  // Đếm ngược thời gian
+  useEffect(() => {
+    if (timerActive && !won && !lost && !stopped) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            setTimerActive(false);
+            handleTimeOut();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [timerActive, won, lost, stopped, handleTimeOut]);
+
+  // Reset timer khi sang câu mới
+  useEffect(() => {
+    setTimeLeft(30);
+    setTimerActive(true);
+  }, [step]);
 
   const handleSelect = (idx) => {
     if (locked) return;
     setSelected(idx);
     setLocked(true);
+    setTimerActive(false);
+    if (timerRef.current) clearInterval(timerRef.current);
     setTimeout(() => {
       if (idx === current.correct) {
         if (step === QUESTIONS.length - 1) {
@@ -239,8 +277,8 @@ export default function MillionaireGame({ userId }) {
     if (step > 0) {
       setStopped(true);
       setLocked(true);
-
-      // Nhận thưởng tương ứng với câu hỏi hiện tại
+      setTimerActive(false);
+      if (timerRef.current) clearInterval(timerRef.current);
       addCoinForUser(PRIZES[step - 1]); // step - 1 vì đây là câu hỏi đã trả lời xong
     }
   };
@@ -252,6 +290,8 @@ export default function MillionaireGame({ userId }) {
     setWon(false);
     setLost(false);
     setStopped(false);
+    setTimeLeft(30);
+    setTimerActive(true);
   };
 
   // Xóa vết highlight/focus trên button khi chuyển câu hỏi (fix Chrome mobile)
@@ -391,7 +431,6 @@ export default function MillionaireGame({ userId }) {
             </div>
           ) : stopped ? (
             <div className="text-center font-bold text-lg sm:text-xl px-3 py-8 rounded-lg millionaire-question border-2 border-yellow-400">
-              <div className="mb-3 text-4xl">�</div>
               <div className="text-blue-300 text-2xl sm:text-3xl mb-2">
                 Bạn đã dừng cuộc chơi!
               </div>
@@ -479,9 +518,34 @@ export default function MillionaireGame({ userId }) {
             </div>
           ) : (
             <>
-              {/* Hiển thị số câu và tiền thưởng */}
+              {/* Hiển thị số câu, tiền thưởng, đồng hồ và thanh tiến trình */}
               <div className="flex justify-between items-center mb-2 text-xs sm:text-sm px-3 py-2 rounded-md millionaire-prize-item">
-                <span className="font-medium">Câu {step + 1}/15</span>
+                <div className="flex items-center">
+                  <span className="font-medium">Câu {step + 1}/15</span>
+                  <div
+                    className={`ml-2 flex items-center justify-center p-1 rounded-full ${
+                      timeLeft <= 10
+                        ? "text-red-400 animate-pulse"
+                        : "text-blue-300"
+                    }`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="font-bold">{timeLeft}s</span>
+                  </div>
+                </div>
                 <span className="font-bold millionaire-money-won">
                   {PRIZES[step]}
                   <svg
@@ -510,6 +574,18 @@ export default function MillionaireGame({ userId }) {
                     </text>
                   </svg>
                 </span>
+              </div>
+              {/* Thanh tiến trình thời gian */}
+              <div className="mb-1 bg-blue-900/50 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className={`h-full ${
+                    timeLeft <= 10 ? "bg-red-500" : "bg-blue-400"
+                  }`}
+                  style={{
+                    width: `${(timeLeft / 30) * 100}%`,
+                    transition: "width 1s linear",
+                  }}
+                ></div>
               </div>
 
               <div
