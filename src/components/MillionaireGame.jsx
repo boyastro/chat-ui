@@ -184,12 +184,14 @@ export default function MillionaireGame({ userId }) {
 
       <div className="flex justify-center mb-2">
         <div className="flex items-center gap-2 bg-white/90 border border-yellow-300 rounded-lg px-3 py-1.5 shadow-sm">
-          <img
-            src={userInfo.avatar}
-            alt="avatar"
-            className="w-9 h-9 rounded-full border-2 border-yellow-400 object-cover bg-white"
-            style={{ minWidth: 36, minHeight: 36 }}
-          />
+          {userInfo.avatar ? (
+            <img
+              src={userInfo.avatar}
+              alt="avatar"
+              className="w-9 h-9 rounded-full border-2 border-yellow-400 object-cover bg-white"
+              style={{ minWidth: 36, minHeight: 36 }}
+            />
+          ) : null}
           <span className="font-bold text-yellow-800 text-sm truncate max-w-[150px] sm:max-w-[180px]">
             {userInfo.name}
           </span>
