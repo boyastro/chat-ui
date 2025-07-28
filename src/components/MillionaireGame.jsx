@@ -172,26 +172,30 @@ export default function MillionaireGame({ userId }) {
 
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl sm:rounded-2xl shadow-xl border-2 border-yellow-400">
-      <div className="flex items-center gap-3 mb-2">
+      <div className="flex justify-start mb-2">
         <button
-          className="self-start flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+          className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
           onClick={() => navigate("/rooms")}
         >
           <span className="text-xs sm:text-sm">⬅️</span>
           <span>Về phòng chát</span>
         </button>
-        <div className="flex items-center gap-2 bg-white/80 border border-yellow-200 rounded-lg px-2 py-1 min-w-0">
+      </div>
+
+      <div className="flex justify-center mb-2">
+        <div className="flex items-center gap-2 bg-white/90 border border-yellow-300 rounded-lg px-3 py-1.5 shadow-sm">
           <img
             src={userInfo.avatar}
             alt="avatar"
-            className="w-8 h-8 rounded-full border-2 border-yellow-400 object-cover bg-white"
-            style={{ minWidth: 32, minHeight: 32 }}
+            className="w-9 h-9 rounded-full border-2 border-yellow-400 object-cover bg-white"
+            style={{ minWidth: 36, minHeight: 36 }}
           />
-          <span className="font-bold text-yellow-800 text-xs sm:text-sm truncate max-w-[90px]">
+          <span className="font-bold text-yellow-800 text-sm truncate max-w-[150px] sm:max-w-[180px]">
             {userInfo.name}
           </span>
         </div>
       </div>
+
       <h2 className="text-xl sm:text-2xl font-bold text-yellow-700 text-center mb-3 sm:mb-4">
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
