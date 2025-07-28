@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./millionaire.css";
 
 const QUESTIONS = [
   {
@@ -262,10 +263,10 @@ export default function MillionaireGame({ userId }) {
   }, [step]);
 
   return (
-    <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl sm:rounded-2xl shadow-xl border-2 border-yellow-400">
+    <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
       <div className="flex justify-start mb-2">
         <button
-          className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+          className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 millionaire-button rounded-md text-xs sm:text-sm font-medium"
           onClick={() => navigate("/rooms")}
         >
           <span className="text-xs sm:text-sm">⬅️</span>
@@ -274,23 +275,23 @@ export default function MillionaireGame({ userId }) {
       </div>
 
       <div className="flex justify-center mb-2">
-        <div className="flex items-center gap-2 bg-white/90 border border-yellow-300 rounded-lg px-3 py-1.5 shadow-sm">
+        <div className="flex items-center gap-2 millionaire-user-info rounded-lg px-3 py-1.5 shadow-sm">
           {userInfo.avatar ? (
             <img
               src={userInfo.avatar}
               alt="avatar"
-              className="w-9 h-9 rounded-full border-2 border-yellow-400 object-cover bg-white"
+              className="w-9 h-9 rounded-full border-2 border-blue-400 object-cover bg-white"
               style={{ minWidth: 36, minHeight: 36 }}
             />
           ) : null}
           <div className="flex flex-col">
-            <span className="font-bold text-yellow-800 text-sm truncate max-w-[150px] sm:max-w-[180px]">
+            <span className="font-bold text-blue-300 text-sm truncate max-w-[150px] sm:max-w-[180px]">
               {userInfo.name}
             </span>
-            <div className="flex items-center text-xs text-yellow-600">
+            <div className="flex items-center text-xs text-yellow-300">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5 mr-1"
+                className="h-3.5 w-3.5 mr-1 coin-icon"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -319,7 +320,7 @@ export default function MillionaireGame({ userId }) {
         </div>
       </div>
 
-      <h2 className="text-xl sm:text-2xl font-bold text-yellow-700 text-center mb-3 sm:mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-center mb-3 sm:mb-4 millionaire-title">
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
 
@@ -328,13 +329,18 @@ export default function MillionaireGame({ userId }) {
         {[4, 9, 14].map((i) => (
           <div
             key={i}
-            className={`rounded px-1.5 py-0.5 text-[10px] font-bold border 
+            className={`rounded px-1.5 py-0.5 text-[10px] font-bold
               ${
                 i === step
-                  ? "bg-yellow-400 border-yellow-700 text-white animate-pulse"
+                  ? "millionaire-prize-item current"
                   : i < step
-                  ? "bg-green-100 border-green-300 text-green-700"
-                  : "bg-white border-yellow-200 text-yellow-700"
+                  ? "millionaire-prize-item passed"
+                  : "millionaire-prize-item"
+              }
+              ${
+                [4, 9, 14].includes(i)
+                  ? "millionaire-prize-item checkpoint"
+                  : ""
               }
             `}
             title={`Mốc đảm bảo ${i === 4 ? "1" : i === 9 ? "2" : "3"}`}
@@ -342,7 +348,7 @@ export default function MillionaireGame({ userId }) {
             <span>{PRIZES[i]}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="inline h-3 w-3 align-middle"
+              className="inline h-3 w-3 align-middle coin-icon"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -464,15 +470,13 @@ export default function MillionaireGame({ userId }) {
           ) : (
             <>
               {/* Hiển thị số câu và tiền thưởng */}
-              <div className="flex justify-between items-center mb-2 text-xs sm:text-sm px-2 py-1 bg-yellow-100/60 rounded-md">
-                <span className="font-medium text-yellow-800">
-                  Câu {step + 1}/15
-                </span>
-                <span className="font-bold text-yellow-700">
+              <div className="flex justify-between items-center mb-2 text-xs sm:text-sm px-3 py-2 rounded-md millionaire-prize-item">
+                <span className="font-medium">Câu {step + 1}/15</span>
+                <span className="font-bold millionaire-money-won">
                   {PRIZES[step]}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="inline h-4 w-4 ml-0.5 align-middle"
+                    className="inline h-4 w-4 ml-0.5 align-middle coin-icon"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -500,32 +504,36 @@ export default function MillionaireGame({ userId }) {
 
               <div
                 key={`question-${step}`}
-                className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200"
+                className="mb-4 text-base sm:text-lg font-semibold p-4 sm:p-5 rounded-lg millionaire-question millionaire-pulse"
               >
                 {current.question}
               </div>
               <div
                 key={`answers-${step}`}
-                className="grid grid-cols-1 gap-2 sm:gap-3"
+                className="grid grid-cols-1 gap-3 sm:gap-4"
               >
                 {current.answers.map((ans, idx) => (
                   <button
-                    key={`step${step}-ans${idx}`}
-                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-200
+                    key={`step${step}-ans${idx}-${Date.now()}`}
+                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition-all duration-200 millionaire-option
                       ${
                         selected === idx
                           ? idx === current.correct
-                            ? "bg-green-400 border-green-600 text-white"
-                            : "bg-red-400 border-red-600 text-white"
-                          : "bg-white border-yellow-400 text-yellow-800 hover:bg-yellow-100 active:bg-yellow-200"
+                            ? "correct"
+                            : "incorrect"
+                          : ""
                       }
-                      ${locked && selected !== idx ? "opacity-60" : ""}
+                      ${
+                        selected !== null && selected !== idx
+                          ? "opacity-60"
+                          : ""
+                      }
                     `}
                     disabled={locked}
                     onClick={() => handleSelect(idx)}
                   >
                     <span className="flex items-center">
-                      <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
+                      <span className="inline-flex items-center justify-center millionaire-option-label w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
                         {String.fromCharCode(65 + idx)}
                       </span>
                       <span className="text-left">{ans}</span>
@@ -537,20 +545,52 @@ export default function MillionaireGame({ userId }) {
               {/* Nút dừng cuộc chơi và nhận thưởng (chỉ hiển thị khi đã qua câu hỏi đầu tiên) */}
               {step > 0 && !locked && (
                 <button
-                  className="mt-3 py-2 w-full rounded-lg bg-blue-100 border-2 border-blue-300 text-blue-700 font-semibold hover:bg-blue-200 transition-colors"
+                  className="mt-4 py-3 w-full rounded-lg millionaire-stop-button font-semibold transition-all"
                   onClick={handleStop}
                 >
-                  Dừng cuộc chơi và nhận {PRIZES[step - 1]} coin 💰
+                  <div className="flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    Dừng cuộc chơi và nhận {PRIZES[step - 1]} coin 💰
+                  </div>
                 </button>
               )}
             </>
           )}
           {(won || lost || stopped) && (
             <button
-              className="mt-5 w-full py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white font-bold text-lg shadow hover:from-yellow-600 hover:to-amber-600 transition active:scale-98"
+              className="mt-6 w-full py-3 rounded-lg text-white font-bold text-lg shadow-lg millionaire-button transform hover:scale-[1.02] active:scale-[0.98]"
               onClick={handleRestart}
             >
-              Chơi lại
+              <div className="flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Chơi lại
+              </div>
             </button>
           )}
         </div>
