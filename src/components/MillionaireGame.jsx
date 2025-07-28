@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import "../touchFix.css";
 
 const QUESTIONS = [
   {
@@ -116,34 +117,8 @@ export default function MillionaireGame({ userId }) {
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [uniqueKey, setUniqueKey] = useState(Date.now());
 
-  // Lớp CSS toàn cục cho việc loại bỏ highlight trên mobile
-  useEffect(() => {
-    // Tạo style element để thêm CSS global
-    const style = document.createElement("style");
-    style.innerHTML = `
-      button {
-        -webkit-tap-highlight-color: transparent !important;
-        touch-action: manipulation !important;
-        outline: none !important;
-      }
-      button:focus {
-        outline: none !important;
-        box-shadow: none !important;
-      }
-      @media (hover: none) {
-        button:active {
-          background: transparent !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
-
-  // Blur focus và reset highlight khi chuyển step
+  // Blur focus khỏi button khi chuyển step (chống lưu highlight trên mobile)
   useEffect(() => {
     // Loại bỏ focus và highlight khi chuyển câu hỏi
     const removeFocusAndHighlight = () => {
@@ -158,15 +133,18 @@ export default function MillionaireGame({ userId }) {
         btn.blur();
         btn.classList.remove("active", "focus", "hover");
       });
-
-      // Force re-render để tạo DOM mới cho các button
-      setUniqueKey(Date.now());
     };
 
     removeFocusAndHighlight();
 
-    // Đảm bảo CSS reset sau render
-    const timer = setTimeout(removeFocusAndHighlight, 50);
+    // Đảm bảo CSS reset sau render và khôi phục tương tác
+    const timer = setTimeout(() => {
+      const allButtons = document.querySelectorAll("button");
+      allButtons.forEach((btn) => {
+        btn.style.pointerEvents = "auto";
+      });
+    }, 50);
+
     return () => clearTimeout(timer);
   }, [step]);
 
@@ -241,6 +219,9 @@ export default function MillionaireGame({ userId }) {
       .catch((err) => console.error("Lỗi khi cộng coin:", err));
   };
 
+  // State để kiểm soát giai đoạn chuyển tiếp giữa các câu hỏi
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const handleSelect = (idx) => {
     if (locked || isTransitioning) return;
     setSelected(idx);
@@ -252,39 +233,29 @@ export default function MillionaireGame({ userId }) {
           setWon(true);
           addCoinForUser(PRIZES[step]);
         } else {
-          // Bật trạng thái transition để vô hiệu hóa tương tác
-          setIsTransitioning(true);
-
           // Chuẩn bị reset state và chuyển sang câu hỏi tiếp theo
           const nextStep = step + 1;
 
-          // Blur focus khỏi button đang được chọn
+          // Blur focus khỏi button đang được chọn và reset state
           if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
           }
 
-          // Xóa mọi highlight cũ
-          document.querySelectorAll("button").forEach((btn) => {
-            btn.blur();
-            btn.classList.remove("active", "focus", "hover");
-          });
-
-          // Reset state trước khi chuyển step
+          // Reset state và chờ DOM cập nhật
           setSelected(null);
           setLocked(false);
 
-          // Đảm bảo DOM cập nhật trước khi chuyển step
-          requestAnimationFrame(() => {
-            // Tạo key mới để force re-render toàn bộ UI
-            setUniqueKey(Date.now());
-
-            // Chuyển step sau khi đã reset hoàn toàn
-            setTimeout(() => {
-              setStep(nextStep);
-              // Tắt transition sau khi đã cập nhật xong
-              setTimeout(() => setIsTransitioning(false), 50);
-            }, 50);
+          // Triệt để loại bỏ highlight trên mobile trước khi chuyển step
+          const allButtons = document.querySelectorAll("button");
+          allButtons.forEach((btn) => {
+            btn.blur();
+            btn.classList.remove("active", "focus", "hover");
+            // Xóa bỏ sự kiện touch và focus tạm thời
+            btn.style.pointerEvents = "none";
           });
+
+          // Set step sau khi đã reset hoàn toàn
+          setTimeout(() => setStep(nextStep), 10);
         }
       } else {
         setLost(true);
@@ -296,9 +267,6 @@ export default function MillionaireGame({ userId }) {
   };
 
   const handleRestart = () => {
-    // Bật trạng thái transition để vô hiệu hóa tương tác
-    setIsTransitioning(true);
-
     // Reset tất cả state
     setSelected(null);
     setLocked(false);
@@ -314,17 +282,12 @@ export default function MillionaireGame({ userId }) {
     allButtons.forEach((btn) => {
       btn.blur();
       btn.classList.remove("active", "focus", "hover");
+      // Tạm thời vô hiệu hóa tương tác
+      btn.style.pointerEvents = "none";
     });
 
-    // Tạo key mới để force re-render toàn bộ UI
-    setUniqueKey(Date.now());
-
     // Set step cuối cùng để trigger re-render
-    setTimeout(() => {
-      setStep(0);
-      // Tắt trạng thái transition sau khi hoàn thành
-      setTimeout(() => setIsTransitioning(false), 50);
-    }, 50);
+    setTimeout(() => setStep(0), 10);
   };
 
   return (
@@ -525,18 +488,18 @@ export default function MillionaireGame({ userId }) {
               )}
 
               <div
-                key={`question-${step}-${uniqueKey}`}
+                key={`question-${step}`}
                 className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200"
               >
                 {current.question}
               </div>
               <div
-                key={`answers-${step}-${uniqueKey}`}
+                key={`answers-${step}`}
                 className="grid grid-cols-1 gap-2 sm:gap-3"
               >
                 {current.answers.map((ans, idx) => (
                   <button
-                    key={`step${step}-ans${idx}-${uniqueKey}`}
+                    key={`step${step}-ans${idx}-${Date.now()}`}
                     tabIndex={-1}
                     onTouchStart={(e) => {
                       // Ngăn highlight mặc định của browser
@@ -546,7 +509,6 @@ export default function MillionaireGame({ userId }) {
                     style={{
                       WebkitTapHighlightColor: "transparent",
                       touchAction: "manipulation",
-                      outline: "none",
                     }}
                     className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-100
                       ${

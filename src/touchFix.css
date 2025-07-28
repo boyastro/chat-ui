@@ -1,0 +1,20 @@
+/* CSS để vô hiệu hóa highlight trên mobile */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+button {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  outline: none !important;
+}
+
+button:focus {
+  outline: none !important;
+}
+
+.answer-button:active {
+  -webkit-tap-highlight-color: transparent;
+}
