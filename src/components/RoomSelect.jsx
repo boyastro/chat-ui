@@ -48,19 +48,6 @@ export default function RoomSelect({
             <span className="text-xs text-yellow-800 mt-0.5 font-bold tracking-wide">
               Play Caro
             </span>
-            <button
-              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-green-300 mt-2"
-              title="Vào shop vật phẩm"
-              onClick={() => navigate("/shop")}
-            >
-              <span className="text-lg">🛒</span>
-              <span className="hidden xs:inline ml-1 font-bold truncate">
-                Shop
-              </span>
-            </button>
-            <span className="text-xs text-green-800 mt-0.5 font-bold tracking-wide">
-              Shop
-            </span>
 
             {/* ...existing code for User Info button and label... */}
           </div>
@@ -83,15 +70,17 @@ export default function RoomSelect({
               User info
             </span>
             <button
-              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-pink-500 to-yellow-400 hover:from-pink-600 hover:to-yellow-500 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-pink-300 mt-2"
-              title="Vòng quay may mắn"
-              onClick={() => navigate("/luckywheel")}
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-green-300 mt-2"
+              title="Vào shop vật phẩm"
+              onClick={() => navigate("/shop")}
             >
-              <span className="text-base">🎡</span>
-              <span className="hidden xs:inline ml-1 truncate">LuckyWheel</span>
+              <span className="text-lg">🛒</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Shop
+              </span>
             </button>
-            <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
-              LuckyWheel
+            <span className="text-xs text-green-800 mt-0.5 font-bold tracking-wide">
+              Shop
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
@@ -108,6 +97,40 @@ export default function RoomSelect({
             </button>
             <span className="text-xs text-purple-800 mt-0.5 font-bold tracking-wide">
               Leaderboard
+            </span>
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-pink-500 to-yellow-400 hover:from-pink-600 hover:to-yellow-500 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-pink-300 mt-2"
+              title="Vòng quay may mắn"
+              onClick={() => navigate("/luckywheel")}
+            >
+              <span className="text-base">🎡</span>
+              <span className="hidden xs:inline ml-1 truncate">LuckyWheel</span>
+            </button>
+            <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
+              LuckyWheel
+            </span>
+          </div>
+          <div className="flex flex-col items-center flex-1 min-w-0">
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-red-400"
+              title="Quay lại đăng nhập"
+              onClick={() => {
+                if (typeof onRoomChange === "function") {
+                  onRoomChange({ target: { value: "" } }); // reset currentRoom
+                }
+                if (typeof setJoinedRoom === "function") {
+                  setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
+                }
+                if (typeof onBackToLogin === "function") {
+                  onBackToLogin();
+                }
+              }}
+            >
+              <span className="text-base">🔙</span>
+              <span className="hidden xs:inline ml-1 truncate">Đăng Xuất</span>
+            </button>
+            <span className="text-xs text-red-800 mt-0.5 font-bold tracking-wide">
+              Logout
             </span>
             <button
               className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-500 to-yellow-700 hover:from-yellow-600 hover:to-yellow-800 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-yellow-400 mt-2"
@@ -155,29 +178,6 @@ export default function RoomSelect({
             </button>
             <span className="text-xs text-yellow-700 mt-0.5 font-bold tracking-wide">
               Mua Coin
-            </span>
-          </div>
-          <div className="flex flex-col items-center flex-1 min-w-0">
-            <button
-              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-red-400"
-              title="Quay lại đăng nhập"
-              onClick={() => {
-                if (typeof onRoomChange === "function") {
-                  onRoomChange({ target: { value: "" } }); // reset currentRoom
-                }
-                if (typeof setJoinedRoom === "function") {
-                  setJoinedRoom(""); // reset joinedRoom để join lại phòng cũ
-                }
-                if (typeof onBackToLogin === "function") {
-                  onBackToLogin();
-                }
-              }}
-            >
-              <span className="text-base">🔙</span>
-              <span className="hidden xs:inline ml-1 truncate">Đăng Xuất</span>
-            </button>
-            <span className="text-xs text-red-800 mt-0.5 font-bold tracking-wide">
-              Logout
             </span>
           </div>
         </div>
