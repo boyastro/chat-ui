@@ -46,7 +46,7 @@ export default function RoomSelect({
               </span>
             </button>
             <span className="text-xs text-yellow-800 mt-0.5 font-bold tracking-wide">
-              Play Caro
+              CaroGame
             </span>
 
             <button
@@ -60,7 +60,7 @@ export default function RoomSelect({
               </span>
             </button>
             <span className="text-xs text-yellow-700 mt-0.5 font-bold tracking-wide">
-              Millionaire
+              MillionGame
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
