@@ -116,6 +116,12 @@ export default function MillionaireGame({ userId }) {
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
+  // Blur focus khỏi button khi chuyển step (chống lưu highlight trên mobile)
+  useEffect(() => {
+    if (document.activeElement && document.activeElement.blur) {
+      document.activeElement.blur();
+    }
+  }, [step]);
 
   // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
@@ -196,20 +202,20 @@ export default function MillionaireGame({ userId }) {
       if (idx === current.correct) {
         if (step === QUESTIONS.length - 1) {
           setWon(true);
-          // Thêm coin khi hoàn thành toàn bộ câu hỏi
           addCoinForUser(PRIZES[step]);
         } else {
-          // Cách mới: reset state hoàn toàn TRƯỚC khi set step mới
-          // Lưu step mới vào biến tạm để tránh closure effect
+          // Reset state trước khi chuyển step, đồng thời blur focus khỏi button
           const nextStep = step + 1;
           setSelected(null);
           setLocked(false);
-          // Set step sau cùng để trigger render sau khi đã reset state
+          // Blur focus khỏi button đang được chọn (nếu có)
+          if (document.activeElement && document.activeElement.blur) {
+            document.activeElement.blur();
+          }
           setTimeout(() => setStep(nextStep), 0);
         }
       } else {
         setLost(true);
-        // Thêm coin khi thua, dựa theo số câu đã trả lời đúng
         if (step > 0) {
           addCoinForUser(PRIZES[step - 1]);
         }
@@ -430,6 +436,7 @@ export default function MillionaireGame({ userId }) {
                 {current.answers.map((ans, idx) => (
                   <button
                     key={`step${step}-ans${idx}`}
+                    tabIndex={-1}
                     className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-200
                       ${
                         selected === idx
