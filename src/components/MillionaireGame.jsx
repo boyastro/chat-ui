@@ -390,38 +390,48 @@ export default function MillionaireGame({ userId }) {
               </div>
             </div>
           ) : stopped ? (
-            <div className="text-center text-blue-600 font-bold text-lg sm:text-xl px-3 py-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-              <div className="mb-2 text-3xl">🎯</div>
-              Bạn đã dừng cuộc chơi!
-              <br />
-              <span className="mt-2 inline-block">
-                Số tiền thưởng: {PRIZES[step - 1]}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="inline h-5 w-5 ml-1 align-middle"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="gold"
-                    strokeWidth="2"
-                    fill="#ffe066"
-                  />
-                  <text
-                    x="12"
-                    y="16"
-                    textAnchor="middle"
-                    fontSize="10"
-                    fill="#bfa100"
+            <div className="text-center font-bold text-lg sm:text-xl px-3 py-8 rounded-lg millionaire-question border-2 border-yellow-400">
+              <div className="mb-3 text-4xl">�</div>
+              <div className="text-blue-300 text-2xl sm:text-3xl mb-2">
+                Bạn đã dừng cuộc chơi!
+              </div>
+              <div className="mb-3">
+                Bạn đã trả lời đúng{" "}
+                <span className="text-green-400">{step}</span> câu hỏi
+              </div>
+              <div className="mt-4 py-3 px-4 bg-gradient-to-r from-yellow-900/40 to-amber-900/40 inline-block rounded-lg border border-yellow-500">
+                <div className="text-yellow-400 text-sm mb-1">
+                  Số tiền thưởng của bạn
+                </div>
+                <div className="millionaire-money-won text-2xl sm:text-3xl flex items-center justify-center">
+                  {PRIZES[step - 1]}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 ml-2 align-middle coin-icon"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    ₵
-                  </text>
-                </svg>
-              </span>
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="gold"
+                      strokeWidth="2"
+                      fill="#ffe066"
+                    />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#bfa100"
+                    >
+                      ₵
+                    </text>
+                  </svg>
+                </div>
+              </div>
             </div>
           ) : lost ? (
             <div className="text-center text-red-600 font-bold text-lg sm:text-xl px-3 py-6 bg-red-50 rounded-lg border-2 border-red-200">
