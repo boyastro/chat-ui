@@ -209,9 +209,23 @@ export default function MillionaireGame({ userId }) {
         }
       } else {
         setLost(true);
-        // Thêm coin khi thua, dựa theo số câu đã trả lời đúng
-        if (step > 0) {
-          addCoinForUser(PRIZES[step - 1]);
+
+        // Xác định mức đảm bảo của người chơi khi thua
+        let guaranteedPrize = "0";
+
+        // Mốc đảm bảo là các câu 5, 10, 15 (index 4, 9, 14)
+        const checkpoints = [4, 9, 14];
+
+        // Tìm mức đảm bảo thấp nhất mà người chơi đã đạt được
+        for (let i = checkpoints.length - 1; i >= 0; i--) {
+          if (step > checkpoints[i]) {
+            guaranteedPrize = PRIZES[checkpoints[i]];
+            break;
+          }
+        }
+
+        if (guaranteedPrize !== "0") {
+          addCoinForUser(guaranteedPrize);
         }
       }
     }, 1200);
@@ -295,7 +309,7 @@ export default function MillionaireGame({ userId }) {
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
 
-      {/* Hiển thị bảng xếp hạng phần thưởng di động (chỉ hiển thị 3 mốc quan trọng) */}
+      {/* Hiển thị bảng xếp hạng phần thưởng di động (chỉ hiển thị 3 mốc đảm bảo) */}
       <div className="flex md:hidden items-center justify-center gap-1 mb-3">
         {[4, 9, 14].map((i) => (
           <div
@@ -309,6 +323,7 @@ export default function MillionaireGame({ userId }) {
                   : "bg-white border-yellow-200 text-yellow-700"
               }
             `}
+            title={`Mốc đảm bảo ${i === 4 ? "1" : i === 9 ? "2" : "3"}`}
           >
             <span>{PRIZES[i]}</span>
             <svg
@@ -360,7 +375,17 @@ export default function MillionaireGame({ userId }) {
               Bạn đã trả lời sai!
               <br />
               <span className="mt-2 inline-block">
-                Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
+                Số tiền thưởng:{" "}
+                {(() => {
+                  // Xác định mức đảm bảo
+                  const checkpoints = [4, 9, 14];
+                  for (let i = checkpoints.length - 1; i >= 0; i--) {
+                    if (step > checkpoints[i]) {
+                      return PRIZES[checkpoints[i]];
+                    }
+                  }
+                  return "0";
+                })()}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="inline h-5 w-5 ml-1 align-middle"
@@ -485,7 +510,17 @@ export default function MillionaireGame({ userId }) {
                     ? "bg-green-100 border-green-300 text-green-700"
                     : "bg-white border-yellow-200 text-yellow-700"
                 }
+                ${
+                  [4, 9, 14].includes(i)
+                    ? "border-orange-500 border-dashed"
+                    : ""
+                }
               `}
+              title={
+                [4, 9, 14].includes(i)
+                  ? `Mốc đảm bảo ${i === 4 ? "1" : i === 9 ? "2" : "3"}`
+                  : undefined
+              }
             >
               Câu {i + 1}: {p}
               <svg
