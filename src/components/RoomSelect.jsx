@@ -49,7 +49,19 @@ export default function RoomSelect({
               Play Caro
             </span>
 
-            {/* ...existing code for User Info button and label... */}
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-yellow-400 mt-2"
+              title="Ai Là Triệu Phú"
+              onClick={() => navigate("/millionaire")}
+            >
+              <span className="text-lg">💰</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Triệu Phú
+              </span>
+            </button>
+            <span className="text-xs text-yellow-700 mt-0.5 font-bold tracking-wide">
+              Millionaire
+            </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
             <button

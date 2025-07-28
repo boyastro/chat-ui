@@ -37,7 +37,7 @@ const PRIZES = [
   "150.000.000",
 ];
 
-export default function MillionaireGame() {
+export default function MillionaireGame({ userId }) {
   const [step, setStep] = useState(0);
   const [selected, setSelected] = useState(null);
   const [locked, setLocked] = useState(false);

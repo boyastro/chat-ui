@@ -15,6 +15,7 @@ import Leaderboard from "./components/Leaderboard";
 import Shop from "./components/Shop";
 import LuckyWheel from "./components/LuckyWheel";
 import CoinShop from "./components/CoinShop";
+import MillionaireGame from "./components/MillionaireGame";
 export default function ChatAppRoutes({
   chat,
   handleLogin,
@@ -65,6 +66,7 @@ export default function ChatAppRoutes({
         "/shop",
         "/luckywheel",
         "/coinshop",
+        "/millionaire",
       ].includes(location.pathname)
     )
       return;
@@ -131,6 +133,10 @@ export default function ChatAppRoutes({
       <Route path="/shop" element={<Shop userId={userId} />} />
       <Route path="/coinshop" element={<CoinShop userId={userId} />} />
       <Route path="/luckywheel" element={<LuckyWheel userId={userId} />} />
+      <Route
+        path="/millionaire"
+        element={<MillionaireGame userId={userId} />}
+      />
       <Route
         path="/chat/:roomId"
         element={
