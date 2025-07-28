@@ -2,95 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./millionaire.css";
 
-const QUESTIONS = [
-  {
-    question: "Thủ đô của Việt Nam là gì?",
-    answers: ["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Huế"],
-    correct: 0,
-  },
-  {
-    question: "Ai là tác giả của Truyện Kiều?",
-    answers: ["Nguyễn Du", "Nguyễn Trãi", "Hồ Xuân Hương", "Tố Hữu"],
-    correct: 0,
-  },
-  {
-    question: "Sông nào dài nhất Việt Nam?",
-    answers: ["Sông Hồng", "Sông Mekong", "Sông Đà", "Sông Đồng Nai"],
-    correct: 1,
-  },
-  {
-    question:
-      "Vịnh nào được UNESCO công nhận là Di sản thiên nhiên thế giới ở Việt Nam?",
-    answers: [
-      "Vịnh Hạ Long",
-      "Vịnh Cam Ranh",
-      "Vịnh Vân Phong",
-      "Vịnh Xuân Đài",
-    ],
-    correct: 0,
-  },
-  {
-    question: "Chùa Một Cột nằm ở thành phố nào?",
-    answers: ["Hà Nội", "Huế", "Hải Phòng", "Đà Nẵng"],
-    correct: 0,
-  },
-  {
-    question: "Đơn vị tiền tệ của Việt Nam là gì?",
-    answers: ["Đồng", "Yên", "Baht", "Ringgit"],
-    correct: 0,
-  },
-  {
-    question: "Ai là vị vua đầu tiên của triều đại nhà Nguyễn?",
-    answers: ["Gia Long", "Minh Mạng", "Tự Đức", "Duy Tân"],
-    correct: 0,
-  },
-  {
-    question: "Đỉnh núi cao nhất Việt Nam là?",
-    answers: ["Fansipan", "Bạch Mã", "Tây Côn Lĩnh", "Langbiang"],
-    correct: 0,
-  },
-  {
-    question: "Ngày Quốc khánh Việt Nam là ngày nào?",
-    answers: ["2/9", "30/4", "1/5", "19/8"],
-    correct: 0,
-  },
-  {
-    question: "Đội tuyển bóng đá nam Việt Nam vô địch AFF Cup lần đầu năm nào?",
-    answers: ["2008", "2018", "2010", "2004"],
-    correct: 0,
-  },
-  {
-    question: "Tỉnh nào có diện tích lớn nhất Việt Nam?",
-    answers: ["Nghệ An", "Thanh Hóa", "Đắk Lắk", "Sơn La"],
-    correct: 0,
-  },
-  {
-    question: "Ai là Tổng Bí thư đầu tiên của Đảng Cộng sản Việt Nam?",
-    answers: ["Trần Phú", "Lê Duẩn", "Nguyễn Văn Linh", "Hồ Chí Minh"],
-    correct: 0,
-  },
-  {
-    question: "Địa danh nào được mệnh danh là 'thành phố ngàn hoa'?",
-    answers: ["Đà Lạt", "Huế", "Hà Nội", "Sapa"],
-    correct: 0,
-  },
-  {
-    question: "Tên gọi cũ của thành phố Hồ Chí Minh là gì?",
-    answers: ["Sài Gòn", "Gia Định", "Thủ Đức", "Chợ Lớn"],
-    correct: 0,
-  },
-  {
-    question: "Ai là người phát minh ra bảng chữ cái tiếng Việt hiện đại?",
-    answers: [
-      "Alexandre de Rhodes",
-      "Trương Vĩnh Ký",
-      "Nguyễn Trãi",
-      "Lê Quý Đôn",
-    ],
-    correct: 0,
-  },
-];
-
 const PRIZES = [
   "2",
   "4",
@@ -109,6 +20,8 @@ const PRIZES = [
   "1500",
 ];
 
+const LEVELS = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]; // 15 câu
+
 export default function MillionaireGame({ userId }) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
@@ -120,10 +33,12 @@ export default function MillionaireGame({ userId }) {
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(true);
+  const [questions, setQuestions] = useState(Array(15).fill(null));
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef(null);
 
   // Lấy câu hỏi hiện tại
-  const current = QUESTIONS[step];
+  const current = questions[step];
 
   useEffect(() => {
     if (!userId) return;
@@ -234,7 +149,7 @@ export default function MillionaireGame({ userId }) {
     if (timerRef.current) clearInterval(timerRef.current);
     setTimeout(() => {
       if (idx === current.correct) {
-        if (step === QUESTIONS.length - 1) {
+        if (step === questions.length - 1) {
           setWon(true);
           // Thêm coin khi hoàn thành toàn bộ câu hỏi
           addCoinForUser(PRIZES[step]);
@@ -294,6 +209,56 @@ export default function MillionaireGame({ userId }) {
     setTimerActive(true);
   };
 
+  // Hàm lấy câu hỏi từ API
+  const fetchQuestion = useCallback(async (stepIdx) => {
+    setLoading(true);
+    const level = LEVELS[stepIdx];
+    try {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${API_URL}/millionaire/question?level=${level}`,
+        {
+          headers: { Authorization: token ? `Bearer ${token}` : undefined },
+        }
+      );
+      if (!res.ok) throw new Error("Không lấy được câu hỏi");
+      const data = await res.json();
+      setQuestions((prev) => {
+        const newArr = [...prev];
+        newArr[stepIdx] = {
+          question: data.question,
+          answers: data.answers,
+          correct: data.correctIndex,
+          explanation: data.explanation,
+          _id: data._id,
+          level: data.level,
+        };
+        return newArr;
+      });
+    } catch (e) {
+      setQuestions((prev) => {
+        const newArr = [...prev];
+        newArr[stepIdx] = {
+          question: "Không lấy được câu hỏi. Vui lòng thử lại!",
+          answers: ["", "", "", ""],
+          correct: 0,
+        };
+        return newArr;
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Lấy câu hỏi khi bắt đầu game hoặc chuyển câu
+  useEffect(() => {
+    if (!questions[step]) {
+      fetchQuestion(step);
+    }
+    // eslint-disable-next-line
+  }, [step, fetchQuestion, questions]);
+
   // Xóa vết highlight/focus trên button khi chuyển câu hỏi (fix Chrome mobile)
   useEffect(() => {
     setTimeout(() => {
@@ -301,6 +266,16 @@ export default function MillionaireGame({ userId }) {
       btns.forEach((btn) => btn.blur());
     }, 0);
   }, [step]);
+
+  // Trong phần render:
+  // Nếu loading hoặc chưa có câu hỏi thì hiển thị loading
+  if (loading || !current) {
+    return (
+      <div className="flex items-center justify-center h-64 text-lg font-bold text-blue-400">
+        Đang tải câu hỏi...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
