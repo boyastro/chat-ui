@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import "../touchFix.css";
 
 const QUESTIONS = [
   {
@@ -116,8 +117,35 @@ export default function MillionaireGame({ userId }) {
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
+  const [questionKey, setQuestionKey] = useState(`question-${Date.now()}`);
 
-  // Blur focus khỏi button khi chuyển step (chống lưu highlight trên mobile)
+  // Tạo ref để theo dõi và quản lý các button
+  const answerButtonsRef = useRef([]);
+
+  // Thiết lập phương thức xử lý touch events để tránh highlight
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      const target = e.currentTarget;
+      // Loại bỏ highlight ngay khi chạm vào
+      target.style.WebkitTapHighlightColor = "transparent";
+    };
+
+    const cleanupTouchListeners = () => {
+      // Xóa listeners khi component unmount
+      if (answerButtonsRef.current) {
+        answerButtonsRef.current.forEach((btn) => {
+          if (btn) {
+            btn.removeEventListener("touchstart", handleTouchStart);
+          }
+        });
+      }
+    };
+
+    // Đảm bảo xóa listeners khi component unmount
+    return cleanupTouchListeners;
+  }, []);
+
+  // Hoàn toàn làm mới DOM và tham chiếu khi chuyển step (chống lưu highlight trên mobile)
   useEffect(() => {
     // Loại bỏ focus và highlight khi chuyển câu hỏi
     const removeFocusAndHighlight = () => {
@@ -131,13 +159,32 @@ export default function MillionaireGame({ userId }) {
       allButtons.forEach((btn) => {
         btn.blur();
         btn.classList.remove("active", "focus", "hover");
+
+        // Đảm bảo xóa bỏ hiệu ứng highlight
+        btn.style.WebkitTapHighlightColor = "transparent";
+
+        // Vô hiệu hóa tạm thời để tránh sự kiện touch vướng lại
+        btn.style.pointerEvents = "none";
       });
+
+      // Tạo key mới cho câu hỏi mỗi khi step thay đổi
+      const newKey = `question-${step}-${Date.now()}`;
+      setQuestionKey(newKey);
+
+      // Reset tham chiếu để tránh sự cố bộ nhớ
+      answerButtonsRef.current = [];
     };
 
     removeFocusAndHighlight();
 
-    // Đảm bảo CSS reset sau render
-    const timer = setTimeout(removeFocusAndHighlight, 50);
+    // Đảm bảo CSS reset sau render và khôi phục tương tác
+    const timer = setTimeout(() => {
+      const allButtons = document.querySelectorAll("button");
+      allButtons.forEach((btn) => {
+        btn.style.pointerEvents = "auto";
+      });
+    }, 50);
+
     return () => clearTimeout(timer);
   }, [step]);
 
@@ -212,37 +259,56 @@ export default function MillionaireGame({ userId }) {
       .catch((err) => console.error("Lỗi khi cộng coin:", err));
   };
 
+  // State để kiểm soát giai đoạn chuyển tiếp giữa các câu hỏi
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const handleSelect = (idx) => {
-    if (locked) return;
+    if (locked || isTransitioning) return;
     setSelected(idx);
     setLocked(true);
+
     setTimeout(() => {
       if (idx === current.correct) {
         if (step === QUESTIONS.length - 1) {
           setWon(true);
           addCoinForUser(PRIZES[step]);
         } else {
-          // Chuẩn bị reset state và chuyển sang câu hỏi tiếp theo
-          const nextStep = step + 1;
+          // Đánh dấu đang trong quá trình chuyển tiếp
+          setIsTransitioning(true);
 
-          // Blur focus khỏi button đang được chọn và reset state
+          // Blur focus và reset state
           if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
           }
+
+          // Triệt để loại bỏ highlight trên mobile
+          const allButtons = document.querySelectorAll("button");
+          allButtons.forEach((btn) => {
+            btn.blur();
+            btn.classList.remove("active", "focus", "hover");
+            // Xóa bỏ sự kiện touch và focus tạm thời
+            btn.style.pointerEvents = "none";
+          });
 
           // Reset state và chờ DOM cập nhật
           setSelected(null);
           setLocked(false);
 
-          // Triệt để loại bỏ highlight trên mobile trước khi chuyển step
-          const allButtons = document.querySelectorAll("button");
-          allButtons.forEach((btn) => {
-            btn.blur();
-            btn.classList.remove("active", "focus", "hover");
-          });
+          // Force repaint DOM bằng cách làm mới key
+          setQuestionKey(`question-${step + 1}-${Date.now()}`);
 
-          // Set step sau khi đã reset hoàn toàn
-          setTimeout(() => setStep(nextStep), 10);
+          // Chuyển câu hỏi sau khi đã xóa hoàn toàn trạng thái cũ
+          setTimeout(() => {
+            setStep(step + 1);
+            // Khôi phục sự kiện sau khi đã chuyển câu hỏi
+            setTimeout(() => {
+              const allButtons = document.querySelectorAll("button");
+              allButtons.forEach((btn) => {
+                btn.style.pointerEvents = "auto";
+              });
+              setIsTransitioning(false);
+            }, 50);
+          }, 10);
         }
       } else {
         setLost(true);
@@ -254,6 +320,9 @@ export default function MillionaireGame({ userId }) {
   };
 
   const handleRestart = () => {
+    // Đánh dấu đang trong quá trình chuyển tiếp
+    setIsTransitioning(true);
+
     // Reset tất cả state
     setSelected(null);
     setLocked(false);
@@ -269,10 +338,25 @@ export default function MillionaireGame({ userId }) {
     allButtons.forEach((btn) => {
       btn.blur();
       btn.classList.remove("active", "focus", "hover");
+      // Tạm thời vô hiệu hóa tương tác
+      btn.style.pointerEvents = "none";
     });
 
+    // Force re-render với key mới
+    setQuestionKey(`restart-${Date.now()}`);
+
     // Set step cuối cùng để trigger re-render
-    setTimeout(() => setStep(0), 10);
+    setTimeout(() => {
+      setStep(0);
+      // Khôi phục tương tác sau khi đã reset hoàn toàn
+      setTimeout(() => {
+        const allButtons = document.querySelectorAll("button");
+        allButtons.forEach((btn) => {
+          btn.style.pointerEvents = "auto";
+        });
+        setIsTransitioning(false);
+      }, 50);
+    }, 10);
   };
 
   return (
@@ -468,24 +552,45 @@ export default function MillionaireGame({ userId }) {
               </div>
 
               <div
-                key={`question-${step}`}
+                key={`${questionKey}-question`}
                 className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200"
               >
                 {current.question}
               </div>
               <div
-                key={`answers-${step}`}
+                key={`${questionKey}-answers`}
                 className="grid grid-cols-1 gap-2 sm:gap-3"
               >
                 {current.answers.map((ans, idx) => (
                   <button
-                    key={`step${step}-ans${idx}-${Date.now()}`}
+                    key={`${questionKey}-ans${idx}`}
                     tabIndex={-1}
                     style={{
                       WebkitTapHighlightColor: "transparent",
                       touchAction: "manipulation",
+                      outline: "none",
+                      userSelect: "none",
+                      WebkitUserSelect: "none",
+                      WebkitTouchCallout: "none",
                     }}
-                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-100
+                    ref={(el) => {
+                      // Lưu tham chiếu đến button
+                      if (el && !answerButtonsRef.current.includes(el)) {
+                        answerButtonsRef.current.push(el);
+                      }
+                    }}
+                    onTouchStart={(e) => {
+                      // Ngăn chặn hiệu ứng highlight mặc định và xóa focus
+                      e.currentTarget.style.WebkitTapHighlightColor =
+                        "transparent";
+                      e.preventDefault(); // Ngăn chặn sự kiện mặc định
+                    }}
+                    onTouchEnd={(e) => {
+                      // Ngăn chặn sự kiện hover sau khi tap
+                      e.currentTarget.blur();
+                      e.stopPropagation();
+                    }}
+                    className={`answer-button w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-100
                       ${
                         selected === idx
                           ? idx === current.correct
