@@ -116,7 +116,6 @@ export default function MillionaireGame({ userId }) {
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
-  const [coinEarned, setCoinEarned] = useState(0); // Coin mới kiếm được trong lượt chơi
 
   // Lấy câu hỏi hiện tại
   const current = QUESTIONS[step];
@@ -152,7 +151,6 @@ export default function MillionaireGame({ userId }) {
 
     // Cập nhật UI ngay lập tức để không bị lag
     const earnedCoin = parseInt(coin, 10);
-    setCoinEarned(earnedCoin);
 
     // Cập nhật tạm thời userInfo.coin ở UI để người dùng thấy ngay
     setUserInfo((prev) => ({
@@ -225,7 +223,6 @@ export default function MillionaireGame({ userId }) {
     setLocked(false);
     setWon(false);
     setLost(false);
-    setCoinEarned(0);
   };
 
   return (
@@ -280,14 +277,7 @@ export default function MillionaireGame({ userId }) {
                   ₵
                 </text>
               </svg>
-              <span className="font-semibold">
-                {userInfo.coin}
-                {coinEarned > 0 && (
-                  <span className="text-green-500 ml-1 animate-pulse">
-                    +{coinEarned}
-                  </span>
-                )}
-              </span>
+              <span className="font-semibold">{userInfo.coin}</span>
             </div>
           </div>
         </div>
@@ -363,15 +353,6 @@ export default function MillionaireGame({ userId }) {
               <br />
               <span className="mt-2 inline-block">
                 Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
-                {step > 0 && (
-                  <div className="text-sm mt-1">
-                    (Bạn đã nhận được{" "}
-                    <span className="font-semibold text-yellow-600">
-                      {PRIZES[step - 1]} coin
-                    </span>
-                    !)
-                  </div>
-                )}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="inline h-5 w-5 ml-1 align-middle"
