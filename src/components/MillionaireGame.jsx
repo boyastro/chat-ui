@@ -146,77 +146,167 @@ export default function MillionaireGame({ userId }) {
   };
 
   return (
-    <div className="max-w-lg mx-auto my-8 p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-2xl shadow-xl border-2 border-yellow-400">
+    <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl sm:rounded-2xl shadow-xl border-2 border-yellow-400">
       <button
-        className="mb-2 self-start flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+        className="mb-2 self-start flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
         onClick={() => navigate("/rooms")}
       >
-        <span className="text-sm">⬅️</span>
+        <span className="text-xs sm:text-sm">⬅️</span>
         <span>Về phòng chát</span>
       </button>
-      <h2 className="text-2xl font-bold text-yellow-700 text-center mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-yellow-700 text-center mb-3 sm:mb-4">
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
-      <div className="flex flex-col md:flex-row gap-6">
+
+      {/* Hiển thị bảng xếp hạng phần thưởng di động (chỉ hiển thị 5 mốc quan trọng) */}
+      <div className="flex md:hidden items-center justify-center gap-1 mb-3">
+        {[4, 9, 14].map((i) => (
+          <div
+            key={i}
+            className={`rounded px-1.5 py-0.5 text-[10px] font-bold border 
+              ${
+                i === step
+                  ? "bg-yellow-400 border-yellow-700 text-white animate-pulse"
+                  : i < step
+                  ? "bg-green-100 border-green-300 text-green-700"
+                  : "bg-white border-yellow-200 text-yellow-700"
+              }
+            `}
+          >
+            <span>{PRIZES[i]}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="inline h-3 w-3 align-middle"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="gold"
+                strokeWidth="2"
+                fill="#ffe066"
+              />
+              <text
+                x="12"
+                y="16"
+                textAnchor="middle"
+                fontSize="10"
+                fill="#bfa100"
+              >
+                ₵
+              </text>
+            </svg>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         <div className="flex-1">
           {won ? (
-            <div className="text-center text-green-700 font-bold text-xl">
+            <div className="text-center text-green-700 font-bold text-lg sm:text-xl px-3 py-6 bg-green-50 rounded-lg border-2 border-green-200">
+              <div className="mb-2 text-4xl">🏆</div>
               Chúc mừng! Bạn đã trở thành TRIỆU PHÚ!
             </div>
           ) : lost ? (
-            <div className="text-center text-red-600 font-bold text-xl">
+            <div className="text-center text-red-600 font-bold text-lg sm:text-xl px-3 py-6 bg-red-50 rounded-lg border-2 border-red-200">
+              <div className="mb-2 text-3xl">😢</div>
               Bạn đã trả lời sai!
               <br />
-              Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="inline h-5 w-5 ml-1 align-middle"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="gold"
-                  strokeWidth="2"
-                  fill="#ffe066"
-                />
-                <text
-                  x="12"
-                  y="16"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#bfa100"
+              <span className="mt-2 inline-block">
+                Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="inline h-5 w-5 ml-1 align-middle"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                  ₵
-                </text>
-              </svg>
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="gold"
+                    strokeWidth="2"
+                    fill="#ffe066"
+                  />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#bfa100"
+                  >
+                    ₵
+                  </text>
+                </svg>
+              </span>
             </div>
           ) : (
             <>
-              <div className="mb-4 text-lg font-semibold text-gray-800">
-                Câu {step + 1}: {current.question}
+              {/* Hiển thị số câu và tiền thưởng */}
+              <div className="flex justify-between items-center mb-2 text-xs sm:text-sm px-2 py-1 bg-yellow-100/60 rounded-md">
+                <span className="font-medium text-yellow-800">
+                  Câu {step + 1}/15
+                </span>
+                <span className="font-bold text-yellow-700">
+                  {PRIZES[step]}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="inline h-4 w-4 ml-0.5 align-middle"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="gold"
+                      strokeWidth="2"
+                      fill="#ffe066"
+                    />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#bfa100"
+                    >
+                      ₵
+                    </text>
+                  </svg>
+                </span>
               </div>
-              <div className="grid grid-cols-1 gap-3">
+
+              <div className="mb-3 text-base sm:text-lg font-semibold text-gray-800 bg-white/70 p-2 sm:p-3 rounded-lg border border-yellow-200">
+                {current.question}
+              </div>
+              <div className="grid grid-cols-1 gap-2 sm:gap-3">
                 {current.answers.map((ans, idx) => (
                   <button
                     key={idx}
-                    className={`w-full py-2 px-4 rounded-lg border-2 font-semibold text-base transition-all duration-200
+                    className={`w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg border-2 font-medium text-sm sm:text-base transition-all duration-200
                       ${
                         selected === idx
                           ? idx === current.correct
                             ? "bg-green-400 border-green-600 text-white"
                             : "bg-red-400 border-red-600 text-white"
-                          : "bg-white border-yellow-400 text-yellow-800 hover:bg-yellow-100"
+                          : "bg-white border-yellow-400 text-yellow-800 hover:bg-yellow-100 active:bg-yellow-200"
                       }
                       ${locked && selected !== idx ? "opacity-60" : ""}
                     `}
                     disabled={locked}
                     onClick={() => handleSelect(idx)}
                   >
-                    {String.fromCharCode(65 + idx)}. {ans}
+                    <span className="flex items-center">
+                      <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 sm:w-7 sm:h-7 rounded-full mr-2 font-bold text-xs sm:text-sm">
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                      <span className="text-left">{ans}</span>
+                    </span>
                   </button>
                 ))}
               </div>
@@ -224,14 +314,16 @@ export default function MillionaireGame({ userId }) {
           )}
           {(won || lost) && (
             <button
-              className="mt-6 w-full py-2 rounded-lg bg-yellow-500 text-white font-bold text-lg shadow hover:bg-yellow-600 transition"
+              className="mt-5 w-full py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white font-bold text-lg shadow hover:from-yellow-600 hover:to-amber-600 transition active:scale-98"
               onClick={handleRestart}
             >
               Chơi lại
             </button>
           )}
         </div>
-        <div className="w-full md:w-48 flex flex-col-reverse gap-1 mt-6 md:mt-0">
+
+        {/* Bảng thưởng chỉ hiển thị trên màn hình lớn */}
+        <div className="hidden md:flex w-48 flex-col-reverse gap-1">
           {PRIZES.map((p, i) => (
             <div
               key={i}
