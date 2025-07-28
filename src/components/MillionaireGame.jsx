@@ -97,7 +97,32 @@ export default function MillionaireGame({ userId }) {
             <div className="text-center text-red-600 font-bold text-xl">
               Bạn đã trả lời sai!
               <br />
-              Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"} VNĐ
+              Số tiền thưởng: {step > 0 ? PRIZES[step - 1] : "0"}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="inline h-5 w-5 ml-1 align-middle"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="gold"
+                  strokeWidth="2"
+                  fill="#ffe066"
+                />
+                <text
+                  x="12"
+                  y="16"
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#bfa100"
+                >
+                  ₵
+                </text>
+              </svg>
             </div>
           ) : (
             <>
