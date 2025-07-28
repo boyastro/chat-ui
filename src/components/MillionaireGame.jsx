@@ -115,6 +115,7 @@ export default function MillionaireGame({ userId }) {
   const [locked, setLocked] = useState(false);
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
+  const [stopped, setStopped] = useState(false); // Trạng thái khi người chơi dừng cuộc chơi
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "", coin: 0 });
 
   // Lấy câu hỏi hiện tại
@@ -231,12 +232,25 @@ export default function MillionaireGame({ userId }) {
     }, 1200);
   };
 
+  // Hàm xử lý khi người chơi muốn dừng cuộc chơi và nhận thưởng
+  const handleStop = () => {
+    // Người chơi chỉ có thể dừng sau khi đã trả lời ít nhất một câu hỏi
+    if (step > 0) {
+      setStopped(true);
+      setLocked(true);
+
+      // Nhận thưởng tương ứng với câu hỏi hiện tại
+      addCoinForUser(PRIZES[step - 1]); // step - 1 vì đây là câu hỏi đã trả lời xong
+    }
+  };
+
   const handleRestart = () => {
     setStep(0);
     setSelected(null);
     setLocked(false);
     setWon(false);
     setLost(false);
+    setStopped(false);
   };
 
   // Xóa vết highlight/focus trên button khi chuyển câu hỏi (fix Chrome mobile)
@@ -369,6 +383,40 @@ export default function MillionaireGame({ userId }) {
                 !)
               </div>
             </div>
+          ) : stopped ? (
+            <div className="text-center text-blue-600 font-bold text-lg sm:text-xl px-3 py-6 bg-blue-50 rounded-lg border-2 border-blue-200">
+              <div className="mb-2 text-3xl">🎯</div>
+              Bạn đã dừng cuộc chơi!
+              <br />
+              <span className="mt-2 inline-block">
+                Số tiền thưởng: {PRIZES[step - 1]}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="inline h-5 w-5 ml-1 align-middle"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="gold"
+                    strokeWidth="2"
+                    fill="#ffe066"
+                  />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#bfa100"
+                  >
+                    ₵
+                  </text>
+                </svg>
+              </span>
+            </div>
           ) : lost ? (
             <div className="text-center text-red-600 font-bold text-lg sm:text-xl px-3 py-6 bg-red-50 rounded-lg border-2 border-red-200">
               <div className="mb-2 text-3xl">😢</div>
@@ -485,9 +533,19 @@ export default function MillionaireGame({ userId }) {
                   </button>
                 ))}
               </div>
+
+              {/* Nút dừng cuộc chơi và nhận thưởng (chỉ hiển thị khi đã qua câu hỏi đầu tiên) */}
+              {step > 0 && !locked && (
+                <button
+                  className="mt-3 py-2 w-full rounded-lg bg-blue-100 border-2 border-blue-300 text-blue-700 font-semibold hover:bg-blue-200 transition-colors"
+                  onClick={handleStop}
+                >
+                  Dừng cuộc chơi và nhận {PRIZES[step - 1]} coin 💰
+                </button>
+              )}
             </>
           )}
-          {(won || lost) && (
+          {(won || lost || stopped) && (
             <button
               className="mt-5 w-full py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white font-bold text-lg shadow hover:from-yellow-600 hover:to-amber-600 transition active:scale-98"
               onClick={handleRestart}
