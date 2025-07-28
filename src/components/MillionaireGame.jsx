@@ -456,48 +456,51 @@ export default function MillionaireGame({ userId }) {
               </div>
             </div>
           ) : lost ? (
-            <div className="text-center text-red-600 font-bold text-lg sm:text-xl px-3 py-6 bg-red-50 rounded-lg border-2 border-red-200">
-              <div className="mb-2 text-3xl">😢</div>
-              Bạn đã trả lời sai!
-              <br />
-              <span className="mt-2 inline-block">
-                Số tiền thưởng:{" "}
-                {(() => {
-                  // Xác định mức đảm bảo
-                  const checkpoints = [4, 9, 14];
-                  for (let i = checkpoints.length - 1; i >= 0; i--) {
-                    if (step > checkpoints[i]) {
-                      return PRIZES[checkpoints[i]];
+            <div className="text-center font-bold text-lg sm:text-xl px-3 py-6 rounded-lg millionaire-question border-2 border-red-400">
+              <div className="text-red-500 text-3xl mb-2">😢</div>
+              <div className="text-red-600 mb-3">Bạn đã trả lời sai!</div>
+              <div className="mt-4 py-3 px-4 bg-gradient-to-r from-red-900/40 to-orange-900/40 inline-block rounded-lg border border-red-500">
+                <div className="text-red-400 text-sm mb-1">
+                  Số tiền thưởng của bạn
+                </div>
+                <div className="millionaire-money-won text-2xl sm:text-3xl flex items-center justify-center">
+                  {(() => {
+                    // Xác định mức đảm bảo
+                    const checkpoints = [4, 9, 14];
+                    for (let i = checkpoints.length - 1; i >= 0; i--) {
+                      if (step > checkpoints[i]) {
+                        return PRIZES[checkpoints[i]];
+                      }
                     }
-                  }
-                  return "0";
-                })()}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="inline h-5 w-5 ml-1 align-middle"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="gold"
-                    strokeWidth="2"
-                    fill="#ffe066"
-                  />
-                  <text
-                    x="12"
-                    y="16"
-                    textAnchor="middle"
-                    fontSize="10"
-                    fill="#bfa100"
+                    return "0";
+                  })()}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 ml-2 align-middle coin-icon"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    ₵
-                  </text>
-                </svg>
-              </span>
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="gold"
+                      strokeWidth="2"
+                      fill="#ffe066"
+                    />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#bfa100"
+                    >
+                      ₵
+                    </text>
+                  </svg>
+                </div>
+              </div>
             </div>
           ) : (
             <>
