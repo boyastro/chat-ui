@@ -209,6 +209,7 @@ export default function MillionaireGame({ userId }) {
     setTimeLeft(30);
     setTimerActive(true);
     setUsedQuestionIds([]); // Xóa danh sách câu hỏi đã sử dụng khi chơi lại
+    setQuestions(Array(15).fill(null)); // Reset lại toàn bộ mảng câu hỏi để tải câu hỏi mới
   };
 
   // Hàm lấy câu hỏi từ API
