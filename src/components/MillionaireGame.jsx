@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const QUESTIONS = [
@@ -115,8 +115,33 @@ export default function MillionaireGame({ userId }) {
   const [locked, setLocked] = useState(false);
   const [won, setWon] = useState(false);
   const [lost, setLost] = useState(false);
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
 
   const current = QUESTIONS[step];
+
+  useEffect(() => {
+    if (!userId) return;
+    const API_URL = process.env.REACT_APP_API_URL;
+    const token = localStorage.getItem("token");
+    fetch(`${API_URL}/users/${userId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setUserInfo({
+            name: data.name || data.username || "User",
+            avatar:
+              data.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                data.name || data.username || "U"
+              )}&background=random`,
+          });
+        }
+      });
+  }, [userId]);
 
   const handleSelect = (idx) => {
     if (locked) return;
@@ -147,18 +172,31 @@ export default function MillionaireGame({ userId }) {
 
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl sm:rounded-2xl shadow-xl border-2 border-yellow-400">
-      <button
-        className="mb-2 self-start flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
-        onClick={() => navigate("/rooms")}
-      >
-        <span className="text-xs sm:text-sm">⬅️</span>
-        <span>Về phòng chát</span>
-      </button>
+      <div className="flex items-center gap-3 mb-2">
+        <button
+          className="self-start flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-md text-xs sm:text-sm font-medium shadow hover:from-blue-500 hover:to-indigo-600 transition"
+          onClick={() => navigate("/rooms")}
+        >
+          <span className="text-xs sm:text-sm">⬅️</span>
+          <span>Về phòng chát</span>
+        </button>
+        <div className="flex items-center gap-2 bg-white/80 border border-yellow-200 rounded-lg px-2 py-1 min-w-0">
+          <img
+            src={userInfo.avatar}
+            alt="avatar"
+            className="w-8 h-8 rounded-full border-2 border-yellow-400 object-cover bg-white"
+            style={{ minWidth: 32, minHeight: 32 }}
+          />
+          <span className="font-bold text-yellow-800 text-xs sm:text-sm truncate max-w-[90px]">
+            {userInfo.name}
+          </span>
+        </div>
+      </div>
       <h2 className="text-xl sm:text-2xl font-bold text-yellow-700 text-center mb-3 sm:mb-4">
         🎉 AI LÀ TRIỆU PHÚ
       </h2>
 
-      {/* Hiển thị bảng xếp hạng phần thưởng di động (chỉ hiển thị 5 mốc quan trọng) */}
+      {/* Hiển thị bảng xếp hạng phần thưởng di động (chỉ hiển thị 3 mốc quan trọng) */}
       <div className="flex md:hidden items-center justify-center gap-1 mb-3">
         {[4, 9, 14].map((i) => (
           <div
