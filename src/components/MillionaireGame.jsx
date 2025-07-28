@@ -210,67 +210,69 @@ export default function MillionaireGame({ userId }) {
   };
 
   // Hàm lấy câu hỏi từ API
-  const fetchQuestion = useCallback(async (stepIdx) => {
-    // Chỉ đặt trạng thái loading cho những câu hỏi chưa có dữ liệu
-    // Điều này giúp giữ giao diện ổn định
-    if (!questions.some((q) => q !== null)) {
-      setLoading(true); // Chỉ loading lần đầu tiên khi chưa có câu hỏi nào
-    } else {
-      // Với những câu sau, đánh dấu đang tải nhưng không thay đổi giao diện hoàn toàn
-      setLoading(true);
-    }
+  const fetchQuestion = useCallback(
+    async (stepIdx) => {
+      // Chỉ đặt trạng thái loading cho những câu hỏi chưa có dữ liệu
+      // Điều này giúp giữ giao diện ổn định
+      if (!questions.some((q) => q !== null)) {
+        setLoading(true); // Chỉ loading lần đầu tiên khi chưa có câu hỏi nào
+      } else {
+        // Với những câu sau, đánh dấu đang tải nhưng không thay đổi giao diện hoàn toàn
+        setLoading(true);
+      }
 
-    const level = LEVELS[stepIdx];
-    try {
-      const API_URL = process.env.REACT_APP_API_URL;
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${API_URL}/millionaire/question?level=${level}`,
-        {
-          headers: { Authorization: token ? `Bearer ${token}` : undefined },
-        }
-      );
-      if (!res.ok) throw new Error("Không lấy được câu hỏi");
-      const data = await res.json();
+      const level = LEVELS[stepIdx];
+      try {
+        const API_URL = process.env.REACT_APP_API_URL;
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `${API_URL}/millionaire/question?level=${level}`,
+          {
+            headers: { Authorization: token ? `Bearer ${token}` : undefined },
+          }
+        );
+        if (!res.ok) throw new Error("Không lấy được câu hỏi");
+        const data = await res.json();
 
-      // Cập nhật câu hỏi chỉ khi đã lấy được dữ liệu
-      setQuestions((prev) => {
-        const newArr = [...prev];
-        newArr[stepIdx] = {
-          question: data.question,
-          answers: data.answers,
-          correct: data.correctIndex,
-          explanation: data.explanation,
-          _id: data._id,
-          level: data.level,
-        };
-        return newArr;
-      });
+        // Cập nhật câu hỏi chỉ khi đã lấy được dữ liệu
+        setQuestions((prev) => {
+          const newArr = [...prev];
+          newArr[stepIdx] = {
+            question: data.question,
+            answers: data.answers,
+            correct: data.correctIndex,
+            explanation: data.explanation,
+            _id: data._id,
+            level: data.level,
+          };
+          return newArr;
+        });
 
-      // Đợi một chút để tránh nhấp nháy giao diện
-      setTimeout(() => {
+        // Đợi một chút để tránh nhấp nháy giao diện
+        setTimeout(() => {
+          setLoading(false);
+        }, 100);
+      } catch (e) {
+        setQuestions((prev) => {
+          const newArr = [...prev];
+          newArr[stepIdx] = {
+            question: "Không lấy được câu hỏi. Vui lòng thử lại!",
+            answers: ["", "", "", ""],
+            correct: 0,
+          };
+          return newArr;
+        });
         setLoading(false);
-      }, 100);
-    } catch (e) {
-      setQuestions((prev) => {
-        const newArr = [...prev];
-        newArr[stepIdx] = {
-          question: "Không lấy được câu hỏi. Vui lòng thử lại!",
-          answers: ["", "", "", ""],
-          correct: 0,
-        };
-        return newArr;
-      });
-      setLoading(false);
-    }
-  }, []);
+      }
+    },
+    [questions]
+  ); // Added questions to the dependency array
 
   // Lấy câu hỏi khi bắt đầu game hoặc chuyển câu
   useEffect(() => {
     if (!questions[step]) {
       fetchQuestion(step);
     }
-    // eslint-disable-next-line
   }, [step, fetchQuestion, questions]);
 
   // Xóa vết highlight/focus trên button khi chuyển câu hỏi (fix Chrome mobile)
