@@ -722,7 +722,14 @@ export default function CaroGame(props) {
               row.map((cell, j) => (
                 <button
                   key={i + "-" + j}
-                  className="aspect-square text-lg font-bold focus:outline-none hover:bg-blue-100 transition p-0 bg-white"
+                  className={`aspect-square text-lg font-bold focus:outline-none hover:bg-blue-100 transition p-0 bg-white
+                    ${
+                      cell === "X"
+                        ? "text-blue-600"
+                        : cell === "O"
+                        ? "text-red-500"
+                        : ""
+                    }`}
                   style={{
                     display: "block",
                     minWidth: 0,
