@@ -287,7 +287,7 @@ export default function MillionaireGame({ userId }) {
 
   return (
     <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
-      <div className="flex justify-start mb-2">
+      <div className="flex items-center justify-between mb-2 gap-2">
         <button
           className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 millionaire-button rounded-md text-xs sm:text-sm font-medium"
           onClick={() => navigate("/rooms")}
@@ -295,9 +295,6 @@ export default function MillionaireGame({ userId }) {
           <span className="text-xs sm:text-sm">⬅️</span>
           <span>Về phòng chát</span>
         </button>
-      </div>
-
-      <div className="flex justify-center mb-2">
         <div className="flex items-center gap-2 millionaire-user-info rounded-lg px-3 py-1.5 shadow-sm">
           {userInfo.avatar ? (
             <img
