@@ -497,6 +497,12 @@ export default function MillionaireGame({ userId }) {
                     </text>
                   </svg>
                 </div>
+                {current && current.explanation && (
+                  <div className="mt-4 text-sm text-left text-red-700 bg-red-50 rounded p-3 border border-red-200">
+                    <span className="font-semibold">Giải thích:</span>{" "}
+                    {current.explanation}
+                  </div>
+                )}
               </div>
             </div>
           ) : (
