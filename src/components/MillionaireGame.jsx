@@ -286,7 +286,7 @@ export default function MillionaireGame({ userId }) {
   }, [step, fetchQuestion, questions]);
 
   return (
-    <div className="max-w-lg mx-auto my-4 px-3 py-4 sm:p-6 rounded-xl sm:rounded-2xl millionaire-container">
+    <div className="max-w-lg mx-auto px-3 pb-4 sm:px-6 sm:pb-6 rounded-b-xl sm:rounded-b-2xl millionaire-container">
       <div className="flex items-center justify-between mb-2 gap-2">
         <button
           className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 millionaire-button rounded-md text-xs sm:text-sm font-medium"
