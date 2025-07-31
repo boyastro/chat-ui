@@ -60,7 +60,38 @@ export default function Shop({ userId }) {
 
   if (loading)
     return (
-      <div className="text-center py-6">Đang tải danh sách vật phẩm...</div>
+      <div className="flex justify-center items-center min-h-[300px]">
+        <div className="bg-white rounded-2xl shadow-xl px-8 py-10 flex flex-col items-center border border-blue-100 animate-fade-in">
+          <div className="mb-4">
+            <svg
+              className="animate-spin h-10 w-10 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          </div>
+          <div className="text-lg font-semibold text-blue-700 mb-1">
+            Đang tải danh sách vật phẩm...
+          </div>
+          <div className="text-blue-400 text-sm">
+            Vui lòng chờ trong giây lát
+          </div>
+        </div>
+      </div>
     );
   if (error)
     return <div className="text-center text-red-500 py-6">{error}</div>;
