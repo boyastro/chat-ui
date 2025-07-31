@@ -144,8 +144,9 @@ export default function RoomSelect({
                 // Xoá lịch sử chat khi logout
                 if (userId) {
                   try {
-                    localStorage.removeItem(`chat_history_${userId}`);
-                  } catch {}
+                    const key = `chat_history_${userId}`;
+                    localStorage.removeItem(key);
+                  } catch (err) {}
                 }
                 if (typeof onRoomChange === "function") {
                   onRoomChange({ target: { value: "" } }); // reset currentRoom

@@ -123,6 +123,7 @@ export default function ChatAppRoutes({
               }}
               setJoinedRoom={chat.setJoinedRoom}
               fetchRooms={fetchRooms}
+              userId={userId}
             />
           ) : (
             <Navigate to="/login" replace />
