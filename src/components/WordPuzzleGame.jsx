@@ -191,11 +191,6 @@ export default function WordPuzzleGame({ userId }) {
           <p className="text-sm sm:text-base text-purple-700 px-1">
             Sắp xếp các chữ cái để tạo thành từ đúng và nhận coin dựa vào độ khó
           </p>
-          <p className="text-sm sm:text-base text-purple-800 font-semibold mt-1.5 px-1">
-            <span className="text-green-600">Dễ: +5 coin</span> •
-            <span className="text-yellow-600 mx-2">Trung bình: +10 coin</span> •
-            <span className="text-red-600">Khó: +20 coin</span>
-          </p>
         </div>
 
         <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-3 sm:p-4 rounded-lg shadow-md border border-blue-300 mb-3 sm:mb-4">
