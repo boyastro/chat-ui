@@ -81,9 +81,7 @@ export default function ChatAI({ userId }) {
 
   return (
     <div className="max-w-md mx-auto my-6 p-4 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-3 text-center">
-        Chat với AI (OpenRouter)
-      </h2>
+      <h2 className="text-xl font-bold mb-3 text-center">Chat AI</h2>
       <div className="h-80 overflow-y-auto bg-gray-50 rounded p-2 mb-3 border border-gray-200">
         {messages.slice(1).map((msg, idx) => {
           const isUser = msg.role === "user";
