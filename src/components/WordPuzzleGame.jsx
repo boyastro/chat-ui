@@ -153,7 +153,7 @@ export default function WordPuzzleGame({ userId }) {
     return (
       <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-100 rounded-3xl shadow-xl border-4 border-purple-200">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-purple-600 font-comic">
+          <h2 className="text-xl sm:text-2xl font-bold text-purple-600">
             🎮 Game Ghép Từ 🎮
           </h2>
           <button
@@ -168,16 +168,16 @@ export default function WordPuzzleGame({ userId }) {
           <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full flex items-center justify-center border-4 border-pink-400 shadow-md animate-bounce-slow">
             <span className="text-4xl sm:text-5xl">🔤</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-pink-600 mb-3 font-comic">
+          <h3 className="text-xl sm:text-2xl font-bold text-pink-600 mb-3">
             Chào mừng đến với Game Ghép Từ!
           </h3>
-          <p className="text-sm sm:text-base text-purple-700 px-2 font-comic">
+          <p className="text-sm sm:text-base text-purple-700 px-2">
             Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn
           </p>
         </div>
 
         <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-4 sm:p-5 rounded-2xl shadow-md border-2 border-blue-300 mb-5 sm:mb-6">
-          <h4 className="font-bold text-blue-700 mb-3 text-center text-lg font-comic">
+          <h4 className="font-bold text-blue-700 mb-3 text-center text-lg">
             Chọn độ khó: 🌟
           </h4>
           <div className="flex gap-3 justify-center">
@@ -192,11 +192,7 @@ export default function WordPuzzleGame({ userId }) {
                 } transition-all transform hover:scale-105 touch-manipulation shadow-md`}
               >
                 <span
-                  className={
-                    difficulty === parseInt(level)
-                      ? "text-white font-comic"
-                      : "font-comic"
-                  }
+                  className={difficulty === parseInt(level) ? "text-white" : ""}
                 >
                   {name}{" "}
                   {parseInt(level) === 1
@@ -212,7 +208,7 @@ export default function WordPuzzleGame({ userId }) {
 
         <button
           onClick={startGame}
-          className="w-full bg-gradient-to-r from-green-400 to-teal-500 hover:from-green-500 hover:to-teal-600 text-white font-bold py-4 px-4 sm:px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 touch-manipulation text-lg border-2 border-green-500 font-comic"
+          className="w-full bg-gradient-to-r from-green-400 to-teal-500 hover:from-green-500 hover:to-teal-600 text-white font-bold py-4 px-4 sm:px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 touch-manipulation text-lg border-2 border-green-500"
         >
           🚀 Bắt đầu chơi! 🚀
         </button>
@@ -224,7 +220,7 @@ export default function WordPuzzleGame({ userId }) {
     <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-100 rounded-3xl shadow-xl border-4 border-purple-200">
       {/* Header with score and navigation */}
       <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <h2 className="text-lg sm:text-xl font-bold text-purple-600 font-comic">
+        <h2 className="text-lg sm:text-xl font-bold text-purple-600">
           🎮 Game Ghép Từ 🎮
         </h2>
         <div className="flex items-center">
@@ -240,27 +236,27 @@ export default function WordPuzzleGame({ userId }) {
       {/* Score & Stats */}
       <div className="flex flex-row mb-3 sm:mb-4 sm:grid sm:grid-cols-3 sm:gap-2">
         <div className="flex-1 bg-gradient-to-r from-blue-200 to-cyan-200 p-2 rounded-xl text-center mr-1 border-2 border-blue-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-blue-700 font-bold font-comic">
+          <p className="text-2xs sm:text-xs text-blue-700 font-bold">
             🌟 Điểm số
           </p>
-          <p className="text-base sm:text-lg font-bold text-blue-800 font-comic">
+          <p className="text-base sm:text-lg font-bold text-blue-800">
             {score}
           </p>
         </div>
         <div className="flex-1 bg-gradient-to-r from-green-200 to-emerald-200 p-2 rounded-xl text-center mx-1 border-2 border-green-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-green-700 font-bold font-comic">
+          <p className="text-2xs sm:text-xs text-green-700 font-bold">
             🔥 Chuỗi thắng
           </p>
-          <p className="text-base sm:text-lg font-bold text-green-800 font-comic">
+          <p className="text-base sm:text-lg font-bold text-green-800">
             {streak}
           </p>
         </div>
         <div className="flex-1 bg-gradient-to-r from-yellow-200 to-amber-200 p-2 rounded-xl text-center ml-1 border-2 border-yellow-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-yellow-700 font-bold font-comic">
+          <p className="text-2xs sm:text-xs text-yellow-700 font-bold">
             ⏱️ Thời gian
           </p>
           <p
-            className={`text-base sm:text-lg font-bold font-comic ${
+            className={`text-base sm:text-lg font-bold ${
               timeLeft < 10 ? "text-red-600 animate-pulse" : "text-yellow-800"
             }`}
           >
@@ -271,13 +267,13 @@ export default function WordPuzzleGame({ userId }) {
 
       {/* Difficulty level */}
       <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-xl border-2 border-indigo-200">
-        <div className="text-xs sm:text-sm text-indigo-700 mb-1 sm:mb-0 font-bold font-comic">
+        <div className="text-xs sm:text-sm text-indigo-700 mb-1 sm:mb-0 font-bold">
           Độ khó: {difficulty === 1 ? "😊" : difficulty === 2 ? "😎" : "🤔"}{" "}
           <span className={`${DIFFICULTIES[difficulty].color} font-bold`}>
             {DIFFICULTIES[difficulty].name}
           </span>
         </div>
-        <div className="text-xs sm:text-sm text-violet-700 font-bold font-comic">
+        <div className="text-xs sm:text-sm text-violet-700 font-bold">
           Gợi ý: 💡{" "}
           <span className="font-semibold">
             {filteredWords.length > 0 &&
@@ -327,7 +323,7 @@ export default function WordPuzzleGame({ userId }) {
               className={`w-9 h-9 sm:w-11 sm:h-11 text-base sm:text-xl font-bold rounded-xl border-2 transition-all duration-150 shadow-md transform hover:scale-110 active:scale-95 touch-manipulation ${
                 selected.includes(idx)
                   ? "opacity-50 bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-cyan-300 to-blue-300 border-blue-400 text-blue-800 hover:from-cyan-400 hover:to-blue-400 hover:text-white font-comic"
+                  : "bg-gradient-to-r from-cyan-300 to-blue-300 border-blue-400 text-blue-800 hover:from-cyan-400 hover:to-blue-400 hover:text-white"
               }`}
               onClick={() => handleSelect(idx)}
               disabled={
@@ -345,7 +341,7 @@ export default function WordPuzzleGame({ userId }) {
         <div className="h-8 text-center font-bold">
           {status && (
             <div
-              className={`animate-bounce text-lg font-comic ${
+              className={`animate-bounce text-lg ${
                 status.includes("✅")
                   ? "text-green-600"
                   : status.includes("⏱️")
@@ -357,7 +353,7 @@ export default function WordPuzzleGame({ userId }) {
             </div>
           )}
           {showAnswer && (
-            <div className="text-center text-sm sm:text-base text-purple-600 font-comic">
+            <div className="text-center text-sm sm:text-base text-purple-600">
               Đáp án:{" "}
               <span className="font-bold text-pink-600">
                 {filteredWords[current % filteredWords.length].word}
@@ -386,7 +382,7 @@ export default function WordPuzzleGame({ userId }) {
             timeLeft === 0
           }
         >
-          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
+          <span className="flex items-center justify-center text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -411,7 +407,7 @@ export default function WordPuzzleGame({ userId }) {
           onClick={handleReset}
           disabled={selected.length === 0 || timeLeft === 0}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
+          <span className="flex items-center justify-center text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -434,7 +430,7 @@ export default function WordPuzzleGame({ userId }) {
           className="px-2 sm:px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold hover:from-green-500 hover:to-emerald-600 transition transform hover:scale-105 active:scale-95 shadow-lg touch-manipulation border-2 border-green-500"
           onClick={handleNext}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
+          <span className="flex items-center justify-center text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -459,7 +455,7 @@ export default function WordPuzzleGame({ userId }) {
           onClick={handleShowAnswer}
           disabled={showAnswer}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
+          <span className="flex items-center justify-center text-sm sm:text-base">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -480,8 +476,6 @@ export default function WordPuzzleGame({ userId }) {
 
       {/* Add some CSS animations */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
-        
         @keyframes pop-in {
           0% { transform: scale(0); opacity: 0; }
           70% { transform: scale(1.3); opacity: 1; }
@@ -497,10 +491,6 @@ export default function WordPuzzleGame({ userId }) {
         }
         .animate-bounce-slow {
           animation: bounce-slow 3s infinite;
-        }
-        
-        .font-comic {
-          font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
         }
         
         .border-3 {
