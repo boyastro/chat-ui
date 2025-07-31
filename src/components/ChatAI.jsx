@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 // Lấy API key từ biến môi trường
 const OPENROUTER_API_KEY = process.env.REACT_APP_OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "openai/gpt-3.5-turbo";
+// Danh sách các mô hình ưu tiên
+const MODELS = [
+  "openai/gpt-3.5-turbo",
+  "openchat/openchat-3.5-0106",
+  "mistralai/mistral-7b-instruct",
+];
 
 // CSS Animation cho fade-in
 const fadeInAnimation = `
@@ -76,6 +81,30 @@ export default function ChatAI({ userId }) {
     }
   }, [messages, loading]);
 
+  // Hàm thử nhiều mô hình theo thứ tự ưu tiên
+  async function tryModels(messages) {
+    for (const model of MODELS) {
+      try {
+        const res = await fetch(OPENROUTER_API_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ model, messages }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const aiMsg = data.choices?.[0]?.message?.content;
+          if (aiMsg) return { aiMsg, model };
+        }
+      } catch (err) {
+        // Bỏ qua lỗi, thử model tiếp theo
+      }
+    }
+    throw new Error("Tất cả các mô hình đều bị lỗi hoặc không phản hồi.");
+  }
+
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -85,21 +114,7 @@ export default function ChatAI({ userId }) {
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch(OPENROUTER_API_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: newMessages,
-        }),
-      });
-      if (!res.ok) throw new Error("Lỗi gọi API OpenRouter");
-      const data = await res.json();
-      const aiMsg =
-        data.choices?.[0]?.message?.content || "(Không có phản hồi)";
+      const { aiMsg } = await tryModels(newMessages);
       setMessages([...newMessages, { role: "assistant", content: aiMsg }]);
     } catch (err) {
       setError("Lỗi: " + err.message);
