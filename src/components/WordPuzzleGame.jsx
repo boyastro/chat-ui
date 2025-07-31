@@ -47,29 +47,42 @@ export default function WordPuzzleGame({ userId }) {
   // Filter words by difficulty
   const filteredWords = WORDS.filter((word) => word.difficulty <= difficulty);
 
+  // Use a ref to access current filteredWords inside effects without dependency
+  const filteredWordsRef = React.useRef(filteredWords);
+  React.useEffect(() => {
+    filteredWordsRef.current = filteredWords;
+  }, [filteredWords]);
+
   // Load new word
   const loadNewWord = useCallback(() => {
-    if (filteredWords.length === 0) return;
+    const currentFilteredWords = filteredWordsRef.current;
+    if (currentFilteredWords.length === 0) return;
 
-    const randomIndex = Math.floor(Math.random() * filteredWords.length);
-    const word = filteredWords[randomIndex].word;
+    const randomIndex = Math.floor(Math.random() * currentFilteredWords.length);
+    const word = currentFilteredWords[randomIndex].word;
     setLetters(shuffle(word.split("")));
     setSelected([]);
     setStatus("");
     setShowAnswer(false);
     setTimeLeft(DIFFICULTIES[difficulty].time);
-  }, [difficulty, filteredWords]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [difficulty]);
 
   // Initialize first word
   useEffect(() => {
     if (!gameStarted) return;
-    const word = WORDS[current].word;
+    // Use filteredWordsRef instead to avoid dependency issues
+    const currentFilteredWords = filteredWordsRef.current;
+    if (currentFilteredWords.length === 0) return;
+    const word =
+      currentFilteredWords[current % currentFilteredWords.length].word;
     setLetters(shuffle(word.split("")));
     setSelected([]);
     setStatus("");
     setShowAnswer(false);
     setTimeLeft(DIFFICULTIES[difficulty].time);
     setTimerActive(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, gameStarted, difficulty]);
 
   // Start timer when game starts
@@ -93,7 +106,9 @@ export default function WordPuzzleGame({ userId }) {
 
   const handleSelect = (idx) => {
     if (
-      selected.length < WORDS[current].word.length &&
+      filteredWords.length > 0 &&
+      selected.length <
+        filteredWords[current % filteredWords.length].word.length &&
       !selected.includes(idx)
     ) {
       setSelected([...selected, idx]);
@@ -101,8 +116,12 @@ export default function WordPuzzleGame({ userId }) {
   };
 
   const handleCheck = () => {
+    if (filteredWords.length === 0) return;
+
     const attempt = selected.map((i) => letters[i]).join("");
-    if (attempt === WORDS[current].word) {
+    const currentWord = filteredWords[current % filteredWords.length].word;
+
+    if (attempt === currentWord) {
       // Get coin reward from difficulty settings
       const coinReward = DIFFICULTIES[difficulty].coins;
 
