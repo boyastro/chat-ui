@@ -69,6 +69,13 @@ export default function ChatAI({ userId }) {
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
 
+  // Tự động cuộn xuống cuối khi có tin nhắn mới hoặc loading thay đổi
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, loading]);
+
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -98,9 +105,6 @@ export default function ChatAI({ userId }) {
       setError("Lỗi: " + err.message);
     } finally {
       setLoading(false);
-      setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
     }
   };
 
