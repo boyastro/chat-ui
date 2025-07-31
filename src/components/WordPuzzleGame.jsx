@@ -235,33 +235,39 @@ export default function WordPuzzleGame({ userId }) {
 
       {/* Score & Stats */}
       <div className="flex flex-row mb-3 sm:mb-4 sm:grid sm:grid-cols-3 sm:gap-2">
-        <div className="flex-1 bg-gradient-to-r from-blue-200 to-cyan-200 p-2 rounded-xl text-center mr-1 border-2 border-blue-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-blue-700 font-bold">
-            🌟 Điểm số
-          </p>
-          <p className="text-base sm:text-lg font-bold text-blue-800">
-            {score}
-          </p>
+        <div className="flex-1 bg-gradient-to-r from-blue-200 to-cyan-200 p-1 sm:p-2 rounded-lg sm:rounded-xl text-center mr-1 border border-blue-300 sm:border-2 shadow-sm sm:shadow-md">
+          <div className="flex items-center justify-center sm:block">
+            <p className="text-[0.6rem] sm:text-xs text-blue-700 font-bold mr-1 sm:mr-0">
+              🌟
+            </p>
+            <p className="text-sm sm:text-lg font-bold text-blue-800">
+              {score}
+            </p>
+          </div>
         </div>
-        <div className="flex-1 bg-gradient-to-r from-green-200 to-emerald-200 p-2 rounded-xl text-center mx-1 border-2 border-green-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-green-700 font-bold">
-            🔥 Chuỗi thắng
-          </p>
-          <p className="text-base sm:text-lg font-bold text-green-800">
-            {streak}
-          </p>
+        <div className="flex-1 bg-gradient-to-r from-green-200 to-emerald-200 p-1 sm:p-2 rounded-lg sm:rounded-xl text-center mx-1 border border-green-300 sm:border-2 shadow-sm sm:shadow-md">
+          <div className="flex items-center justify-center sm:block">
+            <p className="text-[0.6rem] sm:text-xs text-green-700 font-bold mr-1 sm:mr-0">
+              🔥
+            </p>
+            <p className="text-sm sm:text-lg font-bold text-green-800">
+              {streak}
+            </p>
+          </div>
         </div>
-        <div className="flex-1 bg-gradient-to-r from-yellow-200 to-amber-200 p-2 rounded-xl text-center ml-1 border-2 border-yellow-300 shadow-md">
-          <p className="text-2xs sm:text-xs text-yellow-700 font-bold">
-            ⏱️ Thời gian
-          </p>
-          <p
-            className={`text-base sm:text-lg font-bold ${
-              timeLeft < 10 ? "text-red-600 animate-pulse" : "text-yellow-800"
-            }`}
-          >
-            {timeLeft}s
-          </p>
+        <div className="flex-1 bg-gradient-to-r from-yellow-200 to-amber-200 p-1 sm:p-2 rounded-lg sm:rounded-xl text-center ml-1 border border-yellow-300 sm:border-2 shadow-sm sm:shadow-md">
+          <div className="flex items-center justify-center sm:block">
+            <p className="text-[0.6rem] sm:text-xs text-yellow-700 font-bold mr-1 sm:mr-0">
+              ⏱️
+            </p>
+            <p
+              className={`text-sm sm:text-lg font-bold ${
+                timeLeft < 10 ? "text-red-600 animate-pulse" : "text-yellow-800"
+              }`}
+            >
+              {timeLeft}s
+            </p>
+          </div>
         </div>
       </div>
 
