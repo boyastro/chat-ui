@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 // Lấy API key từ biến môi trường
 const OPENROUTER_API_KEY = process.env.REACT_APP_OPENROUTER_API_KEY;
@@ -14,6 +14,31 @@ export default function ChatAI({ userId }) {
       }`,
     },
   ]);
+  const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
+  // Fetch user info nếu có userId
+  useEffect(() => {
+    if (!userId) return;
+    const API_URL = process.env.REACT_APP_API_URL;
+    const token = localStorage.getItem("token");
+    fetch(`${API_URL}/users/${userId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          setUserInfo({
+            name: data.name || data.username || "User",
+            avatar:
+              data.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                data.name || data.username || "U"
+              )}&background=random`,
+          });
+        }
+      });
+  }, [userId]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -60,24 +85,48 @@ export default function ChatAI({ userId }) {
         Chat với AI (OpenRouter)
       </h2>
       <div className="h-80 overflow-y-auto bg-gray-50 rounded p-2 mb-3 border border-gray-200">
-        {messages.slice(1).map((msg, idx) => (
-          <div
-            key={idx}
-            className={`mb-2 flex ${
-              msg.role === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
+        {messages.slice(1).map((msg, idx) => {
+          const isUser = msg.role === "user";
+          return (
             <div
-              className={`px-3 py-2 rounded-lg max-w-[80%] text-sm whitespace-pre-line ${
-                msg.role === "user"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
+              key={idx}
+              className={`mb-2 flex ${
+                isUser ? "justify-end" : "justify-start"
               }`}
             >
-              {msg.content}
+              {!isUser && (
+                <div className="flex flex-col items-end mr-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xl select-none">
+                    🤖
+                  </div>
+                  <span className="text-xs text-gray-500 mt-0.5">AI</span>
+                </div>
+              )}
+              <div
+                className={`px-3 py-2 rounded-lg max-w-[80%] text-sm whitespace-pre-line ${
+                  isUser
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-800"
+                }`}
+              >
+                {msg.content}
+              </div>
+              {isUser && (
+                <div className="flex flex-col items-end ml-2">
+                  <img
+                    src={userInfo.avatar}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full border-2 border-blue-400 object-cover bg-white"
+                    style={{ minWidth: 32, minHeight: 32 }}
+                  />
+                  <span className="text-xs text-blue-600 mt-0.5 font-semibold max-w-[80px] truncate text-right">
+                    {userInfo.name}
+                  </span>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSend} className="flex gap-2">
@@ -98,9 +147,6 @@ export default function ChatAI({ userId }) {
         </button>
       </form>
       {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
-      <div className="text-xs text-gray-400 mt-2">
-        Model: openai/gpt-3.5-turbo qua OpenRouter
-      </div>
     </div>
   );
 }
