@@ -130,6 +130,13 @@ export default function WordPuzzleGame({ userId }) {
       setStatus(`✅ Chính xác! +${coinReward} coin`);
       setTimerActive(false);
 
+      // Tự động chuyển sang từ mới sau 2 giây
+      setTimeout(() => {
+        setCurrent((prev) => (prev + 1) % WORDS.length);
+        loadNewWord();
+        setTimerActive(true);
+      }, 2000);
+
       // Here you would normally update the user's coin balance in your database
       // For example: updateUserCoins(userId, totalCoins);
     } else {
