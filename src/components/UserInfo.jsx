@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 
 export default function UserInfo({ userId }) {
@@ -8,6 +7,7 @@ export default function UserInfo({ userId }) {
   const [itemInfoMap, setItemInfoMap] = useState({}); // Lưu thông tin vật phẩm theo id
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchUserInfo = async () => {

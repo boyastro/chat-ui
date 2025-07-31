@@ -82,10 +82,6 @@ export default function RoomSelect({
               className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-blue-400"
               title="Xem user info"
               onClick={() => {
-                if (userId) {
-                  alert("Không tìm thấy userId. Vui lòng đăng nhập lại.");
-                  return;
-                }
                 navigate("/userinfo");
               }}
             >
