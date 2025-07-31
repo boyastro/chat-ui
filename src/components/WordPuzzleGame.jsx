@@ -151,52 +151,59 @@ export default function WordPuzzleGame({ userId }) {
   // Show start screen if game not started
   if (!gameStarted) {
     return (
-      <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-blue-50 to-white rounded-xl shadow-lg border border-blue-100">
+      <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-100 rounded-3xl shadow-xl border-4 border-purple-200">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-blue-700">
-            Game Ghép Từ
+          <h2 className="text-xl sm:text-2xl font-bold text-purple-600 font-comic">
+            🎮 Game Ghép Từ 🎮
           </h2>
           <button
             onClick={() => navigate("/rooms")}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium flex items-center"
+            className="bg-gradient-to-r from-yellow-300 to-orange-300 hover:from-yellow-400 hover:to-orange-400 text-orange-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-md border-2 border-yellow-400"
           >
-            <span>⬅️</span> <span className="ml-1">Về phòng</span>
+            <span>🏠</span> <span className="ml-1">Về phòng</span>
           </button>
         </div>
 
         <div className="text-center mb-6 sm:mb-8">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-            <span className="text-3xl sm:text-4xl">🔤</span>
+          <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full flex items-center justify-center border-4 border-pink-400 shadow-md animate-bounce-slow">
+            <span className="text-4xl sm:text-5xl">🔤</span>
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">
+          <h3 className="text-xl sm:text-2xl font-bold text-pink-600 mb-3 font-comic">
             Chào mừng đến với Game Ghép Từ!
           </h3>
-          <p className="text-sm sm:text-base text-gray-600 px-2">
+          <p className="text-sm sm:text-base text-purple-700 px-2 font-comic">
             Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn
           </p>
         </div>
 
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border border-gray-100 mb-5 sm:mb-6">
-          <h4 className="font-medium text-gray-800 mb-2 text-center">
-            Chọn độ khó:
+        <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-4 sm:p-5 rounded-2xl shadow-md border-2 border-blue-300 mb-5 sm:mb-6">
+          <h4 className="font-bold text-blue-700 mb-3 text-center text-lg font-comic">
+            Chọn độ khó: 🌟
           </h4>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-3 justify-center">
             {Object.entries(DIFFICULTIES).map(([level, { name, color }]) => (
               <button
                 key={level}
                 onClick={() => changeDifficulty(parseInt(level))}
-                className={`px-3 sm:px-4 py-2 rounded-lg ${
+                className={`px-4 sm:px-5 py-3 rounded-xl ${
                   difficulty === parseInt(level)
-                    ? "bg-blue-500 text-white font-bold"
-                    : "bg-gray-100 text-gray-700"
-                } transition-all transform hover:scale-105 touch-manipulation`}
+                    ? "bg-gradient-to-r from-green-400 to-teal-400 border-2 border-green-500 text-white font-bold transform scale-110"
+                    : "bg-gradient-to-r from-cyan-200 to-blue-200 border-2 border-blue-300 text-blue-800"
+                } transition-all transform hover:scale-105 touch-manipulation shadow-md`}
               >
                 <span
                   className={
-                    difficulty === parseInt(level) ? "text-white" : color
+                    difficulty === parseInt(level)
+                      ? "text-white font-comic"
+                      : "font-comic"
                   }
                 >
-                  {name}
+                  {name}{" "}
+                  {parseInt(level) === 1
+                    ? "😊"
+                    : parseInt(level) === 2
+                    ? "😎"
+                    : "🤔"}
                 </span>
               </button>
             ))}
@@ -205,56 +212,56 @@ export default function WordPuzzleGame({ userId }) {
 
         <button
           onClick={startGame}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-3 px-4 sm:px-6 rounded-lg shadow-md transform transition hover:scale-105 active:scale-95 touch-manipulation text-lg"
+          className="w-full bg-gradient-to-r from-green-400 to-teal-500 hover:from-green-500 hover:to-teal-600 text-white font-bold py-4 px-4 sm:px-6 rounded-xl shadow-lg transform transition hover:scale-105 active:scale-95 touch-manipulation text-lg border-2 border-green-500 font-comic"
         >
-          Bắt đầu chơi!
+          🚀 Bắt đầu chơi! 🚀
         </button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-blue-50 to-white rounded-xl shadow-lg border border-blue-100">
+    <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-100 rounded-3xl shadow-xl border-4 border-purple-200">
       {/* Header with score and navigation */}
       <div className="flex justify-between items-center mb-3 sm:mb-4">
-        <h2 className="text-lg sm:text-xl font-bold text-blue-700">
-          Game Ghép Từ
+        <h2 className="text-lg sm:text-xl font-bold text-purple-600 font-comic">
+          🎮 Game Ghép Từ 🎮
         </h2>
         <div className="flex items-center">
           <button
             onClick={() => navigate("/rooms")}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 sm:px-3 py-1 rounded-full text-sm font-medium flex items-center"
+            className="bg-gradient-to-r from-yellow-300 to-orange-300 hover:from-yellow-400 hover:to-orange-400 text-orange-800 px-2.5 sm:px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-md border-2 border-yellow-400"
           >
-            <span>⬅️</span> <span className="ml-1">Về phòng</span>
+            <span>🏠</span> <span className="ml-1">Về phòng</span>
           </button>
         </div>
       </div>
 
       {/* Score & Stats */}
       <div className="flex flex-row mb-3 sm:mb-4 sm:grid sm:grid-cols-3 sm:gap-2">
-        <div className="flex-1 bg-blue-100 p-2 rounded-lg text-center mr-1">
-          <p className="text-2xs sm:text-xs text-blue-700 font-medium">
-            Điểm số
+        <div className="flex-1 bg-gradient-to-r from-blue-200 to-cyan-200 p-2 rounded-xl text-center mr-1 border-2 border-blue-300 shadow-md">
+          <p className="text-2xs sm:text-xs text-blue-700 font-bold font-comic">
+            🌟 Điểm số
           </p>
-          <p className="text-base sm:text-lg font-bold text-blue-800">
+          <p className="text-base sm:text-lg font-bold text-blue-800 font-comic">
             {score}
           </p>
         </div>
-        <div className="flex-1 bg-green-100 p-2 rounded-lg text-center mx-1">
-          <p className="text-2xs sm:text-xs text-green-700 font-medium">
-            Chuỗi thắng
+        <div className="flex-1 bg-gradient-to-r from-green-200 to-emerald-200 p-2 rounded-xl text-center mx-1 border-2 border-green-300 shadow-md">
+          <p className="text-2xs sm:text-xs text-green-700 font-bold font-comic">
+            🔥 Chuỗi thắng
           </p>
-          <p className="text-base sm:text-lg font-bold text-green-800">
+          <p className="text-base sm:text-lg font-bold text-green-800 font-comic">
             {streak}
           </p>
         </div>
-        <div className="flex-1 bg-yellow-100 p-2 rounded-lg text-center ml-1">
-          <p className="text-2xs sm:text-xs text-yellow-700 font-medium">
-            Thời gian
+        <div className="flex-1 bg-gradient-to-r from-yellow-200 to-amber-200 p-2 rounded-xl text-center ml-1 border-2 border-yellow-300 shadow-md">
+          <p className="text-2xs sm:text-xs text-yellow-700 font-bold font-comic">
+            ⏱️ Thời gian
           </p>
           <p
-            className={`text-base sm:text-lg font-bold ${
-              timeLeft < 10 ? "text-red-600" : "text-yellow-800"
+            className={`text-base sm:text-lg font-bold font-comic ${
+              timeLeft < 10 ? "text-red-600 animate-pulse" : "text-yellow-800"
             }`}
           >
             {timeLeft}s
@@ -263,15 +270,15 @@ export default function WordPuzzleGame({ userId }) {
       </div>
 
       {/* Difficulty level */}
-      <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-0">
-          Độ khó:{" "}
-          <span className={DIFFICULTIES[difficulty].color}>
+      <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-xl border-2 border-indigo-200">
+        <div className="text-xs sm:text-sm text-indigo-700 mb-1 sm:mb-0 font-bold font-comic">
+          Độ khó: {difficulty === 1 ? "😊" : difficulty === 2 ? "😎" : "🤔"}{" "}
+          <span className={`${DIFFICULTIES[difficulty].color} font-bold`}>
             {DIFFICULTIES[difficulty].name}
           </span>
         </div>
-        <div className="text-xs sm:text-sm text-gray-600">
-          Gợi ý:{" "}
+        <div className="text-xs sm:text-sm text-violet-700 font-bold font-comic">
+          Gợi ý: 💡{" "}
           <span className="font-semibold">
             {filteredWords.length > 0 &&
               filteredWords[current % filteredWords.length].hint}
@@ -280,14 +287,14 @@ export default function WordPuzzleGame({ userId }) {
       </div>
 
       {/* Game area */}
-      <div className="bg-white p-3 sm:p-4 rounded-lg shadow-inner border border-gray-200 mb-3 sm:mb-4">
+      <div className="bg-gradient-to-r from-pink-100 to-rose-100 p-3 sm:p-4 rounded-xl shadow-md border-3 border-pink-300 mb-3 sm:mb-4">
         {/* Word display area */}
-        <div className="min-h-[44px] sm:min-h-[50px] p-2 border-2 border-dashed border-blue-200 rounded-lg flex items-center justify-center bg-blue-50 mb-3 sm:mb-4">
-          <div className="flex gap-1 flex-wrap justify-center">
+        <div className="min-h-[44px] sm:min-h-[50px] p-2 border-3 border-dashed border-purple-300 rounded-xl flex items-center justify-center bg-gradient-to-r from-purple-100 to-fuchsia-100 mb-3 sm:mb-4 shadow-inner">
+          <div className="flex gap-1.5 flex-wrap justify-center">
             {selected.map((i, index) => (
               <span
                 key={`selected-${index}`}
-                className="inline-block w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-b from-blue-500 to-blue-600 text-white text-lg sm:text-xl font-bold rounded-lg shadow-md flex items-center justify-center animate-pop-in"
+                className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-lg sm:text-xl font-bold rounded-xl shadow-md flex items-center justify-center animate-pop-in border-2 border-purple-600"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
                 {letters[i]}
@@ -304,7 +311,7 @@ export default function WordPuzzleGame({ userId }) {
               .map((_, index) => (
                 <span
                   key={`empty-${index}`}
-                  className="inline-block w-8 h-8 sm:w-9 sm:h-9 bg-gray-100 text-gray-400 text-lg sm:text-xl font-bold rounded-lg border border-gray-200 flex items-center justify-center"
+                  className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-white text-gray-400 text-lg sm:text-xl font-bold rounded-xl border-2 border-purple-200 flex items-center justify-center"
                 >
                   &nbsp;
                 </span>
@@ -313,14 +320,14 @@ export default function WordPuzzleGame({ userId }) {
         </div>
 
         {/* Letters */}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center my-3 sm:my-4">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2.5 justify-center my-3 sm:my-4">
           {letters.map((ch, idx) => (
             <button
               key={idx}
-              className={`w-9 h-9 sm:w-10 sm:h-10 text-base sm:text-lg font-bold rounded-lg border-2 transition-all duration-150 shadow-sm transform hover:scale-110 active:scale-95 touch-manipulation ${
+              className={`w-9 h-9 sm:w-11 sm:h-11 text-base sm:text-xl font-bold rounded-xl border-2 transition-all duration-150 shadow-md transform hover:scale-110 active:scale-95 touch-manipulation ${
                 selected.includes(idx)
                   ? "opacity-50 bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-b from-blue-100 to-blue-200 border-blue-300 text-blue-800 hover:from-blue-200 hover:to-blue-300"
+                  : "bg-gradient-to-r from-cyan-300 to-blue-300 border-blue-400 text-blue-800 hover:from-cyan-400 hover:to-blue-400 hover:text-white font-comic"
               }`}
               onClick={() => handleSelect(idx)}
               disabled={
@@ -335,10 +342,10 @@ export default function WordPuzzleGame({ userId }) {
         </div>
 
         {/* Status */}
-        <div className="h-6 text-center font-bold">
+        <div className="h-8 text-center font-bold">
           {status && (
             <div
-              className={`animate-bounce ${
+              className={`animate-bounce text-lg font-comic ${
                 status.includes("✅")
                   ? "text-green-600"
                   : status.includes("⏱️")
@@ -350,9 +357,9 @@ export default function WordPuzzleGame({ userId }) {
             </div>
           )}
           {showAnswer && (
-            <div className="text-center text-xs sm:text-sm text-gray-500">
+            <div className="text-center text-sm sm:text-base text-purple-600 font-comic">
               Đáp án:{" "}
-              <span className="font-bold text-blue-700">
+              <span className="font-bold text-pink-600">
                 {filteredWords[current % filteredWords.length].word}
               </span>
             </div>
@@ -361,15 +368,15 @@ export default function WordPuzzleGame({ userId }) {
       </div>
 
       {/* Controls */}
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-2 sm:mb-3">
         <button
-          className={`px-2 sm:px-4 py-2 rounded-lg font-semibold shadow-md transition transform hover:scale-105 active:scale-95 touch-manipulation ${
+          className={`px-2 sm:px-4 py-2.5 rounded-xl font-bold shadow-lg transition transform hover:scale-105 active:scale-95 touch-manipulation ${
             selected.length ===
               filteredWords[current % filteredWords.length].word.length &&
             !status.includes("✅") &&
             timeLeft > 0
-              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-2 border-blue-600"
+              : "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed border-2 border-gray-300"
           }`}
           onClick={handleCheck}
           disabled={
@@ -379,7 +386,7 @@ export default function WordPuzzleGame({ userId }) {
             timeLeft === 0
           }
         >
-          <span className="flex items-center justify-center text-sm sm:text-base">
+          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -392,15 +399,19 @@ export default function WordPuzzleGame({ userId }) {
                 clipRule="evenodd"
               />
             </svg>
-            Kiểm tra
+            ✅ Kiểm tra
           </span>
         </button>
         <button
-          className="px-2 sm:px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition transform hover:scale-105 active:scale-95 shadow-md touch-manipulation"
+          className={`px-2 sm:px-4 py-2.5 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 touch-manipulation ${
+            selected.length === 0 || timeLeft === 0
+              ? "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 border-2 border-gray-300 cursor-not-allowed"
+              : "bg-gradient-to-r from-orange-300 to-amber-300 text-orange-800 font-bold border-2 border-orange-400 hover:from-orange-400 hover:to-amber-400"
+          }`}
           onClick={handleReset}
           disabled={selected.length === 0 || timeLeft === 0}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base">
+          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -413,17 +424,17 @@ export default function WordPuzzleGame({ userId }) {
                 clipRule="evenodd"
               />
             </svg>
-            Làm lại
+            🔄 Làm lại
           </span>
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3">
         <button
-          className="px-2 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:from-green-600 hover:to-green-700 transition transform hover:scale-105 active:scale-95 shadow-md touch-manipulation"
+          className="px-2 sm:px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold hover:from-green-500 hover:to-emerald-600 transition transform hover:scale-105 active:scale-95 shadow-lg touch-manipulation border-2 border-green-500"
           onClick={handleNext}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base">
+          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -436,15 +447,19 @@ export default function WordPuzzleGame({ userId }) {
                 clipRule="evenodd"
               />
             </svg>
-            Từ khác
+            🎲 Từ khác
           </span>
         </button>
         <button
-          className="px-2 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-semibold hover:from-yellow-500 hover:to-yellow-600 transition transform hover:scale-105 active:scale-95 shadow-md touch-manipulation"
+          className={`px-2 sm:px-4 py-2.5 rounded-xl shadow-lg transition transform hover:scale-105 active:scale-95 touch-manipulation border-2 ${
+            showAnswer
+              ? "bg-gradient-to-r from-gray-200 to-gray-300 border-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gradient-to-r from-amber-400 to-yellow-400 border-yellow-500 text-yellow-800 font-bold hover:from-amber-500 hover:to-yellow-500"
+          }`}
           onClick={handleShowAnswer}
           disabled={showAnswer}
         >
-          <span className="flex items-center justify-center text-sm sm:text-base">
+          <span className="flex items-center justify-center text-sm sm:text-base font-comic">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
@@ -458,27 +473,47 @@ export default function WordPuzzleGame({ userId }) {
                 clipRule="evenodd"
               />
             </svg>
-            Xem đáp án
+            👀 Xem đáp án
           </span>
         </button>
       </div>
 
       {/* Add some CSS animations */}
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
         @keyframes pop-in {
           0% { transform: scale(0); opacity: 0; }
-          70% { transform: scale(1.2); opacity: 1; }
+          70% { transform: scale(1.3); opacity: 1; }
           100% { transform: scale(1); }
         }
         .animate-pop-in {
-          animation: pop-in 0.3s forwards;
+          animation: pop-in 0.4s forwards;
         }
+        
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 3s infinite;
+        }
+        
+        .font-comic {
+          font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+        }
+        
+        .border-3 {
+          border-width: 3px;
+        }
+        
         @media (max-width: 360px) {
           .text-2xs {
             font-size: 0.65rem;
             line-height: 1rem;
           }
         }
+        
         /* Safari: Fix for hover effect on mobile */
         @media (hover: none) {
           .hover\\:scale-105:hover {
