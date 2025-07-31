@@ -107,8 +107,9 @@ export default function ChatAI({ userId }) {
   return (
     <div className="max-w-xl mx-auto my-6 p-0 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
       {/* Header với gradient */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 relative">
-        <div className="absolute top-3 left-3">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold">Chat AI</h2>
           <button
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 hover:bg-white/30 text-white border border-white/30 shadow-sm transition backdrop-blur-sm"
             onClick={() => navigate("/rooms")}
@@ -117,7 +118,6 @@ export default function ChatAI({ userId }) {
             <span>Về phòng chát</span>
           </button>
         </div>
-        <h2 className="text-xl font-bold text-center mt-1">Chat AI</h2>
       </div>
 
       {/* Chat container */}
