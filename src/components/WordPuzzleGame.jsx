@@ -231,8 +231,8 @@ export default function WordPuzzleGame({ userId }) {
       </div>
 
       {/* Score & Stats */}
-      <div className="grid grid-cols-3 gap-2 mb-3 sm:mb-4">
-        <div className="bg-blue-100 p-2 rounded-lg text-center">
+      <div className="flex flex-row mb-3 sm:mb-4 sm:grid sm:grid-cols-3 sm:gap-2">
+        <div className="flex-1 bg-blue-100 p-2 rounded-lg text-center mr-1">
           <p className="text-2xs sm:text-xs text-blue-700 font-medium">
             Điểm số
           </p>
@@ -240,7 +240,7 @@ export default function WordPuzzleGame({ userId }) {
             {score}
           </p>
         </div>
-        <div className="bg-green-100 p-2 rounded-lg text-center">
+        <div className="flex-1 bg-green-100 p-2 rounded-lg text-center mx-1">
           <p className="text-2xs sm:text-xs text-green-700 font-medium">
             Chuỗi thắng
           </p>
@@ -248,7 +248,7 @@ export default function WordPuzzleGame({ userId }) {
             {streak}
           </p>
         </div>
-        <div className="bg-yellow-100 p-2 rounded-lg text-center">
+        <div className="flex-1 bg-yellow-100 p-2 rounded-lg text-center ml-1">
           <p className="text-2xs sm:text-xs text-yellow-700 font-medium">
             Thời gian
           </p>
