@@ -25,9 +25,9 @@ const WORDS = [
 
 // Difficulty settings
 const DIFFICULTIES = {
-  1: { name: "Dễ", color: "text-green-500", time: 60 },
-  2: { name: "Trung bình", color: "text-yellow-500", time: 45 },
-  3: { name: "Khó", color: "text-red-500", time: 30 },
+  1: { name: "Dễ", color: "text-green-500", time: 60, coins: 5 },
+  2: { name: "Trung bình", color: "text-yellow-500", time: 45, coins: 10 },
+  3: { name: "Khó", color: "text-red-500", time: 30, coins: 20 },
 };
 
 export default function WordPuzzleGame({ userId }) {
@@ -108,10 +108,16 @@ export default function WordPuzzleGame({ userId }) {
       const timeBonus = Math.floor(timeLeft * difficulty * 0.5);
       const totalPoints = wordScore + timeBonus;
 
+      // Get coin reward directly from difficulty settings
+      const coinReward = DIFFICULTIES[difficulty].coins;
+
       setScore((prev) => prev + totalPoints);
       setStreak((prev) => prev + 1);
-      setStatus(`✅ Chính xác! +${totalPoints} điểm`);
+      setStatus(`✅ Chính xác! +${totalPoints} điểm, +${coinReward} coin`);
       setTimerActive(false);
+
+      // Here you would normally update the user's coin balance in your database
+      // For example: updateUserCoins(userId, coinReward);
     } else {
       setStreak(0);
       setStatus("❌ Sai rồi, thử lại nhé!");
@@ -171,35 +177,55 @@ export default function WordPuzzleGame({ userId }) {
           <p className="text-sm sm:text-base text-purple-700 px-1">
             Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn
           </p>
+          <p className="text-sm sm:text-base text-purple-800 font-semibold mt-1.5 px-1">
+            <span className="text-green-600">Dễ: +5 coin</span> •
+            <span className="text-yellow-600 mx-2">Trung bình: +10 coin</span> •
+            <span className="text-red-600">Khó: +20 coin</span>
+          </p>
         </div>
 
         <div className="bg-gradient-to-r from-blue-100 to-cyan-100 p-3 sm:p-4 rounded-lg shadow-md border border-blue-300 mb-3 sm:mb-4">
           <h4 className="font-bold text-blue-700 mb-2 text-center text-lg">
             Chọn độ khó: 🌟
           </h4>
-          <div className="flex gap-3 justify-center">
-            {Object.entries(DIFFICULTIES).map(([level, { name, color }]) => (
-              <button
-                key={level}
-                onClick={() => changeDifficulty(parseInt(level))}
-                className={`px-4 sm:px-5 py-3 rounded-xl ${
-                  difficulty === parseInt(level)
-                    ? "bg-gradient-to-r from-green-400 to-teal-400 border-2 border-green-500 text-white font-bold transform scale-110"
-                    : "bg-gradient-to-r from-cyan-200 to-blue-200 border-2 border-blue-300 text-blue-800"
-                } transition-all transform hover:scale-105 touch-manipulation shadow-md`}
-              >
-                <span
-                  className={difficulty === parseInt(level) ? "text-white" : ""}
+          <div className="flex gap-2 justify-center">
+            {Object.entries(DIFFICULTIES).map(
+              ([level, { name, color, coins }]) => (
+                <button
+                  key={level}
+                  onClick={() => changeDifficulty(parseInt(level))}
+                  className={`px-3 sm:px-4 py-2 rounded-xl ${
+                    difficulty === parseInt(level)
+                      ? "bg-gradient-to-r from-green-400 to-teal-400 border-2 border-green-500 text-white font-bold transform scale-105"
+                      : "bg-gradient-to-r from-cyan-200 to-blue-200 border-2 border-blue-300 text-blue-800"
+                  } transition-all transform hover:scale-105 touch-manipulation shadow-md`}
                 >
-                  {name}{" "}
-                  {parseInt(level) === 1
-                    ? "😊"
-                    : parseInt(level) === 2
-                    ? "😎"
-                    : "🤔"}
-                </span>
-              </button>
-            ))}
+                  <div className="flex flex-col items-center">
+                    <span
+                      className={
+                        difficulty === parseInt(level) ? "text-white" : ""
+                      }
+                    >
+                      {name}{" "}
+                      {parseInt(level) === 1
+                        ? "😊"
+                        : parseInt(level) === 2
+                        ? "😎"
+                        : "🤔"}
+                    </span>
+                    <span
+                      className={`text-xs mt-0.5 ${
+                        difficulty === parseInt(level)
+                          ? "text-yellow-200"
+                          : "text-amber-600"
+                      }`}
+                    >
+                      +{coins} coin
+                    </span>
+                  </div>
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -274,6 +300,9 @@ export default function WordPuzzleGame({ userId }) {
           Độ khó: {difficulty === 1 ? "😊" : difficulty === 2 ? "😎" : "🤔"}{" "}
           <span className={`${DIFFICULTIES[difficulty].color} font-bold`}>
             {DIFFICULTIES[difficulty].name}
+          </span>
+          <span className="ml-1 text-amber-600">
+            (+{DIFFICULTIES[difficulty].coins} coin)
           </span>
         </div>
         <div className="text-xs sm:text-sm text-violet-700 font-bold">
