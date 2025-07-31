@@ -7,7 +7,7 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 // Danh sách các mô hình ưu tiên
 const MODELS = [
   "openai/gpt-3.5-turbo",
-  "openchat/openchat-3.5-0106",
+  "anthropic/claude-3-haiku",
   "mistralai/mistral-7b-instruct",
 ];
 
