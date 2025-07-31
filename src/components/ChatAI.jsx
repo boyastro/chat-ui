@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { useNavigate } from "react-router-dom";
 
 // Lấy API key từ biến môi trường
@@ -188,7 +191,78 @@ export default function ChatAI({ userId }) {
                   wordBreak: "break-word",
                 }}
               >
-                {msg.content}
+                {isUser ? (
+                  msg.content
+                ) : (
+                  <ReactMarkdown
+                    children={msg.content}
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        return inline ? (
+                          <code
+                            className="bg-gray-100 text-pink-600 px-1 rounded text-xs font-mono"
+                            {...props}
+                          >
+                            {children}
+                          </code>
+                        ) : (
+                          <pre className="bg-gray-900 text-green-200 rounded-lg p-3 overflow-x-auto my-2 text-xs">
+                            <code {...props}>{children}</code>
+                          </pre>
+                        );
+                      },
+                      li({ children, ...props }) {
+                        return (
+                          <li className="ml-4 list-disc" {...props}>
+                            {children}
+                          </li>
+                        );
+                      },
+                      strong({ children, ...props }) {
+                        return (
+                          <strong
+                            className="font-bold text-blue-700"
+                            {...props}
+                          >
+                            {children}
+                          </strong>
+                        );
+                      },
+                      em({ children, ...props }) {
+                        return (
+                          <em className="italic text-purple-700" {...props}>
+                            {children}
+                          </em>
+                        );
+                      },
+                      blockquote({ children, ...props }) {
+                        return (
+                          <blockquote
+                            className="border-l-4 border-blue-300 pl-3 italic text-gray-600 my-2"
+                            {...props}
+                          >
+                            {children}
+                          </blockquote>
+                        );
+                      },
+                      a({ href, children, ...props }) {
+                        return (
+                          <a
+                            href={href}
+                            className="text-blue-500 underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            {...props}
+                          >
+                            {children}
+                          </a>
+                        );
+                      },
+                    }}
+                  />
+                )}
               </div>
               {isUser && (
                 <div className="flex flex-col items-center ml-2">
