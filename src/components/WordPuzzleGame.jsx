@@ -165,9 +165,6 @@ export default function WordPuzzleGame({ userId }) {
         </div>
 
         <div className="text-center mb-6 sm:mb-8">
-          <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-3 sm:mb-4 bg-gradient-to-r from-pink-300 to-purple-300 rounded-full flex items-center justify-center border-4 border-pink-400 shadow-md animate-bounce-slow">
-            <span className="text-4xl sm:text-5xl">🔤</span>
-          </div>
           <h3 className="text-xl sm:text-2xl font-bold text-pink-600 mb-3">
             Chào mừng đến với Game Ghép Từ!
           </h3>
