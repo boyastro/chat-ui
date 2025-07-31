@@ -62,6 +62,20 @@ export default function RoomSelect({
             <span className="text-xs text-yellow-700 mt-0.5 font-bold tracking-wide">
               MillionGame
             </span>
+
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-blue-400 mt-2"
+              title="Chat với AI"
+              onClick={() => navigate("/chatai")}
+            >
+              <span className="text-lg">🤖</span>
+              <span className="hidden xs:inline ml-1 font-bold truncate">
+                Chat AI
+              </span>
+            </button>
+            <span className="text-xs text-blue-700 mt-0.5 font-bold tracking-wide">
+              Chat AI
+            </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
             <button
