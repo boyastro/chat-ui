@@ -36,14 +36,24 @@ export default function ChatAI({ userId }) {
     };
   }, []);
 
-  const [messages, setMessages] = useState([
-    {
-      role: "system",
-      content: `Bạn là trợ lý AI thân thiện.${
-        userId ? ` userId: ${userId}` : ""
-      }`,
-    },
-  ]);
+  // Khôi phục nội dung chat từ localStorage nếu có
+  const defaultSystemMsg = {
+    role: "system",
+    content: `Bạn là trợ lý AI thân thiện.${
+      userId ? ` userId: ${userId}` : ""
+    }`,
+  };
+  const chatKey = userId ? `chat_history_${userId}` : "chat_history_guest";
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem(chatKey);
+      if (saved) {
+        const arr = JSON.parse(saved);
+        if (Array.isArray(arr) && arr[0]?.role === "system") return arr;
+      }
+    } catch {}
+    return [defaultSystemMsg];
+  });
   const [userInfo, setUserInfo] = useState({ name: "", avatar: "" });
   // Fetch user info nếu có userId
   useEffect(() => {
@@ -79,7 +89,11 @@ export default function ChatAI({ userId }) {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, loading]);
+    // Lưu messages vào localStorage (trừ khi chỉ có system message)
+    if (messages.length > 1) {
+      localStorage.setItem(chatKey, JSON.stringify(messages));
+    }
+  }, [messages, loading, chatKey]);
 
   // Hàm thử nhiều mô hình theo thứ tự ưu tiên
   async function tryModels(messages) {

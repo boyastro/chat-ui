@@ -141,6 +141,12 @@ export default function RoomSelect({
               className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border border-red-400"
               title="Quay lại đăng nhập"
               onClick={() => {
+                // Xoá lịch sử chat khi logout
+                if (userId) {
+                  try {
+                    localStorage.removeItem(`chat_history_${userId}`);
+                  } catch {}
+                }
                 if (typeof onRoomChange === "function") {
                   onRoomChange({ target: { value: "" } }); // reset currentRoom
                 }
