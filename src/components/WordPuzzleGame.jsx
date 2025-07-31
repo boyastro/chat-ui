@@ -384,7 +384,7 @@ export default function WordPuzzleGame({ userId }) {
         </div>
 
         {/* Status */}
-        <div className="h-8 text-center font-bold">
+        <div className="min-h-[50px] text-center font-bold flex flex-col justify-center">
           {status && (
             <div
               className={`animate-bounce text-lg ${
@@ -393,13 +393,13 @@ export default function WordPuzzleGame({ userId }) {
                   : status.includes("⏱️")
                   ? "text-orange-500"
                   : "text-red-500"
-              }`}
+              } mb-1`}
             >
               {status}
             </div>
           )}
           {showAnswer && (
-            <div className="text-center text-sm sm:text-base text-purple-600">
+            <div className="text-center text-sm sm:text-base text-purple-600 mt-1">
               Đáp án:{" "}
               <span className="font-bold text-pink-600">
                 {filteredWords[current % filteredWords.length].word}
