@@ -193,11 +193,13 @@ export default function ChatAI({ userId }) {
               {isUser && (
                 <div className="flex flex-col items-center ml-2">
                   <div className="w-10 h-10 rounded-full shadow-md border-2 border-blue-400 overflow-hidden">
-                    <img
-                      src={userInfo.avatar}
-                      alt="avatar"
-                      className="w-full h-full object-cover"
-                    />
+                    {userInfo.avatar ? (
+                      <img
+                        src={userInfo.avatar}
+                        alt="avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : null}
                   </div>
                   <span className="text-xs text-blue-600 mt-1 font-semibold max-w-[80px] truncate">
                     {userInfo.name}
