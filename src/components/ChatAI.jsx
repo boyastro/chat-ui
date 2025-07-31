@@ -336,6 +336,14 @@ export default function ChatAI({ userId }) {
               e.target.style.height =
                 Math.min(e.target.scrollHeight, 160) + "px";
             }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (!loading && input.trim()) {
+                  handleSend(e);
+                }
+              }
+            }}
           />
           {/* Ẩn scrollbar cho Chrome/Safari */}
           <style>{`
