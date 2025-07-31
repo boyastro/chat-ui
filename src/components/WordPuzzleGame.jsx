@@ -45,7 +45,7 @@ export default function WordPuzzleGame({ userId }) {
   const [gameStarted, setGameStarted] = useState(false);
 
   // Filter words by difficulty
-  const filteredWords = WORDS.filter((word) => word.difficulty == difficulty);
+  const filteredWords = WORDS.filter((word) => word.difficulty === difficulty);
 
   // Use a ref to access current filteredWords inside effects without dependency
   const filteredWordsRef = React.useRef(filteredWords);
