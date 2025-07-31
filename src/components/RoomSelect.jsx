@@ -116,7 +116,7 @@ export default function RoomSelect({
               </span>
             </button>
             <span className="text-xs text-green-700 mt-0.5 font-bold tracking-wide">
-              Ghép Từ
+              WordGame
             </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">

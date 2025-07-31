@@ -154,7 +154,7 @@ export default function WordPuzzleGame({ userId }) {
       <div className="max-w-md w-full mx-auto my-4 sm:my-8 p-4 sm:p-6 bg-gradient-to-b from-purple-100 via-pink-50 to-yellow-100 rounded-3xl shadow-xl border-4 border-purple-200">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-purple-600">
-            🎮 Game Ghép Từ 🎮
+            🎮 Word Game 🎮
           </h2>
           <button
             onClick={() => navigate("/rooms")}
@@ -166,7 +166,7 @@ export default function WordPuzzleGame({ userId }) {
 
         <div className="text-center mb-6 sm:mb-8">
           <h3 className="text-xl sm:text-2xl font-bold text-pink-600 mb-3">
-            Chào mừng đến với Game Ghép Từ!
+            Chào mừng đến với Word Game!
           </h3>
           <p className="text-sm sm:text-base text-purple-700 px-2">
             Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn
@@ -218,7 +218,7 @@ export default function WordPuzzleGame({ userId }) {
       {/* Header with score and navigation */}
       <div className="flex justify-between items-center mb-3 sm:mb-4">
         <h2 className="text-lg sm:text-xl font-bold text-purple-600">
-          🎮 Game Ghép Từ 🎮
+          🎮 Word Game 🎮
         </h2>
         <div className="flex items-center">
           <button
