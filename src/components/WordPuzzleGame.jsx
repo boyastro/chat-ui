@@ -13,8 +13,8 @@ function shuffle(array) {
 
 // Example word list (can be replaced with API or props)
 const WORDS = [
-  { word: "APPLE", hint: "A kind of fruit (English)", difficulty: 1 },
-  { word: "SCHOOL", hint: "A place to study (English)", difficulty: 1 },
+  { word: "APPLE", hint: "A kind of fruit", difficulty: 1 },
+  { word: "SCHOOL", hint: "A place to study", difficulty: 1 },
   { word: "VIETNAM", hint: "A country in Southeast Asia", difficulty: 2 },
   { word: "COMPUTER", hint: "A device for coding and gaming", difficulty: 2 },
   { word: "JAVASCRIPT", hint: "A popular programming language", difficulty: 3 },
