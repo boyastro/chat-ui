@@ -315,23 +315,19 @@ export default function WordPuzzleGame({ userId }) {
         </div>
       </div>
 
-      {/* Difficulty level */}
-      <div className="mb-2 sm:mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between p-1.5 bg-gradient-to-r from-indigo-100 to-violet-100 rounded-lg border border-indigo-200">
-        <div className="text-xs sm:text-sm text-indigo-700 mb-0.5 sm:mb-0 font-bold">
-          Độ khó: {difficulty === 1 ? "😊" : difficulty === 2 ? "😎" : "🤔"}{" "}
-          <span className={`${DIFFICULTIES[difficulty].color} font-bold`}>
-            {DIFFICULTIES[difficulty].name}
-          </span>
-          <span className="ml-1 text-amber-600">
-            (+{DIFFICULTIES[difficulty].coins} coin)
-          </span>
-        </div>
-        <div className="text-xs sm:text-sm text-violet-700 font-bold">
-          Gợi ý: 💡{" "}
-          <span className="font-semibold">
+      {/* Hint section */}
+      <div className="mb-2 sm:mb-3 bg-gradient-to-r from-teal-100 to-cyan-100 p-3 rounded-lg border-2 border-cyan-300 shadow-md">
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex items-center justify-center mb-1">
+            <span className="text-2xl animate-pulse mr-1.5">💡</span>
+            <h3 className="text-base sm:text-lg font-bold text-teal-700">
+              Gợi ý:
+            </h3>
+          </div>
+          <p className="text-base sm:text-xl font-bold text-center text-blue-800 px-2 py-1 bg-white bg-opacity-50 rounded-md border border-blue-200">
             {filteredWords.length > 0 &&
               filteredWords[current % filteredWords.length].hint}
-          </span>
+          </p>
         </div>
       </div>
 
