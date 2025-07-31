@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Lấy API key từ biến môi trường
 const OPENROUTER_API_KEY = process.env.REACT_APP_OPENROUTER_API_KEY;
@@ -6,6 +7,7 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const MODEL = "openai/gpt-3.5-turbo";
 
 export default function ChatAI({ userId }) {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([
     {
       role: "system",
@@ -81,6 +83,15 @@ export default function ChatAI({ userId }) {
 
   return (
     <div className="max-w-md mx-auto my-6 p-4 bg-white rounded shadow">
+      <div className="mb-2 flex justify-start">
+        <button
+          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs sm:text-sm font-medium bg-blue-100 hover:bg-blue-200 text-blue-700 border border-blue-200 shadow-sm transition"
+          onClick={() => navigate("/rooms")}
+        >
+          <span className="text-base">⬅️</span>
+          <span>Về phòng chát</span>
+        </button>
+      </div>
       <h2 className="text-xl font-bold mb-3 text-center">Chat AI</h2>
       <div className="h-80 overflow-y-auto bg-gray-50 rounded p-2 mb-3 border border-gray-200">
         {messages.slice(1).map((msg, idx) => {
