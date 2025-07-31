@@ -111,37 +111,42 @@ export default function WordPuzzleGame({ userId }) {
         filteredWords[current % filteredWords.length].word.length &&
       !selected.includes(idx)
     ) {
-      setSelected([...selected, idx]);
-    }
-  };
+      const newSelected = [...selected, idx];
+      setSelected(newSelected);
 
-  const handleCheck = () => {
-    if (filteredWords.length === 0) return;
+      // Nếu đã chọn đủ số lượng chữ cái (hoàn thành đáp án), tự động kiểm tra
+      if (
+        newSelected.length ===
+        filteredWords[current % filteredWords.length].word.length
+      ) {
+        // Đợi một chút trước khi kiểm tra để người dùng thấy chữ cái đã được chọn
+        setTimeout(() => {
+          // Tạo một hàm kiểm tra mới sử dụng newSelected thay vì selected
+          const attempt = newSelected.map((i) => letters[i]).join("");
+          const currentWord =
+            filteredWords[current % filteredWords.length].word;
 
-    const attempt = selected.map((i) => letters[i]).join("");
-    const currentWord = filteredWords[current % filteredWords.length].word;
+          if (attempt === currentWord) {
+            // Get coin reward from difficulty settings
+            const coinReward = DIFFICULTIES[difficulty].coins;
 
-    if (attempt === currentWord) {
-      // Get coin reward from difficulty settings
-      const coinReward = DIFFICULTIES[difficulty].coins;
+            setScore((prev) => prev + coinReward); // Score represents total coins
+            setStreak((prev) => prev + 1);
+            setStatus(`✅ Chính xác! +${coinReward} coin`);
+            setTimerActive(false);
 
-      setScore((prev) => prev + coinReward); // Score represents total coins
-      setStreak((prev) => prev + 1);
-      setStatus(`✅ Chính xác! +${coinReward} coin`);
-      setTimerActive(false);
-
-      // Tự động chuyển sang từ mới sau 2 giây
-      setTimeout(() => {
-        setCurrent((prev) => (prev + 1) % WORDS.length);
-        loadNewWord();
-        setTimerActive(true);
-      }, 2000);
-
-      // Here you would normally update the user's coin balance in your database
-      // For example: updateUserCoins(userId, totalCoins);
-    } else {
-      setStreak(0);
-      setStatus("❌ Sai rồi, thử lại nhé!");
+            // Tự động chuyển sang từ mới sau 2 giây
+            setTimeout(() => {
+              setCurrent((prev) => (prev + 1) % WORDS.length);
+              loadNewWord();
+              setTimerActive(true);
+            }, 2000);
+          } else {
+            setStreak(0);
+            setStatus("❌ Sai rồi, thử lại nhé!");
+          }
+        }, 200);
+      }
     }
   };
 
@@ -414,39 +419,6 @@ export default function WordPuzzleGame({ userId }) {
       {/* Controls */}
       <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
         <button
-          className={`px-2 sm:px-3 py-2 rounded-lg font-bold shadow transition transform hover:scale-105 active:scale-95 touch-manipulation ${
-            selected.length ===
-              filteredWords[current % filteredWords.length].word.length &&
-            !status.includes("✅") &&
-            timeLeft > 0
-              ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white border border-blue-600"
-              : "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 cursor-not-allowed border border-gray-300"
-          }`}
-          onClick={handleCheck}
-          disabled={
-            selected.length !==
-              filteredWords[current % filteredWords.length].word.length ||
-            status.includes("✅") ||
-            timeLeft === 0
-          }
-        >
-          <span className="flex items-center justify-center text-sm sm:text-base">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 sm:h-5 sm:w-5 mr-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-            ✅ Kiểm tra
-          </span>
-        </button>
-        <button
           className={`px-2 sm:px-3 py-2 rounded-lg shadow transition transform hover:scale-105 active:scale-95 touch-manipulation ${
             selected.length === 0 || timeLeft === 0
               ? "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-500 border border-gray-300 cursor-not-allowed"
@@ -471,9 +443,6 @@ export default function WordPuzzleGame({ userId }) {
             🔄 Làm lại
           </span>
         </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-1.5">
         <button
           className="px-2 sm:px-3 py-2 rounded-lg bg-gradient-to-r from-green-400 to-emerald-500 text-white font-bold hover:from-green-500 hover:to-emerald-600 transition transform hover:scale-105 active:scale-95 shadow touch-manipulation border border-green-500"
           onClick={handleNext}
@@ -494,6 +463,9 @@ export default function WordPuzzleGame({ userId }) {
             🎲 Từ khác
           </span>
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-1.5 sm:gap-2 mt-1.5">
         <button
           className={`px-2 sm:px-3 py-2 rounded-lg shadow transition transform hover:scale-105 active:scale-95 touch-manipulation border ${
             showAnswer
