@@ -37,7 +37,7 @@ export default function WordPuzzleGame({ userId }) {
   const [selected, setSelected] = useState([]);
   const [status, setStatus] = useState("");
   const [showAnswer, setShowAnswer] = useState(false);
-  const [score, setScore] = useState(0);
+  const [score, setScore] = useState(0); // This now represents coins earned
   const [streak, setStreak] = useState(0);
   const [difficulty, setDifficulty] = useState(1);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -103,21 +103,24 @@ export default function WordPuzzleGame({ userId }) {
   const handleCheck = () => {
     const attempt = selected.map((i) => letters[i]).join("");
     if (attempt === WORDS[current].word) {
-      // Calculate score based on word length and difficulty
-      const wordScore = attempt.length * difficulty * 10;
-      const timeBonus = Math.floor(timeLeft * difficulty * 0.5);
-      const totalPoints = wordScore + timeBonus;
+      // Get base coin reward from difficulty settings
+      let coinReward = DIFFICULTIES[difficulty].coins;
 
-      // Get coin reward directly from difficulty settings
-      const coinReward = DIFFICULTIES[difficulty].coins;
+      // Add time bonus to coins (faster answers give more coins)
+      const timeBonus = Math.floor(timeLeft * difficulty * 0.2);
+      const totalCoins = coinReward + timeBonus;
 
-      setScore((prev) => prev + totalPoints);
+      setScore((prev) => prev + totalCoins); // Now score represents total coins
       setStreak((prev) => prev + 1);
-      setStatus(`✅ Chính xác! +${totalPoints} điểm, +${coinReward} coin`);
+      setStatus(
+        `✅ Chính xác! +${totalCoins} coin${
+          timeBonus > 0 ? ` (gồm +${timeBonus} từ thời gian)` : ""
+        }`
+      );
       setTimerActive(false);
 
       // Here you would normally update the user's coin balance in your database
-      // For example: updateUserCoins(userId, coinReward);
+      // For example: updateUserCoins(userId, totalCoins);
     } else {
       setStreak(0);
       setStatus("❌ Sai rồi, thử lại nhé!");
@@ -175,12 +178,16 @@ export default function WordPuzzleGame({ userId }) {
             Chào mừng đến với Word Game!
           </h3>
           <p className="text-sm sm:text-base text-purple-700 px-1">
-            Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn
+            Sắp xếp các chữ cái để tạo thành từ đúng trong thời gian giới hạn và
+            nhận coin
           </p>
           <p className="text-sm sm:text-base text-purple-800 font-semibold mt-1.5 px-1">
             <span className="text-green-600">Dễ: +5 coin</span> •
             <span className="text-yellow-600 mx-2">Trung bình: +10 coin</span> •
             <span className="text-red-600">Khó: +20 coin</span>
+            <span className="block text-amber-600 mt-0.5">
+              + Thưởng thêm coin cho thời gian còn lại
+            </span>
           </p>
         </div>
 
@@ -258,13 +265,13 @@ export default function WordPuzzleGame({ userId }) {
 
       {/* Score & Stats */}
       <div className="flex flex-row mb-2 sm:mb-3 sm:grid sm:grid-cols-3 sm:gap-2">
-        <div className="flex-1 bg-gradient-to-r from-blue-200 to-cyan-200 p-1 sm:p-2 rounded-md text-center mr-1 border border-blue-300 shadow-sm">
+        <div className="flex-1 bg-gradient-to-r from-amber-200 to-yellow-200 p-1 sm:p-2 rounded-md text-center mr-1 border border-amber-300 shadow-sm">
           <div className="flex items-center justify-center sm:block">
-            <p className="text-[0.6rem] sm:text-xs text-blue-700 font-bold mr-1 sm:mr-0">
-              🌟
+            <p className="text-[0.6rem] sm:text-xs text-amber-700 font-bold mr-1 sm:mr-0">
+              💰
             </p>
-            <p className="text-sm sm:text-lg font-bold text-blue-800">
-              {score}
+            <p className="text-sm sm:text-lg font-bold text-amber-800">
+              {score} coin
             </p>
           </div>
         </div>
