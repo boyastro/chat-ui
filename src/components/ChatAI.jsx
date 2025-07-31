@@ -239,15 +239,36 @@ export default function ChatAI({ userId }) {
 
       {/* Input area */}
       <div className="p-4 bg-white border-t border-gray-100">
-        <form onSubmit={handleSend} className="flex gap-2">
-          <input
-            className="flex-1 border border-gray-300 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
-            type="text"
+        <form onSubmit={handleSend} className="flex gap-2 items-end">
+          <textarea
+            className="flex-1 border border-gray-300 rounded-2xl px-4 py-2.5 pr-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm resize-none min-h-[40px] max-h-40 overflow-y-auto"
+            style={{
+              scrollbarWidth: "none", // Firefox
+              msOverflowStyle: "none", // IE/Edge
+            }}
             placeholder="Nhập tin nhắn của bạn..."
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+              // Tự động co giãn chiều cao
+              e.target.style.height = "auto";
+              e.target.style.height =
+                Math.min(e.target.scrollHeight, 160) + "px";
+            }}
             disabled={loading}
+            rows={1}
+            onInput={(e) => {
+              e.target.style.height = "auto";
+              e.target.style.height =
+                Math.min(e.target.scrollHeight, 160) + "px";
+            }}
           />
+          {/* Ẩn scrollbar cho Chrome/Safari */}
+          <style>{`
+            textarea::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           <button
             type="submit"
             className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-5 py-2.5 rounded-full font-semibold disabled:opacity-50 shadow-sm transition-all transform hover:scale-105 active:scale-95 disabled:transform-none"
