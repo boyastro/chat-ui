@@ -145,6 +145,17 @@ export default function RoomSelect({
             <span className="text-xs text-pink-800 mt-0.5 font-bold tracking-wide">
               LuckyWheel
             </span>
+            <button
+              className="w-full flex items-center justify-center gap-1 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white rounded-lg px-2 py-2 font-semibold text-xs sm:text-sm shadow-md transition h-12 border-2 border-purple-400 mt-2"
+              title="Chess Game"
+              onClick={() => navigate("/chess")}
+            >
+              <span className="text-base">♟️</span>
+              <span className="hidden xs:inline ml-1 truncate">ChessGame</span>
+            </button>
+            <span className="text-xs text-purple-800 mt-0.5 font-bold tracking-wide">
+              ChessGame
+            </span>
           </div>
           <div className="flex flex-col items-center flex-1 min-w-0">
             <button

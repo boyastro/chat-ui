@@ -11,6 +11,7 @@ import RoomSelect from "./components/RoomSelect";
 import ChatRoom from "./components/ChatRoom";
 import UserInfo from "./components/UserInfo";
 import CaroGame from "./components/CaroGame";
+import ChessGame from "./components/ChessGame";
 import Leaderboard from "./components/Leaderboard";
 import Shop from "./components/Shop";
 import LuckyWheel from "./components/LuckyWheel";
@@ -71,6 +72,7 @@ export default function ChatAppRoutes({
         "/millionaire",
         "/chatai",
         "/wordpuzzle",
+        "/chess",
       ].includes(location.pathname)
     )
       return;
@@ -144,6 +146,7 @@ export default function ChatAppRoutes({
       />
       <Route path="/chatai" element={<ChatAI userId={userId} />} />
       <Route path="/wordpuzzle" element={<WordPuzzleGame userId={userId} />} />
+      <Route path="/chess" element={<ChessGame />} />
       <Route
         path="/chat/:roomId"
         element={
