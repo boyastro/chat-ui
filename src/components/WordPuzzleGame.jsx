@@ -543,7 +543,7 @@ export default function WordPuzzleGame({ userId }) {
               🔥
             </p>
             <p className="text-sm sm:text-lg font-bold text-green-800">
-              {streak}
+              {streak} streak
             </p>
           </div>
         </div>
@@ -557,7 +557,7 @@ export default function WordPuzzleGame({ userId }) {
                 timeLeft < 10 ? "text-red-600 animate-pulse" : "text-yellow-800"
               }`}
             >
-              {timeLeft}s
+              {timeLeft} s
             </p>
           </div>
         </div>
