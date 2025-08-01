@@ -43,11 +43,84 @@ const initialBoard = () => {
 
 export default function ChessGame() {
   const navigate = useNavigate();
-  const [board] = useState(initialBoard());
+  const [board, setBoard] = useState(initialBoard());
   const [selected, setSelected] = useState(null);
+  const [moveFrom, setMoveFrom] = useState(null);
+  const [currentPlayer, setCurrentPlayer] = useState("WHITE");
+  const [moveHistory, setMoveHistory] = useState([]);
 
   const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
+
+  // Determine if a piece belongs to the current player
+  const isPieceOfCurrentPlayer = (piece) => {
+    if (!piece) return false;
+
+    // Check if the piece belongs to the current player based on Unicode character
+    const isWhitePiece = Object.values(PIECES.WHITE).includes(piece);
+    return (
+      (currentPlayer === "WHITE" && isWhitePiece) ||
+      (currentPlayer === "BLACK" && !isWhitePiece)
+    );
+  };
+
+  // Handle square click for selecting and moving pieces
+  const handleSquareClick = (i, j) => {
+    const clickedSquare = [i, j];
+    const clickedPiece = board[i][j];
+
+    // If no square is currently selected or clicking on a different square
+    if (!moveFrom) {
+      // First click - select a piece if it belongs to current player
+      if (clickedPiece && isPieceOfCurrentPlayer(clickedPiece)) {
+        setMoveFrom(clickedSquare);
+        setSelected(clickedSquare);
+      } else {
+        // Just show the square info but don't select for movement
+        setSelected(clickedSquare);
+      }
+    } else {
+      // Second click - attempt to move the piece
+      const [fromRow, fromCol] = moveFrom;
+      const piece = board[fromRow][fromCol];
+
+      // If clicking on the same square, deselect
+      if (fromRow === i && fromCol === j) {
+        setMoveFrom(null);
+        return;
+      }
+
+      // If clicking on another piece of the same player, select that piece instead
+      if (clickedPiece && isPieceOfCurrentPlayer(clickedPiece)) {
+        setMoveFrom(clickedSquare);
+        setSelected(clickedSquare);
+        return;
+      }
+
+      // Move the piece
+      const newBoard = board.map((row) => [...row]);
+      newBoard[i][j] = piece;
+      newBoard[fromRow][fromCol] = null;
+
+      // Record the move
+      const moveNotation = `${files[fromCol]}${ranks[fromRow]} → ${files[j]}${ranks[i]}`;
+
+      // Update state
+      setBoard(newBoard);
+      setMoveHistory([
+        ...moveHistory,
+        {
+          piece,
+          from: `${files[fromCol]}${ranks[fromRow]}`,
+          to: `${files[j]}${ranks[i]}`,
+          notation: moveNotation,
+        },
+      ]);
+      setMoveFrom(null);
+      setSelected(clickedSquare);
+      setCurrentPlayer(currentPlayer === "WHITE" ? "BLACK" : "WHITE");
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
@@ -78,16 +151,24 @@ export default function ChessGame() {
                   const isWhite = (i + j) % 2 === 0;
                   const isSelected =
                     selected && selected[0] === i && selected[1] === j;
+                  const isMoveSource =
+                    moveFrom && moveFrom[0] === i && moveFrom[1] === j;
                   return (
                     <div
                       key={i + "-" + j}
                       className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
                         ${isWhite ? "bg-amber-100" : "bg-amber-800"}
                         ${isSelected ? "ring-4 ring-yellow-400" : ""}
+                        ${isMoveSource ? "bg-green-200" : ""}
+                        ${
+                          moveFrom && !isMoveSource && board[i][j] === null
+                            ? "hover:bg-green-100 hover:bg-opacity-60"
+                            : ""
+                        }
                         ${isWhite ? "text-black" : "text-white"}
                         hover:bg-yellow-300 hover:bg-opacity-40
                       `}
-                      onClick={() => setSelected([i, j])}
+                      onClick={() => handleSquareClick(i, j)}
                     >
                       {cell}
                     </div>
@@ -124,13 +205,42 @@ export default function ChessGame() {
               Game Status
             </h3>
             <p className="text-gray-800 text-center text-xs sm:text-sm md:text-base">
-              Demo Mode
+              {currentPlayer}'s Turn
             </p>
-            <p className="text-gray-600 text-xs mt-1 text-center">
-              Pieces can't move yet
-            </p>
+            {moveFrom ? (
+              <p className="text-emerald-600 text-xs mt-1 text-center font-semibold">
+                Select destination for {board[moveFrom[0]][moveFrom[1]]}
+              </p>
+            ) : (
+              <p className="text-gray-600 text-xs mt-1 text-center">
+                Select a {currentPlayer.toLowerCase()} piece to move
+              </p>
+            )}
           </div>
         </div>
+      </div>
+
+      <div className="mt-4 p-2 sm:p-3 bg-indigo-100 rounded-xl text-indigo-800 shadow-inner text-center text-xs sm:text-sm">
+        {moveHistory.length > 0 ? (
+          <div className="flex flex-col">
+            <h4 className="font-semibold mb-1">Recent Moves</h4>
+            <div className="max-h-16 overflow-y-auto">
+              {moveHistory.slice(-5).map((move, index) => (
+                <p key={index} className="text-xs mb-1">
+                  {move.piece} {move.notation}
+                </p>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p>
+            Click a piece to select it, then click a destination square to move.
+            Pieces can now move freely.
+          </p>
+        )}
+        <p className="mt-1 text-xs text-indigo-600">
+          Full chess rules will be implemented soon!
+        </p>
       </div>
     </div>
   );
