@@ -132,16 +132,6 @@ export default function ChessGame() {
           </div>
         </div>
       </div>
-
-      <div className="mt-4 p-2 sm:p-3 bg-indigo-100 rounded-xl text-indigo-800 shadow-inner text-center text-xs sm:text-sm">
-        <p>
-          Click any square to select it. This is a demo chess board with
-          starting positions.
-        </p>
-        <p className="mt-1 text-xs text-indigo-600">
-          Drag & drop movement functionality coming soon!
-        </p>
-      </div>
     </div>
   );
 }
