@@ -11,7 +11,7 @@ function shuffle(array) {
   return arr;
 }
 
-// Example word list (can be replaced with API or props)
+// Example word list (kept as fallback)
 const WORDS = [
   { word: "APPLE", hint: "A kind of fruit", difficulty: 1 },
   { word: "SCHOOL", hint: "A place to study", difficulty: 1 },
@@ -32,7 +32,7 @@ const DIFFICULTIES = {
 
 export default function WordPuzzleGame({ userId }) {
   const navigate = useNavigate();
-  const [current, setCurrent] = useState(0);
+  // Remove unused state variables
   const [letters, setLetters] = useState([]);
   const [selected, setSelected] = useState([]);
   const [status, setStatus] = useState("");
@@ -43,47 +43,133 @@ export default function WordPuzzleGame({ userId }) {
   const [timeLeft, setTimeLeft] = useState(null);
   const [timerActive, setTimerActive] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [currentWord, setCurrentWord] = useState(null);
+  // Add conditional rendering for these in the JSX
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Filter words by difficulty
-  const filteredWords = WORDS.filter((word) => word.difficulty === difficulty);
+  // Fetch a random word from the API based on difficulty
+  const fetchRandomWord = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      const apiBaseUrl =
+        process.env.REACT_APP_API_URL || "http://localhost:5000";
+      console.log(`Fetching word with difficulty: ${difficulty}`);
+      const response = await fetch(
+        `${apiBaseUrl}/words/random?difficulty=${difficulty}`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+            "Cache-Control": "no-cache",
+          },
+        }
+      );
 
-  // Use a ref to access current filteredWords inside effects without dependency
-  const filteredWordsRef = React.useRef(filteredWords);
-  React.useEffect(() => {
-    filteredWordsRef.current = filteredWords;
-  }, [filteredWords]);
+      console.log("API response status:", response.status);
 
-  // Load new word
-  const loadNewWord = useCallback(() => {
-    const currentFilteredWords = filteredWordsRef.current;
-    if (currentFilteredWords.length === 0) return;
+      if (!response.ok) {
+        if (response.status === 404) {
+          // If no words found for this difficulty, use fallback
+          const fallbackWords = WORDS.filter(
+            (word) => word.difficulty === difficulty
+          );
+          if (fallbackWords.length > 0) {
+            const randomIndex = Math.floor(
+              Math.random() * fallbackWords.length
+            );
+            setCurrentWord(fallbackWords[randomIndex]);
+          } else {
+            throw new Error("Không có từ nào cho cấp độ này");
+          }
+        } else {
+          throw new Error("Không lấy được từ từ server");
+        }
+      } else {
+        // Check content type and log it for debugging
+        const contentType = response.headers.get("content-type");
+        console.log("Response content-type:", contentType);
 
-    const randomIndex = Math.floor(Math.random() * currentFilteredWords.length);
-    const word = currentFilteredWords[randomIndex].word;
-    setLetters(shuffle(word.split("")));
-    setSelected([]);
-    setStatus("");
-    setShowAnswer(false);
-    setTimeLeft(DIFFICULTIES[difficulty].time);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // Try to get the raw text first to see what's actually being returned
+        const responseText = await response.text();
+        console.log("Raw response:", responseText);
+
+        // Now try to parse as JSON if it looks like JSON
+        try {
+          if (
+            responseText &&
+            (responseText.startsWith("{") || responseText.startsWith("["))
+          ) {
+            const responseData = JSON.parse(responseText);
+            console.log("Data received from API:", responseData);
+
+            // Access the word data from the data property
+            if (responseData && responseData.data) {
+              setCurrentWord(responseData.data);
+            } else {
+              throw new Error("Dữ liệu từ không đúng định dạng");
+            }
+          } else {
+            throw new Error("Phản hồi không phải dạng JSON");
+          }
+        } catch (jsonError) {
+          console.error("JSON parse error:", jsonError);
+          throw new Error("Không thể parse phản hồi thành JSON");
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải từ:", err);
+      setError(err.message);
+      // Use fallback if API fails
+      const fallbackWords = WORDS.filter(
+        (word) => word.difficulty === difficulty
+      );
+      if (fallbackWords.length > 0) {
+        const randomIndex = Math.floor(Math.random() * fallbackWords.length);
+        setCurrentWord(fallbackWords[randomIndex]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, [difficulty]);
 
-  // Initialize first word
-  useEffect(() => {
-    if (!gameStarted) return;
-    // Use filteredWordsRef instead to avoid dependency issues
-    const currentFilteredWords = filteredWordsRef.current;
-    if (currentFilteredWords.length === 0) return;
-    const word =
-      currentFilteredWords[current % currentFilteredWords.length].word;
-    setLetters(shuffle(word.split("")));
+  // Load new word
+  const loadNewWord = useCallback(async () => {
+    // Reset the letters before fetching to avoid stale letters being displayed
+    setLetters([]);
+
+    // Fetch a new word from the API
+    await fetchRandomWord();
+
+    // After fetchRandomWord completes and sets currentWord,
+    // we need to access the latest state, so we don't use the stale currentWord from closure
     setSelected([]);
     setStatus("");
     setShowAnswer(false);
     setTimeLeft(DIFFICULTIES[difficulty].time);
+  }, [difficulty, fetchRandomWord]); // Set up the game when currentWord changes
+  useEffect(() => {
+    if (currentWord) {
+      // Always set letters when currentWord changes, not just when letters.length is 0
+      setLetters(shuffle(currentWord.word.split("")));
+    }
+  }, [currentWord]);
+
+  // Initialize first word when game starts
+  useEffect(() => {
+    if (!gameStarted) return;
+
+    // Reset state and load the first word only when game starts
+    setSelected([]);
+    setStatus("");
+    setShowAnswer(false);
+    setTimeLeft(DIFFICULTIES[difficulty].time);
+    loadNewWord();
     setTimerActive(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, gameStarted, difficulty]);
+
+    // The empty dependency array ensures this only runs once when gameStarted becomes true
+  }, [gameStarted, difficulty, loadNewWord]);
 
   // Start timer when game starts
   useEffect(() => {
@@ -105,39 +191,81 @@ export default function WordPuzzleGame({ userId }) {
   }, [timerActive, timeLeft]);
 
   const handleSelect = (idx) => {
-    if (
-      filteredWords.length > 0 &&
-      selected.length <
-        filteredWords[current % filteredWords.length].word.length &&
-      !selected.includes(idx)
-    ) {
+    if (!currentWord) return;
+
+    if (selected.length < currentWord.word.length && !selected.includes(idx)) {
       const newSelected = [...selected, idx];
       setSelected(newSelected);
 
-      // Nếu đã chọn đủ số lượng chữ cái (hoàn thành đáp án), tự động kiểm tra
-      if (
-        newSelected.length ===
-        filteredWords[current % filteredWords.length].word.length
-      ) {
-        // Đợi một chút trước khi kiểm tra để người dùng thấy chữ cái đã được chọn
+      // Automatically check answer when enough letters are selected
+      if (newSelected.length === currentWord.word.length) {
+        // Wait a bit before checking to let user see the selected letter
         setTimeout(() => {
-          // Tạo một hàm kiểm tra mới sử dụng newSelected thay vì selected
+          // Create a new check function using newSelected instead of selected
           const attempt = newSelected.map((i) => letters[i]).join("");
-          const currentWord =
-            filteredWords[current % filteredWords.length].word;
 
-          if (attempt === currentWord) {
+          if (attempt === currentWord.word) {
             // Get coin reward from difficulty settings
             const coinReward = DIFFICULTIES[difficulty].coins;
 
-            setScore((prev) => prev + coinReward); // Score represents total coins
+            // Apply streak bonus (10% per streak, up to 50%)
+            const streakBonus = Math.min(0.5, streak * 0.1);
+            const totalCoins = Math.round(coinReward * (1 + streakBonus));
+
+            // Update coins on the server
+            try {
+              const token = localStorage.getItem("token");
+              const apiBaseUrl =
+                process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+              fetch(`${apiBaseUrl}/users/updateCoins`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: token ? `Bearer ${token}` : undefined,
+                },
+                body: JSON.stringify({
+                  userId,
+                  coins: totalCoins,
+                }),
+              })
+                .then((response) => response.text())
+                .then((responseText) => {
+                  console.log("Update coins response:", responseText);
+
+                  try {
+                    if (responseText && responseText.startsWith("{")) {
+                      const data = JSON.parse(responseText);
+                      if (data.success) {
+                        console.log(
+                          `Added ${totalCoins} coins to user ${userId}`
+                        );
+                      } else {
+                        console.error("Failed to update coins:", data.message);
+                      }
+                    }
+                  } catch (jsonError) {
+                    console.error(
+                      "Error parsing coin update response:",
+                      jsonError
+                    );
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error updating coins:", error);
+                });
+            } catch (error) {
+              console.error("Error in coin update process:", error);
+            }
+
+            // Update local score regardless of server success
+            setScore((prev) => prev + totalCoins);
             setStreak((prev) => prev + 1);
-            setStatus(`✅ Chính xác! +${coinReward} coin`);
+            setStatus(`✅ Chính xác! +${totalCoins} coin`);
             setTimerActive(false);
 
-            // Tự động chuyển sang từ mới sau 2 giây
+            // Automatically go to the next word after 2 seconds
             setTimeout(() => {
-              setCurrent((prev) => (prev + 1) % WORDS.length);
               loadNewWord();
               setTimerActive(true);
             }, 2000);
@@ -150,6 +278,12 @@ export default function WordPuzzleGame({ userId }) {
     }
   };
 
+  // Function to remove a letter from the selection
+  const removeLetter = (selIndex) => {
+    if (status) return; // Don't allow removal during status display
+    setSelected(selected.filter((_, i) => i !== selIndex));
+  };
+
   const handleReset = () => {
     setSelected([]);
     setStatus("");
@@ -159,9 +293,14 @@ export default function WordPuzzleGame({ userId }) {
   };
 
   const handleNext = () => {
-    setCurrent((prev) => (prev + 1) % WORDS.length);
-    loadNewWord();
-    setTimerActive(true);
+    // Only load a new word if we're not already loading
+    if (!isLoading) {
+      // Force reset the letters array to ensure we get new letters
+      setLetters([]);
+      setSelected([]);
+      loadNewWord();
+      setTimerActive(true);
+    }
   };
 
   const handleShowAnswer = () => {
@@ -170,10 +309,14 @@ export default function WordPuzzleGame({ userId }) {
   };
 
   const startGame = () => {
-    setGameStarted(true);
+    // Set initial game state
     setScore(0);
     setStreak(0);
-    loadNewWord();
+
+    // Setting gameStarted to true will trigger the initialization effect
+    setGameStarted(true);
+
+    // No need to call loadNewWord here as it will be called by the effect
   };
 
   const changeDifficulty = (level) => {
@@ -317,18 +460,35 @@ export default function WordPuzzleGame({ userId }) {
 
       {/* Hint section */}
       <div className="mb-2 sm:mb-3 bg-gradient-to-r from-teal-100 to-cyan-100 p-3 rounded-lg border-2 border-cyan-300 shadow-md">
-        <div className="flex flex-col items-center justify-center">
-          <div className="flex items-center justify-center mb-1">
-            <span className="text-2xl animate-pulse mr-1.5">💡</span>
-            <h3 className="text-base sm:text-lg font-bold text-teal-700">
-              Gợi ý:
-            </h3>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center">
+            <div className="animate-spin text-2xl mb-1">⏳</div>
+            <p className="text-base font-bold text-teal-700">Đang tải từ...</p>
           </div>
-          <p className="text-base sm:text-xl font-bold text-center text-blue-800 px-2 py-1 bg-white bg-opacity-50 rounded-md border border-blue-200">
-            {filteredWords.length > 0 &&
-              filteredWords[current % filteredWords.length].hint}
-          </p>
-        </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center">
+            <div className="text-2xl mb-1">❌</div>
+            <p className="text-base font-bold text-red-600">{error}</p>
+            <button
+              onClick={loadNewWord}
+              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-md text-sm"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center mb-1">
+              <span className="text-2xl animate-pulse mr-1.5">💡</span>
+              <h3 className="text-base sm:text-lg font-bold text-teal-700">
+                Gợi ý:
+              </h3>
+            </div>
+            <p className="text-base sm:text-xl font-bold text-center text-blue-800 px-2 py-1 bg-white bg-opacity-50 rounded-md border border-blue-200">
+              {currentWord && currentWord.hint}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Game area */}
@@ -339,28 +499,24 @@ export default function WordPuzzleGame({ userId }) {
             {selected.map((i, index) => (
               <span
                 key={`selected-${index}`}
-                className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-lg sm:text-xl font-bold rounded-xl shadow-md flex items-center justify-center animate-pop-in border-2 border-purple-600"
+                className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-lg sm:text-xl font-bold rounded-xl shadow-md flex items-center justify-center animate-pop-in border-2 border-purple-600 cursor-pointer"
                 style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => removeLetter(index)}
               >
                 {letters[i]}
               </span>
             ))}
-            {Array(
-              Math.max(
-                0,
-                filteredWords[current % filteredWords.length].word.length -
-                  selected.length
-              )
-            )
-              .fill("_")
-              .map((_, index) => (
-                <span
-                  key={`empty-${index}`}
-                  className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-white text-gray-400 text-lg sm:text-xl font-bold rounded-xl border-2 border-purple-200 flex items-center justify-center"
-                >
-                  &nbsp;
-                </span>
-              ))}
+            {currentWord &&
+              Array(Math.max(0, currentWord.word.length - selected.length))
+                .fill("_")
+                .map((_, index) => (
+                  <span
+                    key={`empty-${index}`}
+                    className="inline-block w-8 h-8 sm:w-10 sm:h-10 bg-white text-gray-400 text-lg sm:text-xl font-bold rounded-xl border-2 border-purple-200 flex items-center justify-center"
+                  >
+                    &nbsp;
+                  </span>
+                ))}
           </div>
         </div>
 
@@ -405,7 +561,7 @@ export default function WordPuzzleGame({ userId }) {
             <div className="text-center text-sm sm:text-base text-purple-600 mt-1">
               Đáp án:{" "}
               <span className="font-bold text-pink-600">
-                {filteredWords[current % filteredWords.length].word}
+                {currentWord && currentWord.word}
               </span>
             </div>
           )}
