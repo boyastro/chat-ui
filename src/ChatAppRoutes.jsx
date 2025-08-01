@@ -143,7 +143,7 @@ export default function ChatAppRoutes({
         element={<MillionaireGame userId={userId} />}
       />
       <Route path="/chatai" element={<ChatAI userId={userId} />} />
-      <Route path="/wordpuzzle" element={<WordPuzzleGame />} />
+      <Route path="/wordpuzzle" element={<WordPuzzleGame userId={userId} />} />
       <Route
         path="/chat/:roomId"
         element={
