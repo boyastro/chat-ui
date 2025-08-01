@@ -31,6 +31,8 @@ const DIFFICULTIES = {
 };
 
 export default function WordPuzzleGame({ userId }) {
+  // State để lưu các id đã dùng
+  const [excludeIds, setExcludeIds] = useState([]);
   // Hàm cộng coin cho user, cập nhật cả local và server
   const addCoinForUser = useCallback(
     (coin) => {
@@ -128,14 +130,15 @@ export default function WordPuzzleGame({ userId }) {
     try {
       const token = localStorage.getItem("token");
       const apiBaseUrl = process.env.REACT_APP_API_URL;
-      const response = await fetch(
-        `${apiBaseUrl}/words/random?difficulty=${difficulty}`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-        }
-      );
+      // Gọi POST, truyền difficulty và excludeIds qua body
+      const response = await fetch(`${apiBaseUrl}/words/random`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify({ difficulty, excludeIds }),
+      });
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -171,6 +174,10 @@ export default function WordPuzzleGame({ userId }) {
             // Access the word data from the data property
             if (responseData && responseData.data) {
               setCurrentWord(responseData.data);
+              // Nếu có _id thì thêm vào excludeIds
+              if (responseData.data && responseData.data._id) {
+                setExcludeIds((prev) => [...prev, responseData.data._id]);
+              }
             } else {
               throw new Error("Dữ liệu từ không đúng định dạng");
             }
@@ -196,23 +203,18 @@ export default function WordPuzzleGame({ userId }) {
     } finally {
       setIsLoading(false);
     }
-  }, [difficulty]);
+  }, [difficulty, excludeIds]);
 
   // Load new word
-  const loadNewWord = useCallback(async () => {
-    // Reset the letters before fetching to avoid stale letters being displayed
+  function loadNewWord() {
     setLetters([]);
-
-    // Fetch a new word from the API
-    await fetchRandomWord();
-
-    // After fetchRandomWord completes and sets currentWord,
-    // we need to access the latest state, so we don't use the stale currentWord from closure
-    setSelected([]);
-    setStatus("");
-    setShowAnswer(false);
-    setTimeLeft(DIFFICULTIES[difficulty].time);
-  }, [difficulty, fetchRandomWord]); // Set up the game when currentWord changes
+    fetchRandomWord().then(() => {
+      setSelected([]);
+      setStatus("");
+      setShowAnswer(false);
+      setTimeLeft(DIFFICULTIES[difficulty].time);
+    });
+  }
   useEffect(() => {
     if (currentWord) {
       // Always set letters when currentWord changes, not just when letters.length is 0
@@ -231,9 +233,8 @@ export default function WordPuzzleGame({ userId }) {
     setTimeLeft(DIFFICULTIES[difficulty].time);
     loadNewWord();
     setTimerActive(true);
-
-    // The empty dependency array ensures this only runs once when gameStarted becomes true
-  }, [gameStarted, difficulty, loadNewWord]);
+    // Chỉ phụ thuộc gameStarted và difficulty, không phụ thuộc loadNewWord
+  }, [gameStarted, difficulty]);
 
   // Start timer when game starts
   useEffect(() => {
@@ -329,11 +330,8 @@ export default function WordPuzzleGame({ userId }) {
     // Set initial game state
     setScore(0);
     setStreak(0);
-
-    // Setting gameStarted to true will trigger the initialization effect
+    setExcludeIds([]); // Reset excludeIds khi bắt đầu lại game
     setGameStarted(true);
-
-    // No need to call loadNewWord here as it will be called by the effect
   };
 
   const changeDifficulty = (level) => {
@@ -349,7 +347,10 @@ export default function WordPuzzleGame({ userId }) {
             🎮 Word Game 🎮
           </h2>
           <button
-            onClick={() => navigate("/rooms")}
+            onClick={() => {
+              setExcludeIds([]); // Reset excludeIds khi thoát game
+              navigate("/rooms");
+            }}
             className="bg-gradient-to-r from-yellow-300 to-orange-300 hover:from-yellow-400 hover:to-orange-400 text-orange-800 px-3 py-1.5 rounded-full text-sm font-bold flex items-center shadow-md border-2 border-yellow-400"
           >
             <span>🏠</span> <span className="ml-1">Về phòng</span>
