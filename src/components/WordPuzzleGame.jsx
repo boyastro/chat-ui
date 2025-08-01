@@ -231,10 +231,10 @@ export default function WordPuzzleGame({ userId }) {
     setStatus("");
     setShowAnswer(false);
     setTimeLeft(DIFFICULTIES[difficulty].time);
-    loadNewWord();
+    loadNewWord(); // Chỉ gọi một lần khi game bắt đầu
     setTimerActive(true);
-    // Chỉ phụ thuộc gameStarted và difficulty, không phụ thuộc loadNewWord
-  }, [gameStarted, difficulty]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameStarted, difficulty]); // Không phụ thuộc vào loadNewWord
 
   // Start timer when game starts
   useEffect(() => {
