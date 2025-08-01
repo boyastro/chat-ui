@@ -98,32 +98,32 @@ export default function ChessGame() {
           </div>
         </div>
 
-        <div className="mt-2 md:mt-0 md:ml-6 w-full max-w-xs md:max-w-none md:w-52 p-1 sm:p-3 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-6">
-          <h3 className="font-bold text-indigo-700 mb-1 text-center text-base sm:text-lg">
+        <div className="mt-2 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-1 sm:p-3 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-6">
+          <h3 className="font-bold text-indigo-700 mb-1 text-center text-sm sm:text-base md:text-lg">
             Selected Square
           </h3>
           {selected ? (
             <div className="flex flex-col items-center justify-center">
-              <span className="text-gray-800 text-base sm:text-lg font-semibold">
+              <span className="text-gray-800 text-sm sm:text-base md:text-lg font-semibold">
                 {files[selected[1]]}
                 {ranks[selected[0]]}
                 {board[selected[0]][selected[1]] && (
-                  <span className="ml-1 text-lg sm:ml-2 sm:text-xl">
+                  <span className="ml-1 text-base sm:ml-2 sm:text-lg md:text-xl">
                     {board[selected[0]][selected[1]]}
                   </span>
                 )}
               </span>
             </div>
           ) : (
-            <p className="text-gray-600 italic text-center text-sm">
+            <p className="text-gray-600 italic text-center text-xs sm:text-sm">
               No square selected
             </p>
           )}
-          <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-300 w-full">
-            <h3 className="font-bold text-indigo-700 mb-1 text-center text-base sm:text-lg">
+          <div className="mt-1 sm:mt-2 md:mt-4 pt-1 sm:pt-2 md:pt-4 border-t border-gray-300 w-full">
+            <h3 className="font-bold text-indigo-700 mb-1 text-center text-sm sm:text-base md:text-lg">
               Game Status
             </h3>
-            <p className="text-gray-800 text-center text-sm sm:text-base">
+            <p className="text-gray-800 text-center text-xs sm:text-sm md:text-base">
               Demo Mode
             </p>
             <p className="text-gray-600 text-xs mt-1 text-center">
