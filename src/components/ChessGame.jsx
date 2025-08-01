@@ -51,102 +51,89 @@ export default function ChessGame() {
 
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
-      <div className="flex justify-between items-center mb-4">
+      {/* Improved header for mobile balance */}
+      <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-4 gap-2">
         <button
           onClick={() => navigate("/rooms")}
-          className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition"
+          className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition text-base font-semibold"
         >
           ← Back
         </button>
-        <h2 className="text-xl sm:text-2xl font-bold text-center text-indigo-800">
+        <h2 className="w-full sm:w-auto text-lg sm:text-2xl font-bold text-center text-indigo-800 mt-2 sm:mt-0">
           ♟️ Chess Game ♟️
         </h2>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-start items-center justify-center mb-10">
+      <div className="flex flex-col md:flex-row md:items-start items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
         <div className="flex flex-col items-center">
-          <div className="h-8 w-8"></div>
-          <div className="flex">
-            <div className="flex flex-col mr-2">
-              {ranks.map((rank) => (
-                <div
-                  key={rank}
-                  className="w-6 h-10 sm:h-12 flex items-center justify-center font-bold text-indigo-800"
-                >
-                  {rank}
-                </div>
-              ))}
+          {/* Remove extra top space above the board for mobile */}
+          <div className="h-2 w-2 sm:h-8 sm:w-8"></div>
+          <div className="rounded-lg overflow-hidden shadow-lg border-4 border-gray-800">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(8, 1fr)",
+              }}
+            >
+              {board.map((row, i) =>
+                row.map((cell, j) => {
+                  const isWhite = (i + j) % 2 === 0;
+                  const isSelected =
+                    selected && selected[0] === i && selected[1] === j;
+                  return (
+                    <div
+                      key={i + "-" + j}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
+                        ${isWhite ? "bg-amber-100" : "bg-amber-800"}
+                        ${isSelected ? "ring-4 ring-yellow-400" : ""}
+                        ${isWhite ? "text-black" : "text-white"}
+                        hover:bg-yellow-300 hover:bg-opacity-40
+                      `}
+                      onClick={() => setSelected([i, j])}
+                    >
+                      {cell}
+                    </div>
+                  );
+                })
+              )}
             </div>
-
-            <div className="rounded-lg overflow-hidden shadow-lg border-4 border-gray-800">
-              {/* ===== SỬA LỖI TẠI ĐÂY ===== */}
-              {/* Bỏ class `grid grid-cols-8` và thay bằng style trực tiếp */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(8, 1fr)",
-                }}
-              >
-                {board.map((row, i) =>
-                  row.map((cell, j) => {
-                    const isWhite = (i + j) % 2 === 0;
-                    const isSelected =
-                      selected && selected[0] === i && selected[1] === j;
-                    return (
-                      <div
-                        key={i + "-" + j}
-                        className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
-                          ${isWhite ? "bg-amber-100" : "bg-amber-800"}
-                          ${isSelected ? "ring-4 ring-yellow-400" : ""}
-                          ${isWhite ? "text-black" : "text-white"}
-                          hover:bg-yellow-300 hover:bg-opacity-40
-                        `}
-                        onClick={() => setSelected([i, j])}
-                      >
-                        {cell}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex ml-8 mt-2">
-            {files.map((file) => (
-              <div
-                key={file}
-                className="w-10 sm:w-12 h-6 flex items-center justify-center font-bold text-indigo-800"
-              >
-                {file}
-              </div>
-            ))}
           </div>
         </div>
 
-        <div className="mt-6 md:mt-0 md:ml-6 w-full md:w-52 p-3 bg-white bg-opacity-60 rounded-lg shadow-md">
-          <h3 className="font-bold text-indigo-700 mb-2">Selected Square</h3>
+        <div className="mt-4 md:mt-0 md:ml-6 w-full max-w-xs md:max-w-none md:w-52 p-3 bg-white bg-opacity-80 rounded-xl shadow-md flex flex-col items-center">
+          <h3 className="font-bold text-indigo-700 mb-2 text-center">
+            Selected Square
+          </h3>
           {selected ? (
-            <p className="text-gray-800">
-              {files[selected[1]]}
-              {ranks[selected[0]]}
-              {board[selected[0]][selected[1]] && (
-                <span className="ml-2 text-xl">
-                  {board[selected[0]][selected[1]]}
-                </span>
-              )}
-            </p>
+            <div className="flex flex-col items-center justify-center">
+              <span className="text-gray-800 text-lg font-semibold">
+                {files[selected[1]]}
+                {ranks[selected[0]]}
+                {board[selected[0]][selected[1]] && (
+                  <span className="ml-2 text-xl">
+                    {board[selected[0]][selected[1]]}
+                  </span>
+                )}
+              </span>
+            </div>
           ) : (
-            <p className="text-gray-600 italic">No square selected</p>
+            <p className="text-gray-600 italic text-center">
+              No square selected
+            </p>
           )}
-          <div className="mt-4 pt-4 border-t border-gray-300">
-            <h3 className="font-bold text-indigo-700 mb-2">Game Status</h3>
-            <p className="text-gray-800">Demo Mode</p>
-            <p className="text-gray-600 text-sm mt-1">Pieces can't move yet</p>
+          <div className="mt-4 pt-4 border-t border-gray-300 w-full">
+            <h3 className="font-bold text-indigo-700 mb-2 text-center">
+              Game Status
+            </h3>
+            <p className="text-gray-800 text-center">Demo Mode</p>
+            <p className="text-gray-600 text-xs mt-1 text-center">
+              Pieces can't move yet
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 p-3 bg-indigo-100 rounded-lg text-indigo-800 shadow-inner text-center text-sm">
+      <div className="mt-4 p-2 sm:p-3 bg-indigo-100 rounded-xl text-indigo-800 shadow-inner text-center text-xs sm:text-sm">
         <p>
           Click any square to select it. This is a demo chess board with
           starting positions.
