@@ -47,6 +47,42 @@ export default function WordPuzzleGame({ userId }) {
   // Add conditional rendering for these in the JSX
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  // User info state
+  const [userInfo, setUserInfo] = useState(null);
+
+  // Fetch user info from API (simplified as requested)
+  useEffect(() => {
+    if (!userId) return;
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    const token = localStorage.getItem("token");
+    fetch(`${API_URL}/users/${userId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        // Support both {data: {...}} and direct {...}
+        const user = data && data.data ? data.data : data;
+        if (user) {
+          setUserInfo({
+            name: user.name || user.username || "User",
+            avatar:
+              user.avatar && user.avatar !== ""
+                ? user.avatar.startsWith("http")
+                  ? user.avatar
+                  : `${API_URL}${user.avatar.startsWith("/") ? "" : "/"}${
+                      user.avatar
+                    }`
+                : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.name || user.username || "U"
+                  )}&background=random`,
+            coin: user.coin ?? 0,
+          });
+          setScore(user.coin ?? 0);
+        }
+      });
+  }, [userId]);
 
   // Fetch a random word from the API based on difficulty
   const fetchRandomWord = useCallback(async () => {
@@ -420,13 +456,50 @@ export default function WordPuzzleGame({ userId }) {
       {/* Score & Stats */}
       <div className="flex flex-row mb-2 sm:mb-3 sm:grid sm:grid-cols-3 sm:gap-2">
         <div className="flex-1 bg-gradient-to-r from-amber-200 to-yellow-200 p-1 sm:p-2 rounded-md text-center mr-1 border border-amber-300 shadow-sm">
-          <div className="flex items-center justify-center sm:block">
-            <p className="text-[0.6rem] sm:text-xs text-amber-700 font-bold mr-1 sm:mr-0">
-              💰
-            </p>
-            <p className="text-sm sm:text-lg font-bold text-amber-800">
-              {score} coin
-            </p>
+          <div className="flex items-center justify-center">
+            {userInfo ? (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full border-2 border-amber-400 bg-amber-100 overflow-hidden flex items-center justify-center">
+                  {userInfo.avatar ? (
+                    <img
+                      src={userInfo.avatar}
+                      alt="User Avatar"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          userInfo.name || userInfo.username || "U"
+                        )}&background=F59E0B&color=fff&size=64`;
+                      }}
+                    />
+                  ) : (
+                    <span className="text-lg font-bold text-amber-700">
+                      {(userInfo.name || userInfo.username || "U")
+                        .charAt(0)
+                        .toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-semibold text-amber-800">
+                    {userInfo.name || userInfo.username || "User"}
+                  </span>
+                  <span className="text-xs text-amber-700 flex items-center font-bold">
+                    <span className="mr-1">💰</span>
+                    {userInfo.coin ?? 0}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <span className="text-[0.6rem] sm:text-xs text-amber-700 font-bold mr-1 sm:mr-0">
+                  💰
+                </span>
+                <span className="text-sm sm:text-lg font-bold text-amber-800">
+                  {score} coin
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex-1 bg-gradient-to-r from-green-200 to-emerald-200 p-1 sm:p-2 rounded-md text-center mx-1 border border-green-300 shadow-sm">
