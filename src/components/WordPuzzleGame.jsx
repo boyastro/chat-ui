@@ -54,15 +54,13 @@ export default function WordPuzzleGame({ userId }) {
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const apiBaseUrl =
-        process.env.REACT_APP_API_URL || "http://localhost:5000";
+      const apiBaseUrl = process.env.REACT_APP_API_URL;
       console.log(`Fetching word with difficulty: ${difficulty}`);
       const response = await fetch(
         `${apiBaseUrl}/words/random?difficulty=${difficulty}`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined,
-            "Cache-Control": "no-cache",
           },
         }
       );
@@ -208,9 +206,8 @@ export default function WordPuzzleGame({ userId }) {
             // Get coin reward from difficulty settings
             const coinReward = DIFFICULTIES[difficulty].coins;
 
-            // Apply streak bonus (10% per streak, up to 50%)
-            const streakBonus = Math.min(0.5, streak * 0.1);
-            const totalCoins = Math.round(coinReward * (1 + streakBonus));
+            // No streak bonus, just use the base coin reward
+            const totalCoins = coinReward;
 
             // Update coins on the server
             try {
