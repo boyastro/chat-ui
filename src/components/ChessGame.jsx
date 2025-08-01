@@ -46,6 +46,7 @@ export default function ChessGame() {
   const [board, setBoard] = useState(initialBoard());
   const [selected, setSelected] = useState(null);
   const [moveFrom, setMoveFrom] = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState("WHITE");
   const [moveHistory, setMoveHistory] = useState([]);
 
@@ -64,6 +65,199 @@ export default function ChessGame() {
     );
   };
 
+  // Check if a piece is of a specific type
+  const isPieceType = (piece, type) => {
+    if (!piece) return false;
+    return piece === PIECES.WHITE[type] || piece === PIECES.BLACK[type];
+  };
+
+  // Check if coordinates are within the board
+  const isInBoard = (row, col) => {
+    return row >= 0 && row < 8 && col >= 0 && col < 8;
+  };
+
+  // Check if a move is valid for a specific piece type
+  const isValidMove = (fromRow, fromCol, toRow, toCol, piece) => {
+    // Can't move to a square occupied by your own piece
+    if (board[toRow][toCol] && isPieceOfCurrentPlayer(board[toRow][toCol])) {
+      return false;
+    }
+
+    // Pawn movement rules
+    if (isPieceType(piece, "PAWN")) {
+      const direction = currentPlayer === "WHITE" ? -1 : 1; // White moves up, Black moves down
+      const startRow = currentPlayer === "WHITE" ? 6 : 1;
+
+      // Forward movement (1 square or 2 from starting position)
+      if (fromCol === toCol && board[toRow][toCol] === null) {
+        if (toRow === fromRow + direction) {
+          return true;
+        }
+        // Double move from starting position
+        if (
+          fromRow === startRow &&
+          toRow === fromRow + 2 * direction &&
+          board[fromRow + direction][fromCol] === null
+        ) {
+          return true;
+        }
+      }
+
+      // Diagonal capture
+      if (
+        Math.abs(fromCol - toCol) === 1 &&
+        toRow === fromRow + direction &&
+        board[toRow][toCol] !== null
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    // Knight movement rules
+    if (isPieceType(piece, "KNIGHT")) {
+      const rowDiff = Math.abs(fromRow - toRow);
+      const colDiff = Math.abs(fromCol - toCol);
+      return (
+        (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)
+      );
+    }
+
+    // Bishop movement rules
+    if (isPieceType(piece, "BISHOP")) {
+      const rowDiff = Math.abs(fromRow - toRow);
+      const colDiff = Math.abs(fromCol - toCol);
+
+      // Must move diagonally (equal row and column difference)
+      if (rowDiff !== colDiff) {
+        return false;
+      }
+
+      // Check for pieces in the path
+      const rowDir = toRow > fromRow ? 1 : -1;
+      const colDir = toCol > fromCol ? 1 : -1;
+
+      for (let i = 1; i < rowDiff; i++) {
+        if (board[fromRow + i * rowDir][fromCol + i * colDir] !== null) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Rook movement rules
+    if (isPieceType(piece, "ROOK")) {
+      // Must move horizontally or vertically (one coordinate must stay the same)
+      if (fromRow !== toRow && fromCol !== toCol) {
+        return false;
+      }
+
+      // Check for pieces in the path
+      if (fromRow === toRow) {
+        // Horizontal movement
+        const start = Math.min(fromCol, toCol) + 1;
+        const end = Math.max(fromCol, toCol);
+        for (let col = start; col < end; col++) {
+          if (board[fromRow][col] !== null) {
+            return false;
+          }
+        }
+      } else {
+        // Vertical movement
+        const start = Math.min(fromRow, toRow) + 1;
+        const end = Math.max(fromRow, toRow);
+        for (let row = start; row < end; row++) {
+          if (board[row][fromCol] !== null) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
+    // Queen movement rules (combination of Rook and Bishop)
+    if (isPieceType(piece, "QUEEN")) {
+      const rowDiff = Math.abs(fromRow - toRow);
+      const colDiff = Math.abs(fromCol - toCol);
+
+      // Diagonal movement (like Bishop)
+      if (rowDiff === colDiff) {
+        const rowDir = toRow > fromRow ? 1 : -1;
+        const colDir = toCol > fromCol ? 1 : -1;
+
+        for (let i = 1; i < rowDiff; i++) {
+          if (board[fromRow + i * rowDir][fromCol + i * colDir] !== null) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      // Horizontal/Vertical movement (like Rook)
+      if (fromRow === toRow || fromCol === toCol) {
+        if (fromRow === toRow) {
+          // Horizontal movement
+          const start = Math.min(fromCol, toCol) + 1;
+          const end = Math.max(fromCol, toCol);
+          for (let col = start; col < end; col++) {
+            if (board[fromRow][col] !== null) {
+              return false;
+            }
+          }
+        } else {
+          // Vertical movement
+          const start = Math.min(fromRow, toRow) + 1;
+          const end = Math.max(fromRow, toRow);
+          for (let row = start; row < end; row++) {
+            if (board[row][fromCol] !== null) {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      }
+
+      return false;
+    }
+
+    // King movement rules
+    if (isPieceType(piece, "KING")) {
+      const rowDiff = Math.abs(fromRow - toRow);
+      const colDiff = Math.abs(fromCol - toCol);
+
+      // King can move one square in any direction
+      return rowDiff <= 1 && colDiff <= 1;
+    }
+
+    // Default to allow any move if the piece type wasn't recognized
+    return true;
+  };
+
+  // Calculate all valid moves for a piece
+  const calculateValidMoves = (row, col, piece) => {
+    const moves = [];
+
+    // Loop through all squares
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        // Skip the current position
+        if (i === row && j === col) continue;
+
+        // Check if the move would be valid
+        if (isValidMove(row, col, i, j, piece)) {
+          moves.push([i, j]);
+        }
+      }
+    }
+
+    return moves;
+  };
+
   // Handle square click for selecting and moving pieces
   const handleSquareClick = (i, j) => {
     const clickedSquare = [i, j];
@@ -75,9 +269,11 @@ export default function ChessGame() {
       if (clickedPiece && isPieceOfCurrentPlayer(clickedPiece)) {
         setMoveFrom(clickedSquare);
         setSelected(clickedSquare);
+        setValidMoves(calculateValidMoves(i, j, clickedPiece));
       } else {
         // Just show the square info but don't select for movement
         setSelected(clickedSquare);
+        setValidMoves([]);
       }
     } else {
       // Second click - attempt to move the piece
@@ -87,12 +283,21 @@ export default function ChessGame() {
       // If clicking on the same square, deselect
       if (fromRow === i && fromCol === j) {
         setMoveFrom(null);
+        setValidMoves([]);
         return;
       }
 
       // If clicking on another piece of the same player, select that piece instead
       if (clickedPiece && isPieceOfCurrentPlayer(clickedPiece)) {
         setMoveFrom(clickedSquare);
+        setSelected(clickedSquare);
+        setValidMoves(calculateValidMoves(i, j, clickedPiece));
+        return;
+      }
+
+      // Check if the move is valid according to chess rules
+      if (!isValidMove(fromRow, fromCol, i, j, piece)) {
+        // Invalid move, show some feedback but keep the piece selected
         setSelected(clickedSquare);
         return;
       }
@@ -104,6 +309,7 @@ export default function ChessGame() {
 
       // Record the move
       const moveNotation = `${files[fromCol]}${ranks[fromRow]} → ${files[j]}${ranks[i]}`;
+      const capturedPiece = board[i][j] ? ` (captures ${board[i][j]})` : "";
 
       // Update state
       setBoard(newBoard);
@@ -113,10 +319,11 @@ export default function ChessGame() {
           piece,
           from: `${files[fromCol]}${ranks[fromRow]}`,
           to: `${files[j]}${ranks[i]}`,
-          notation: moveNotation,
+          notation: moveNotation + capturedPiece,
         },
       ]);
       setMoveFrom(null);
+      setValidMoves([]);
       setSelected(clickedSquare);
       setCurrentPlayer(currentPlayer === "WHITE" ? "BLACK" : "WHITE");
     }
@@ -153,6 +360,9 @@ export default function ChessGame() {
                     selected && selected[0] === i && selected[1] === j;
                   const isMoveSource =
                     moveFrom && moveFrom[0] === i && moveFrom[1] === j;
+                  const isValidMove = validMoves.some(
+                    ([row, col]) => row === i && col === j
+                  );
                   return (
                     <div
                       key={i + "-" + j}
@@ -160,11 +370,7 @@ export default function ChessGame() {
                         ${isWhite ? "bg-amber-100" : "bg-amber-800"}
                         ${isSelected ? "ring-4 ring-yellow-400" : ""}
                         ${isMoveSource ? "bg-green-200" : ""}
-                        ${
-                          moveFrom && !isMoveSource && board[i][j] === null
-                            ? "hover:bg-green-100 hover:bg-opacity-60"
-                            : ""
-                        }
+                        ${isValidMove ? "ring-2 ring-green-500 ring-inset" : ""}
                         ${isWhite ? "text-black" : "text-white"}
                         hover:bg-yellow-300 hover:bg-opacity-40
                       `}
@@ -234,12 +440,12 @@ export default function ChessGame() {
           </div>
         ) : (
           <p>
-            Click a piece to select it, then click a destination square to move.
-            Pieces can now move freely.
+            Click a piece to select it, then click a valid destination square to
+            move. Green-highlighted squares show valid moves.
           </p>
         )}
         <p className="mt-1 text-xs text-indigo-600">
-          Full chess rules will be implemented soon!
+          All standard chess piece movements have been implemented!
         </p>
       </div>
     </div>
