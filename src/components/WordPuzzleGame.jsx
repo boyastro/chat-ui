@@ -31,6 +31,43 @@ const DIFFICULTIES = {
 };
 
 export default function WordPuzzleGame({ userId }) {
+  // Hàm cộng coin cho user, cập nhật cả local và server
+  const addCoinForUser = useCallback(
+    (coin) => {
+      if (!userId) return;
+      const earnedCoin = parseInt(coin, 10);
+      setUserInfo((prev) => ({
+        ...prev,
+        coin: (prev?.coin ?? 0) + earnedCoin,
+      }));
+      setScore((prev) => prev + earnedCoin);
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+      const token = localStorage.getItem("token");
+      fetch(`${API_URL}/millionaire/add-coin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify({ userId, coin: earnedCoin }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success) {
+            setUserInfo((prev) => ({
+              ...prev,
+              coin: data.coin ?? prev?.coin ?? 0,
+            }));
+            setScore(data.coin ?? 0);
+            console.log(
+              `Thêm ${earnedCoin} coin thành công, số coin hiện tại: ${data.coin}`
+            );
+          }
+        })
+        .catch((err) => console.error("Lỗi khi cộng coin:", err));
+    },
+    [userId]
+  );
   const navigate = useNavigate();
   // Remove unused state variables
   const [letters, setLetters] = useState([]);
@@ -245,54 +282,8 @@ export default function WordPuzzleGame({ userId }) {
             // No streak bonus, just use the base coin reward
             const totalCoins = coinReward;
 
-            // Update coins on the server
-            try {
-              const token = localStorage.getItem("token");
-              const apiBaseUrl =
-                process.env.REACT_APP_API_URL || "http://localhost:5000";
-
-              fetch(`${apiBaseUrl}/users/updateCoins`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: token ? `Bearer ${token}` : undefined,
-                },
-                body: JSON.stringify({
-                  userId,
-                  coins: totalCoins,
-                }),
-              })
-                .then((response) => response.text())
-                .then((responseText) => {
-                  console.log("Update coins response:", responseText);
-
-                  try {
-                    if (responseText && responseText.startsWith("{")) {
-                      const data = JSON.parse(responseText);
-                      if (data.success) {
-                        console.log(
-                          `Added ${totalCoins} coins to user ${userId}`
-                        );
-                      } else {
-                        console.error("Failed to update coins:", data.message);
-                      }
-                    }
-                  } catch (jsonError) {
-                    console.error(
-                      "Error parsing coin update response:",
-                      jsonError
-                    );
-                  }
-                })
-                .catch((error) => {
-                  console.error("Error updating coins:", error);
-                });
-            } catch (error) {
-              console.error("Error in coin update process:", error);
-            }
-
-            // Update local score regardless of server success
-            setScore((prev) => prev + totalCoins);
+            // Cộng coin cho user (gọi API và cập nhật local)
+            addCoinForUser(totalCoins);
             setStreak((prev) => prev + 1);
             setStatus(`✅ Chính xác! +${totalCoins} coin`);
             setTimerActive(false);
