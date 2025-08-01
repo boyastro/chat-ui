@@ -71,11 +71,6 @@ export default function ChessGame() {
     return piece === PIECES.WHITE[type] || piece === PIECES.BLACK[type];
   };
 
-  // Check if coordinates are within the board
-  const isInBoard = (row, col) => {
-    return row >= 0 && row < 8 && col >= 0 && col < 8;
-  };
-
   // Check if a move is valid for a specific piece type
   const isValidMove = (fromRow, fromCol, toRow, toCol, piece) => {
     // Can't move to a square occupied by your own piece
