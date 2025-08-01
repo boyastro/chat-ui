@@ -98,7 +98,7 @@ export default function ChessGame() {
           </div>
         </div>
 
-        <div className="mt-4 md:mt-0 md:ml-6 w-full max-w-xs md:max-w-none md:w-52 p-3 bg-white bg-opacity-80 rounded-xl shadow-md flex flex-col items-center">
+        <div class="mt-4 md:mt-0 md:ml-6 w-full max-w-xs md:max-w-none md:w-52 p-3 bg-white bg-opacity-80 rounded-xl shadow-md flex flex-col items-center md:-translate-y-20 md:-translate-x-6">
           <h3 className="font-bold text-indigo-700 mb-2 text-center">
             Selected Square
           </h3>
