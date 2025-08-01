@@ -64,11 +64,9 @@ export default function ChessGame() {
         </h2>
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-start items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
-        <div className="flex flex-col items-center">
-          {/* Remove extra top space above the board for mobile */}
-          <div className="h-2 w-2 sm:h-8 sm:w-8"></div>
-          <div className="rounded-lg overflow-hidden shadow-lg border-4 border-gray-800">
+      <div className="flex flex-col md:flex-row md:items-center items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
+        <div className="flex flex-col items-center md:justify-center md:items-center w-full">
+          <div className="rounded-lg overflow-hidden shadow-lg border-4 border-gray-800 mx-auto">
             <div
               style={{
                 display: "grid",
