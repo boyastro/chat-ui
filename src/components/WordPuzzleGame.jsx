@@ -128,7 +128,6 @@ export default function WordPuzzleGame({ userId }) {
     try {
       const token = localStorage.getItem("token");
       const apiBaseUrl = process.env.REACT_APP_API_URL;
-      console.log(`Fetching word with difficulty: ${difficulty}`);
       const response = await fetch(
         `${apiBaseUrl}/words/random?difficulty=${difficulty}`,
         {
@@ -137,8 +136,6 @@ export default function WordPuzzleGame({ userId }) {
           },
         }
       );
-
-      console.log("API response status:", response.status);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -159,12 +156,9 @@ export default function WordPuzzleGame({ userId }) {
         }
       } else {
         // Check content type and log it for debugging
-        const contentType = response.headers.get("content-type");
-        console.log("Response content-type:", contentType);
 
         // Try to get the raw text first to see what's actually being returned
         const responseText = await response.text();
-        console.log("Raw response:", responseText);
 
         // Now try to parse as JSON if it looks like JSON
         try {
@@ -173,7 +167,6 @@ export default function WordPuzzleGame({ userId }) {
             (responseText.startsWith("{") || responseText.startsWith("["))
           ) {
             const responseData = JSON.parse(responseText);
-            console.log("Data received from API:", responseData);
 
             // Access the word data from the data property
             if (responseData && responseData.data) {
