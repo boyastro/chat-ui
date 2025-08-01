@@ -476,7 +476,33 @@ export default function WordPuzzleGame({ userId }) {
                     {userInfo.name || userInfo.username || "User"}
                   </span>
                   <span className="text-xs text-amber-700 flex items-center font-bold">
-                    <span className="mr-1">💰</span>
+                    <span className="mr-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="inline h-4 w-4 ml-0.5 align-middle coin-icon"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="gold"
+                          strokeWidth="2"
+                          fill="#ffe066"
+                        />
+                        <text
+                          x="12"
+                          y="16"
+                          textAnchor="middle"
+                          fontSize="10"
+                          fill="#bfa100"
+                        >
+                          ₵
+                        </text>
+                      </svg>
+                    </span>
                     {userInfo.coin ?? 0}
                   </span>
                 </div>
@@ -484,7 +510,31 @@ export default function WordPuzzleGame({ userId }) {
             ) : (
               <div className="flex items-center">
                 <span className="text-[0.6rem] sm:text-xs text-amber-700 font-bold mr-1 sm:mr-0">
-                  💰
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="inline h-4 w-4 ml-0.5 align-middle coin-icon"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="gold"
+                      strokeWidth="2"
+                      fill="#ffe066"
+                    />
+                    <text
+                      x="12"
+                      y="16"
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#bfa100"
+                    >
+                      ₵
+                    </text>
+                  </svg>
                 </span>
                 <span className="text-sm sm:text-lg font-bold text-amber-800">
                   {score} coin
