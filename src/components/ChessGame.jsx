@@ -27,6 +27,7 @@ export default function ChessGame() {
   // All game state comes from backend
   const [game, setGame] = useState(null); // { board, currentPlayer, moveHistory, winner, validMoves, selected, ... }
   const [selected, setSelected] = useState(null); // [row, col] or null
+  const [validMovesUI, setValidMovesUI] = useState([]); // highlight squares for selected piece
   const ws = useRef(null);
   const [connectionStatus, setConnectionStatus] = useState("connecting");
 
@@ -256,7 +257,21 @@ export default function ChessGame() {
     setSelected(null);
   };
 
-  // Handle square click: only allow legal moves on UI
+  // Compute all valid moves for a piece at [fx, fy]
+  function getAllValidMoves(board, from, currentPlayer) {
+    const moves = [];
+    if (!board || !from) return moves;
+    for (let tx = 0; tx < 8; tx++) {
+      for (let ty = 0; ty < 8; ty++) {
+        if (isLegalMove(board, from, [tx, ty], currentPlayer)) {
+          moves.push([tx, ty]);
+        }
+      }
+    }
+    return moves;
+  }
+
+  // Handle square click: only allow legal moves on UI, and highlight valid moves
   const handleSquareClick = (i, j) => {
     if (!game || game.winner) return;
     const clickedSquare = [i, j];
@@ -268,10 +283,15 @@ export default function ChessGame() {
         cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
       if (color !== game.currentPlayer) return;
       setSelected(clickedSquare);
+      // Highlight valid moves for this piece
+      setValidMovesUI(
+        getAllValidMoves(game.board, clickedSquare, game.currentPlayer)
+      );
     } else {
       // If clicking same square, deselect
       if (selected[0] === i && selected[1] === j) {
         setSelected(null);
+        setValidMovesUI([]);
         return;
       }
       // Only allow legal moves
@@ -280,14 +300,18 @@ export default function ChessGame() {
       ) {
         sendMove(selected, clickedSquare);
         setSelected(null);
+        setValidMovesUI([]);
       } else {
-        // If clicked another own piece, select it
+        // If clicked another own piece, select it and show its valid moves
         const cell = game.board[i][j];
         if (cell) {
           const color =
             cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
           if (color === game.currentPlayer) {
             setSelected(clickedSquare);
+            setValidMovesUI(
+              getAllValidMoves(game.board, clickedSquare, game.currentPlayer)
+            );
             return;
           }
         }
@@ -351,15 +375,11 @@ export default function ChessGame() {
                       const isWhiteSquare = (i + j) % 2 === 0;
                       const isSelected =
                         selected && selected[0] === i && selected[1] === j;
-                      // Highlight valid moves if backend provides them
+                      // Highlight valid moves for selected piece (UI)
                       let isValidMove = false;
-                      if (game.validMoves && selected) {
-                        isValidMove = game.validMoves.some(
-                          ([from, to]) =>
-                            from[0] === selected[0] &&
-                            from[1] === selected[1] &&
-                            to[0] === i &&
-                            to[1] === j
+                      if (selected && validMovesUI.length > 0) {
+                        isValidMove = validMovesUI.some(
+                          ([x, y]) => x === i && y === j
                         );
                       }
                       // Map backend code (bR, wK, ...) to Unicode chess piece
