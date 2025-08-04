@@ -49,6 +49,17 @@ export default function ChessGame() {
   const [validMoves, setValidMoves] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState("WHITE");
   const [moveHistory, setMoveHistory] = useState([]);
+  const [winner, setWinner] = useState(null);
+
+  const handleRestart = () => {
+    setBoard(initialBoard());
+    setSelected(null);
+    setMoveFrom(null);
+    setValidMoves([]);
+    setCurrentPlayer("WHITE");
+    setMoveHistory([]);
+    setWinner(null);
+  };
 
   const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
@@ -255,6 +266,7 @@ export default function ChessGame() {
 
   // Handle square click for selecting and moving pieces
   const handleSquareClick = (i, j) => {
+    if (winner) return; // Nếu đã có người thắng thì không cho đi tiếp
     const clickedSquare = [i, j];
     const clickedPiece = board[i][j];
 
@@ -317,6 +329,15 @@ export default function ChessGame() {
           notation: moveNotation + capturedPiece,
         },
       ]);
+      // Kiểm tra còn vua không
+      const flatBoard = newBoard.flat();
+      const whiteKingAlive = flatBoard.includes(PIECES.WHITE.KING);
+      const blackKingAlive = flatBoard.includes(PIECES.BLACK.KING);
+      if (!whiteKingAlive) {
+        setWinner("BLACK");
+      } else if (!blackKingAlive) {
+        setWinner("WHITE");
+      }
       setMoveFrom(null);
       setValidMoves([]);
       setSelected(clickedSquare);
@@ -326,6 +347,19 @@ export default function ChessGame() {
 
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
+      {winner && (
+        <div className="mb-4 flex flex-col items-center gap-2">
+          <div className="p-3 bg-green-200 text-green-900 rounded-lg text-center font-bold text-lg shadow">
+            {winner === "WHITE" ? "Trắng" : "Đen"} thắng! Đối phương đã mất vua.
+          </div>
+          <button
+            onClick={handleRestart}
+            className="mt-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded shadow font-semibold transition"
+          >
+            Chơi lại
+          </button>
+        </div>
+      )}
       {/* Improved header for mobile balance */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-4 gap-2">
         <button
