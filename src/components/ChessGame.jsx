@@ -348,12 +348,12 @@ export default function ChessGame() {
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
       {winner && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-xs w-full">
-            <div className="text-2xl font-bold text-green-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-md w-full mx-4 sm:mx-0">
+            <div className="text-2xl font-bold text-green-700 text-center">
               {winner === "WHITE" ? "Trắng" : "Đen"} thắng!
             </div>
-            <div className="text-base text-gray-700 mb-2">
+            <div className="text-base text-gray-700 mb-2 text-center">
               Đối phương đã mất vua.
             </div>
             <button
