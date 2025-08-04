@@ -233,16 +233,18 @@ export default function ChessGame() {
         ],
       };
     });
-    // Gửi lên backend để kiểm tra thắng/thua
-    if (!ws.current || ws.current.readyState !== 1) return;
-    ws.current.send(
-      JSON.stringify({
+    // Gửi message cho backend sau mỗi lần di chuyển
+    setTimeout(() => {
+      if (!ws.current || ws.current.readyState !== 1) return;
+      const msg = {
         action: "move",
         roomId: "default",
         from: { x: from[1], y: from[0] }, // col, row
         to: { x: to[1], y: to[0] }, // col, row
-      })
-    );
+      };
+      console.log("[SEND TO BACKEND]", msg);
+      ws.current.send(JSON.stringify(msg));
+    }, 0);
   };
 
   // Send restart to backend
