@@ -370,7 +370,7 @@ export default function ChessGame() {
                       key={i + "-" + j}
                       className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
                         ${isWhiteSquare ? "bg-slate-500" : "bg-slate-700"}
-                        ${isSelected ? "ring-4 ring-yellow-400" : ""}
+                        ${isSelected}
                         ${isMoveSource ? "bg-green-200" : ""}
                         ${isValidMove ? "ring-2 ring-green-500 ring-inset" : ""}
                         ${pieceColorClass}
