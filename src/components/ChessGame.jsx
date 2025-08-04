@@ -350,7 +350,7 @@ export default function ChessGame() {
             >
               {board.map((row, i) =>
                 row.map((cell, j) => {
-                  const isWhite = (i + j) % 2 === 0;
+                  const isWhiteSquare = (i + j) % 2 === 0;
                   const isSelected =
                     selected && selected[0] === i && selected[1] === j;
                   const isMoveSource =
@@ -358,16 +358,23 @@ export default function ChessGame() {
                   const isValidMove = validMoves.some(
                     ([row, col]) => row === i && col === j
                   );
+                  // Xác định màu quân cờ: quân trắng là text-white, quân đen là text-black
+                  let pieceColorClass = "";
+                  if (Object.values(PIECES.WHITE).includes(cell)) {
+                    pieceColorClass = "text-white";
+                  } else if (Object.values(PIECES.BLACK).includes(cell)) {
+                    pieceColorClass = "text-black";
+                  }
                   return (
                     <div
                       key={i + "-" + j}
                       className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
-                        ${isWhite ? "bg-amber-100" : "bg-amber-800"}
+                        ${isWhiteSquare ? "bg-slate-500" : "bg-slate-700"}
                         ${isSelected ? "ring-4 ring-yellow-400" : ""}
                         ${isMoveSource ? "bg-green-200" : ""}
                         ${isValidMove ? "ring-2 ring-green-500 ring-inset" : ""}
-                        ${isWhite ? "text-black" : "text-white"}
-                        hover:bg-yellow-300 hover:bg-opacity-40
+                        ${pieceColorClass}
+                        hover:bg-gray-600 hover:bg-opacity-60
                       `}
                       onClick={() => handleSquareClick(i, j)}
                     >
