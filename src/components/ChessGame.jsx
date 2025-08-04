@@ -120,15 +120,126 @@ export default function ChessGame() {
     };
   }, []);
 
-  // Send move to backend
+  // Check if a move is legal according to chess rules (basic, no castling/en passant/promotion)
+  function isLegalMove(board, from, to, currentPlayer) {
+    if (!board) return false;
+    const [fx, fy] = from;
+    const [tx, ty] = to;
+    if (fx === tx && fy === ty) return false;
+    const piece = board[fx][fy];
+    if (!piece) return false;
+    const color = piece[0] === "w" ? "WHITE" : "BLACK";
+    if (color !== currentPlayer) return false;
+    const type = piece[1];
+    const target = board[tx][ty];
+    if (target && target[0] === piece[0]) return false; // cannot capture own piece
+    const dx = tx - fx;
+    const dy = ty - fy;
+    // Helper for clear path
+    function isPathClear(dx, dy) {
+      const steps = Math.max(Math.abs(dx), Math.abs(dy));
+      const stepx = dx === 0 ? 0 : dx / Math.abs(dx);
+      const stepy = dy === 0 ? 0 : dy / Math.abs(dy);
+      for (let step = 1; step < steps; step++) {
+        const x = fx + step * stepx;
+        const y = fy + step * stepy;
+        if (board[x][y]) return false;
+      }
+      return true;
+    }
+    switch (type) {
+      case "P": {
+        // Pawn
+        const dir = color === "WHITE" ? -1 : 1;
+        // Move forward
+        if (dy === 0 && dx === dir && !target) return true;
+        // First move: two squares
+        if (
+          dy === 0 &&
+          dx === 2 * dir &&
+          fx === (color === "WHITE" ? 6 : 1) &&
+          !target &&
+          !board[fx + dir][fy]
+        )
+          return true;
+        // Capture
+        if (
+          Math.abs(dy) === 1 &&
+          dx === dir &&
+          target &&
+          target[0] !== piece[0]
+        )
+          return true;
+        return false;
+      }
+      case "R": {
+        // Rook
+        if ((dx === 0 || dy === 0) && isPathClear(dx, dy)) return true;
+        return false;
+      }
+      case "N": {
+        // Knight
+        if (
+          (Math.abs(dx) === 2 && Math.abs(dy) === 1) ||
+          (Math.abs(dx) === 1 && Math.abs(dy) === 2)
+        )
+          return true;
+        return false;
+      }
+      case "B": {
+        // Bishop
+        if (Math.abs(dx) === Math.abs(dy) && isPathClear(dx, dy)) return true;
+        return false;
+      }
+      case "Q": {
+        // Queen
+        if (
+          (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) &&
+          isPathClear(dx, dy)
+        )
+          return true;
+        return false;
+      }
+      case "K": {
+        // King
+        if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true;
+        return false;
+      }
+      default:
+        return false;
+    }
+  }
+
+  // Send move to backend (convert [row, col] to {x, y})
+  // Move piece on UI immediately, backend only checks win/lose
   const sendMove = (from, to) => {
+    setGame((prev) => {
+      if (!prev) return prev;
+      const newBoard = prev.board.map((row) => [...row]);
+      newBoard[to[0]][to[1]] = newBoard[from[0]][from[1]];
+      newBoard[from[0]][from[1]] = null;
+      return {
+        ...prev,
+        board: newBoard,
+        currentPlayer: prev.currentPlayer === "WHITE" ? "BLACK" : "WHITE",
+        moveHistory: [
+          ...(prev.moveHistory || []),
+          {
+            from: { x: from[1], y: from[0] },
+            to: { x: to[1], y: to[0] },
+            piece: newBoard[to[0]][to[1]],
+          },
+        ],
+      };
+    });
+    // Gửi lên backend để kiểm tra thắng/thua
     if (!ws.current || ws.current.readyState !== 1) return;
     ws.current.send(
       JSON.stringify({
         action: "move",
         roomId: "default",
-        from, // [row, col]
-        to, // [row, col]
+        from: { x: from[1], y: from[0] }, // col, row
+        to: { x: to[1], y: to[0] }, // col, row
       })
     );
   };
@@ -145,12 +256,17 @@ export default function ChessGame() {
     setSelected(null);
   };
 
-  // Handle square click: only send selection/move intent, let backend validate
+  // Handle square click: only allow legal moves on UI
   const handleSquareClick = (i, j) => {
     if (!game || game.winner) return;
     const clickedSquare = [i, j];
-    // If no selection, select piece
     if (!selected) {
+      // Select only if it's your piece
+      const cell = game.board[i][j];
+      if (!cell) return;
+      const color =
+        cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
+      if (color !== game.currentPlayer) return;
       setSelected(clickedSquare);
     } else {
       // If clicking same square, deselect
@@ -158,9 +274,25 @@ export default function ChessGame() {
         setSelected(null);
         return;
       }
-      // Send move to backend
-      sendMove(selected, clickedSquare);
-      setSelected(null);
+      // Only allow legal moves
+      if (
+        isLegalMove(game.board, selected, clickedSquare, game.currentPlayer)
+      ) {
+        sendMove(selected, clickedSquare);
+        setSelected(null);
+      } else {
+        // If clicked another own piece, select it
+        const cell = game.board[i][j];
+        if (cell) {
+          const color =
+            cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
+          if (color === game.currentPlayer) {
+            setSelected(clickedSquare);
+            return;
+          }
+        }
+        // Otherwise, do nothing
+      }
     }
   };
 
