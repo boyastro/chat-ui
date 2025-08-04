@@ -59,11 +59,13 @@ export default function ChessGame() {
     ws.current.onmessage = (event) => {
       console.log("[WebSocket] Message received:", event.data);
       try {
+        if (!event.data || !event.data.trim()) return;
         const data = JSON.parse(event.data);
         // Lấy payload đúng key
         const payload = data.payload || data.data;
         switch (data.type) {
           case "gameStarted":
+            if (!payload) return;
             setGame({
               board: payload.board,
               currentPlayer: payload.turn,
@@ -74,30 +76,33 @@ export default function ChessGame() {
             });
             break;
           case "move":
+            if (!payload) return;
             setGame((prev) => ({
               ...prev,
-              board: data.payload.board,
-              currentPlayer: data.payload.nextTurn,
+              board: payload.board,
+              currentPlayer: payload.nextTurn,
               moveHistory: prev?.moveHistory
-                ? [...prev.moveHistory, data.payload.move]
-                : [data.payload.move],
-              status: data.payload.status,
+                ? [...prev.moveHistory, payload.move]
+                : [payload.move],
+              status: payload.status,
             }));
             break;
           case "gameOver":
+            if (!payload) return;
             setGame((prev) => ({
               ...prev,
-              board: data.payload.board,
-              winner: data.payload.winner,
-              moveHistory: data.payload.moveHistory,
+              board: payload.board,
+              winner: payload.winner,
+              moveHistory: payload.moveHistory,
               status: "finished",
             }));
             break;
           case "userLeft":
+            if (!payload) return;
             setGame((prev) => ({
               ...prev,
-              status: data.payload.status,
-              players: data.payload.players,
+              status: payload.status,
+              players: payload.players,
             }));
             break;
           case "error":
@@ -225,12 +230,30 @@ export default function ChessGame() {
                             to[1] === j
                         );
                       }
-                      // Xác định màu quân cờ: quân trắng là text-white, quân đen là text-black
+                      // Map backend code (bR, wK, ...) to Unicode chess piece
+                      let piece = null;
                       let pieceColorClass = "";
-                      if (Object.values(PIECES.WHITE).includes(cell)) {
-                        pieceColorClass = "text-white";
-                      } else if (Object.values(PIECES.BLACK).includes(cell)) {
-                        pieceColorClass = "text-black";
+                      if (typeof cell === "string" && cell.length === 2) {
+                        const color =
+                          cell[0] === "w"
+                            ? "WHITE"
+                            : cell[0] === "b"
+                            ? "BLACK"
+                            : null;
+                        const typeMap = {
+                          K: "KING",
+                          Q: "QUEEN",
+                          R: "ROOK",
+                          B: "BISHOP",
+                          N: "KNIGHT",
+                          P: "PAWN",
+                        };
+                        const type = typeMap[cell[1]];
+                        if (color && type && PIECES[color][type]) {
+                          piece = PIECES[color][type];
+                          pieceColorClass =
+                            color === "WHITE" ? "text-white" : "text-black";
+                        }
                       }
                       return (
                         <div
@@ -252,7 +275,7 @@ export default function ChessGame() {
                           `}
                           onClick={() => handleSquareClick(i, j)}
                         >
-                          {cell}
+                          {piece}
                         </div>
                       );
                     })
