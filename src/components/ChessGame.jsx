@@ -348,16 +348,21 @@ export default function ChessGame() {
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
       {winner && (
-        <div className="mb-4 flex flex-col items-center gap-2">
-          <div className="p-3 bg-green-200 text-green-900 rounded-lg text-center font-bold text-lg shadow">
-            {winner === "WHITE" ? "Trắng" : "Đen"} thắng! Đối phương đã mất vua.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-xs w-full">
+            <div className="text-2xl font-bold text-green-700">
+              {winner === "WHITE" ? "Trắng" : "Đen"} thắng!
+            </div>
+            <div className="text-base text-gray-700 mb-2">
+              Đối phương đã mất vua.
+            </div>
+            <button
+              onClick={handleRestart}
+              className="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg shadow font-semibold transition text-base"
+            >
+              Chơi lại
+            </button>
           </div>
-          <button
-            onClick={handleRestart}
-            className="mt-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded shadow font-semibold transition"
-          >
-            Chơi lại
-          </button>
         </div>
       )}
       {/* Improved header for mobile balance */}
