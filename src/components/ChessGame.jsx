@@ -28,6 +28,7 @@ export default function ChessGame() {
   const [game, setGame] = useState(null); // { board, currentPlayer, moveHistory, winner, validMoves, selected, ... }
   const [selected, setSelected] = useState(null); // [row, col] or null
   const [validMovesUI, setValidMovesUI] = useState([]); // highlight squares for selected piece
+  const [myConnectionId, setMyConnectionId] = useState(null); // id của mình
   const ws = useRef(null);
   const [connectionStatus, setConnectionStatus] = useState("connecting");
 
@@ -75,6 +76,7 @@ export default function ChessGame() {
               players: payload.players,
               status: payload.status,
             });
+            if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
             break;
           case "move":
             if (!payload) return;
@@ -273,9 +275,23 @@ export default function ChessGame() {
     return moves;
   }
 
-  // Handle square click: only allow legal moves on UI, and highlight valid moves
+  // Helper: xác định connectionId này có phải lượt đi không
+  function isMyTurn() {
+    if (!game || !myConnectionId) return false;
+    // Mặc định: players[0] là trắng, players[1] là đen
+    const idx =
+      game.players && Array.isArray(game.players)
+        ? game.players.indexOf(myConnectionId)
+        : -1;
+    if (idx === -1) return false;
+    const color = idx === 0 ? "WHITE" : "BLACK";
+    return color === game.currentPlayer;
+  }
+
+  // Handle square click: chỉ cho phép đi khi đúng lượt
   const handleSquareClick = (i, j) => {
     if (!game || game.winner) return;
+    if (!isMyTurn()) return;
     const clickedSquare = [i, j];
     if (!selected) {
       // Select only if it's your piece
