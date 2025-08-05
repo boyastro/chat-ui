@@ -33,8 +33,16 @@ export default function ChessGame() {
   const [connectionStatus, setConnectionStatus] = useState("connecting");
 
   // For rendering
-  const files = ["A", "B", "C", "D", "E", "F", "G", "H"];
-  const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
+  const filesBase = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const ranksBase = ["8", "7", "6", "5", "4", "3", "2", "1"];
+  // Determine player color
+  let isBlackPlayer = false;
+  if (game && myConnectionId && game.players && Array.isArray(game.players)) {
+    const idx = game.players.indexOf(myConnectionId);
+    isBlackPlayer = idx === 1;
+  }
+  const files = isBlackPlayer ? [...filesBase].reverse() : filesBase;
+  const ranks = isBlackPlayer ? [...ranksBase].reverse() : ranksBase;
 
   // Connect to backend WebSocket on mount
   useEffect(() => {
@@ -388,47 +396,54 @@ export default function ChessGame() {
               }}
             >
               {game && game.board
-                ? game.board.map((row, i) =>
-                    row.map((cell, j) => {
-                      const isWhiteSquare = (i + j) % 2 === 0;
-                      const isSelected =
-                        selected && selected[0] === i && selected[1] === j;
-                      // Highlight valid moves for selected piece (UI)
-                      let isValidMove = false;
-                      if (selected && validMovesUI.length > 0) {
-                        isValidMove = validMovesUI.some(
-                          ([x, y]) => x === i && y === j
-                        );
-                      }
-                      // Map backend code (bR, wK, ...) to Unicode chess piece
-                      let piece = null;
-                      let pieceColorClass = "";
-                      if (typeof cell === "string" && cell.length === 2) {
-                        const color =
-                          cell[0] === "w"
-                            ? "WHITE"
-                            : cell[0] === "b"
-                            ? "BLACK"
-                            : null;
-                        const typeMap = {
-                          K: "KING",
-                          Q: "QUEEN",
-                          R: "ROOK",
-                          B: "BISHOP",
-                          N: "KNIGHT",
-                          P: "PAWN",
-                        };
-                        const type = typeMap[cell[1]];
-                        if (color && type && PIECES[color][type]) {
-                          piece = PIECES[color][type];
-                          pieceColorClass =
-                            color === "WHITE" ? "text-white" : "text-black";
-                        }
-                      }
-                      return (
-                        <div
-                          key={i + "-" + j}
-                          className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
+                ? (isBlackPlayer ? [...game.board].reverse() : game.board).map(
+                    (row, i) =>
+                      (isBlackPlayer ? [...row].reverse() : row).map(
+                        (cell, j) => {
+                          // Map i, j to real board index
+                          const realI = isBlackPlayer ? 7 - i : i;
+                          const realJ = isBlackPlayer ? 7 - j : j;
+                          const isWhiteSquare = (realI + realJ) % 2 === 0;
+                          const isSelected =
+                            selected &&
+                            selected[0] === realI &&
+                            selected[1] === realJ;
+                          // Highlight valid moves for selected piece (UI)
+                          let isValidMove = false;
+                          if (selected && validMovesUI.length > 0) {
+                            isValidMove = validMovesUI.some(
+                              ([x, y]) => x === realI && y === realJ
+                            );
+                          }
+                          // Map backend code (bR, wK, ...) to Unicode chess piece
+                          let piece = null;
+                          let pieceColorClass = "";
+                          if (typeof cell === "string" && cell.length === 2) {
+                            const color =
+                              cell[0] === "w"
+                                ? "WHITE"
+                                : cell[0] === "b"
+                                ? "BLACK"
+                                : null;
+                            const typeMap = {
+                              K: "KING",
+                              Q: "QUEEN",
+                              R: "ROOK",
+                              B: "BISHOP",
+                              N: "KNIGHT",
+                              P: "PAWN",
+                            };
+                            const type = typeMap[cell[1]];
+                            if (color && type && PIECES[color][type]) {
+                              piece = PIECES[color][type];
+                              pieceColorClass =
+                                color === "WHITE" ? "text-white" : "text-black";
+                            }
+                          }
+                          return (
+                            <div
+                              key={i + "-" + j}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
                             ${isWhiteSquare ? "bg-slate-500" : "bg-slate-700"}
                             ${
                               isSelected
@@ -443,12 +458,13 @@ export default function ChessGame() {
                             ${pieceColorClass}
                             hover:bg-gray-600 hover:bg-opacity-60
                           `}
-                          onClick={() => handleSquareClick(i, j)}
-                        >
-                          {piece}
-                        </div>
-                      );
-                    })
+                              onClick={() => handleSquareClick(realI, realJ)}
+                            >
+                              {piece}
+                            </div>
+                          );
+                        }
+                      )
                   )
                 : Array(8)
                     .fill(null)
@@ -456,7 +472,9 @@ export default function ChessGame() {
                       Array(8)
                         .fill(null)
                         .map((_, j) => {
-                          const isWhiteSquare = (i + j) % 2 === 0;
+                          const realI = isBlackPlayer ? 7 - i : i;
+                          const realJ = isBlackPlayer ? 7 - j : j;
+                          const isWhiteSquare = (realI + realJ) % 2 === 0;
                           return (
                             <div
                               key={i + "-" + j}
