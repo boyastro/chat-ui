@@ -398,6 +398,21 @@ export default function ChessGame() {
 
   return (
     <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
+      {/* Modal xác định người đi trước */}
+      {game &&
+        (game.currentPlayer === undefined || game.currentPlayer === null) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+            <div className="bg-gradient-to-br from-indigo-100 to-blue-50 rounded-2xl shadow-xl px-6 py-5 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-indigo-200">
+              <div className="text-3xl mb-1 animate-spin-slow">🔄</div>
+              <div className="text-lg font-semibold text-indigo-700 text-center">
+                Đang chuẩn bị bàn cờ
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Vui lòng chờ hệ thống...
+              </div>
+            </div>
+          </div>
+        )}
       {/* Connection status */}
       {connectionStatus !== "connected" && (
         <div className="text-center text-red-600 font-semibold mb-2">
