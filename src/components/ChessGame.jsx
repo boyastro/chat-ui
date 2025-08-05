@@ -355,24 +355,82 @@ export default function ChessGame() {
         </div>
       )}
       {/* Winner modal */}
-      {game && game.winner && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
-          <div className="bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-md w-full mx-4 sm:mx-0">
-            <div className="text-2xl font-bold text-green-700 text-center">
-              {game.winner === "WHITE" ? "Trắng" : "Đen"} thắng!
+      {game &&
+        game.winner &&
+        (() => {
+          let result = null;
+          let isWin = false;
+          let isLose = false;
+          let icon = null;
+          let colorClass = "text-green-700";
+          if (!game.players || !myConnectionId) {
+            result = game.winner === "WHITE" ? "Trắng thắng!" : "Đen thắng!";
+            icon = game.winner === "WHITE" ? "🏆" : "🏆";
+          } else {
+            const idx = game.players.indexOf(myConnectionId);
+            if (idx === -1) {
+              result = game.winner === "WHITE" ? "Trắng thắng!" : "Đen thắng!";
+              icon = game.winner === "WHITE" ? "🏆" : "🏆";
+            } else {
+              const myColor = idx === 0 ? "WHITE" : "BLACK";
+              if (game.winner === myColor) {
+                result = "Bạn Thắng";
+                isWin = true;
+                icon = "🎉";
+                colorClass = "text-green-700";
+              } else if (
+                game.winner &&
+                (game.winner === "WHITE" || game.winner === "BLACK")
+              ) {
+                result = "Bạn Thua";
+                isLose = true;
+                icon = "😢";
+                colorClass = "text-red-600";
+              } else {
+                result = "Kết thúc ván cờ";
+                icon = "🏁";
+                colorClass = "text-gray-700";
+              }
+            }
+          }
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+              <div
+                className={`bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-md w-full mx-4 sm:mx-0 ${
+                  isWin
+                    ? "border-4 border-green-400"
+                    : isLose
+                    ? "border-4 border-red-400"
+                    : "border-4 border-gray-300"
+                }`}
+              >
+                <div
+                  className={`text-4xl mb-2 ${isWin ? "animate-bounce" : ""}`}
+                >
+                  {icon}
+                </div>
+                <div className={`text-2xl font-bold text-center ${colorClass}`}>
+                  {result}
+                </div>
+                <div className="text-base text-gray-700 mb-2 text-center">
+                  Game Over !
+                </div>
+                <button
+                  onClick={handleRestart}
+                  className={`px-5 py-2 ${
+                    isWin
+                      ? "bg-green-500 hover:bg-green-600"
+                      : isLose
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-indigo-500 hover:bg-indigo-600"
+                  } text-white rounded-lg shadow font-semibold transition text-base`}
+                >
+                  Chơi lại
+                </button>
+              </div>
             </div>
-            <div className="text-base text-gray-700 mb-2 text-center">
-              Đối phương đã mất vua.
-            </div>
-            <button
-              onClick={handleRestart}
-              className="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg shadow font-semibold transition text-base"
-            >
-              Chơi lại
-            </button>
-          </div>
-        </div>
-      )}
+          );
+        })()}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-4 gap-2">
         <button
