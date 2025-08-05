@@ -400,8 +400,20 @@ export default function ChessGame() {
     const isCastling =
       piece && piece[1] === "K" && Math.abs(to[1] - from[1]) === 2;
 
-    // For castling moves, don't update UI, just send to backend and wait for response
-    if (!isCastling) {
+    // Check if this is an en passant move
+    const isEnPassant =
+      piece &&
+      piece[1] === "P" && // Là quân tốt
+      Math.abs(to[1] - from[1]) === 1 && // Tốt di chuyển chéo
+      !game.board[to[0]][to[1]] && // Ô đích trống
+      game.enPassantTarget && // Có target en passant
+      game.enPassantTarget.x === to[1] && // Khớp cột của ô đích
+      game.enPassantTarget.y === to[0]; // Khớp hàng của ô đích
+
+    // For special moves, don't update UI, just send to backend and wait for response
+    const isSpecialMove = isCastling || isEnPassant;
+
+    if (!isSpecialMove) {
       setGame((prev) => {
         if (!prev) return prev;
         const newBoard = prev.board.map((row) => [...row]);
@@ -464,8 +476,12 @@ export default function ChessGame() {
           prev.enPassantTarget.y === to[0] // Target matches row
         ) {
           // Remove the captured pawn
+          // Pawn to be captured is on the same row as the moving pawn, and same column as the destination
           const capturedPawnRow = from[0];
           const capturedPawnCol = to[1];
+          console.log(
+            `[En Passant] Capturing pawn at [${capturedPawnRow}][${capturedPawnCol}]`
+          );
           newBoard[capturedPawnRow][capturedPawnCol] = null;
         }
 
@@ -552,6 +568,22 @@ export default function ChessGame() {
         msg.castling = true;
         msg.castlingSide = to[1] > from[1] ? "kingside" : "queenside";
         console.log("[WebSocket] Sending castling move:", msg);
+      }
+
+      // Nếu là bắt tốt qua đường (en passant) thì gửi thêm thông tin
+      if (isEnPassant) {
+        msg.enPassant = true;
+        // Vị trí của quân tốt bị bắt (ở cùng hàng với quân tốt đi, cùng cột với ô đích)
+        // Nếu tốt trắng đi từ dưới lên (hàng giảm) thì tốt đen ở hàng giảm + 1
+        // Nếu tốt đen đi từ trên xuống (hàng tăng) thì tốt trắng ở hàng tăng - 1
+        const pawnColor = game?.board?.[from[0]]?.[from[1]]?.[0]; // 'w' hoặc 'b'
+        const capturedRow = pawnColor === "w" ? from[0] : from[0]; // Cùng hàng với quân đi
+
+        msg.capturedPawn = {
+          x: to[1], // Cột của ô đích
+          y: capturedRow, // Hàng của quân tốt đi
+        };
+        console.log("[WebSocket] Sending en passant move:", msg);
       }
 
       console.log("[SEND TO BACKEND]", msg);
