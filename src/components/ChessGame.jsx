@@ -576,14 +576,16 @@ export default function ChessGame() {
                             if (color && type && PIECES[color][type]) {
                               piece = PIECES[color][type];
                               pieceColorClass =
-                                color === "WHITE" ? "text-white" : "text-black";
+                                color === "WHITE"
+                                  ? "text-white drop-shadow-md font-bold"
+                                  : "text-gray-900 drop-shadow-sm font-bold";
                             }
                           }
                           return (
                             <div
                               key={i + "-" + j}
-                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl transition-all duration-150
-                            ${isWhiteSquare ? "bg-slate-500" : "bg-slate-700"}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl sm:text-3xl md:text-4xl transition-all duration-150
+                            ${isWhiteSquare ? "bg-slate-400" : "bg-slate-700"}
                             ${
                               isSelected
                                 ? "ring-2 ring-indigo-400 ring-inset"
@@ -599,7 +601,9 @@ export default function ChessGame() {
                           `}
                               onClick={() => handleSquareClick(realI, realJ)}
                             >
-                              {piece}
+                              <span className="transform hover:scale-110 transition-transform duration-200">
+                                {piece}
+                              </span>
                             </div>
                           );
                         }
