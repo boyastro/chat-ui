@@ -116,6 +116,14 @@ export default function ChessGame() {
               players: payload.players,
             }));
             break;
+          case "gameUpdate":
+            if (!payload) return;
+            setGame((prev) => ({
+              ...prev,
+              ...payload,
+            }));
+            if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
+            break;
           case "error":
             alert(data.message);
             break;
@@ -354,6 +362,22 @@ export default function ChessGame() {
           Kết nối tới server: {connectionStatus}
         </div>
       )}
+      {/* Waiting/Preparing modal */}
+      {game &&
+        (game.status === "waiting" ||
+          (game.players && game.players.length < 2)) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+            <div className="bg-gradient-to-br from-indigo-100 to-blue-50 rounded-2xl shadow-xl px-6 py-5 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-indigo-200">
+              <div className="text-3xl mb-1 animate-spin-slow">⏳</div>
+              <div className="text-lg font-semibold text-indigo-700 text-center">
+                Đang chờ người chơi...
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Đang tìm người chơi phù hợp với bạn.
+              </div>
+            </div>
+          </div>
+        )}
       {/* Winner modal */}
       {game &&
         game.winner &&
