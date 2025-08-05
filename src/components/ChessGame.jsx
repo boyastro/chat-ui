@@ -83,6 +83,7 @@ export default function ChessGame() {
               winner: null,
               players: payload.players,
               status: payload.status,
+              withAI: payload.withAI || false,
             });
             if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
             break;
@@ -121,6 +122,10 @@ export default function ChessGame() {
             setGame((prev) => ({
               ...prev,
               ...payload,
+              withAI:
+                payload.withAI !== undefined
+                  ? payload.withAI
+                  : prev?.withAI || false,
             }));
             if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
             break;
@@ -421,6 +426,7 @@ export default function ChessGame() {
       )}
       {/* Waiting/Preparing modal */}
       {game &&
+        !game.withAI &&
         (game.status === "waiting" ||
           (game.players && game.players.length < 2)) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
@@ -523,6 +529,11 @@ export default function ChessGame() {
         <h2 className="w-full sm:w-auto text-lg sm:text-2xl font-bold text-center text-indigo-800 mt-2 sm:mt-0">
           ♟️ Chess Game ♟️
         </h2>
+        {game && game.withAI && (
+          <div className="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-md">
+            🤖 AI Opponent
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
@@ -658,7 +669,19 @@ export default function ChessGame() {
               Game Status
             </h3>
             <p className="text-gray-800 text-center text-xs sm:text-sm md:text-base">
-              {game ? `${game.currentPlayer}'s Turn` : "Đang tải..."}
+              {game
+                ? `${game.currentPlayer}'s Turn${
+                    game.withAI &&
+                    game.currentPlayer !==
+                      (myConnectionId &&
+                      game.players &&
+                      game.players.indexOf(myConnectionId) === 0
+                        ? "WHITE"
+                        : "BLACK")
+                      ? " (AI)"
+                      : ""
+                  }`
+                : "Đang tải..."}
             </p>
             {selected ? (
               <p className="text-emerald-600 text-xs mt-1 text-center font-semibold">
