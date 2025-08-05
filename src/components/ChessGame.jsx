@@ -84,6 +84,12 @@ export default function ChessGame() {
               players: payload.players,
               status: payload.status,
               withAI: payload.withAI || false,
+              // Initialize castling rights for a new game
+              castlingRights: {
+                w: { kingSide: true, queenSide: true },
+                b: { kingSide: true, queenSide: true },
+              },
+              enPassantTarget: null,
             });
             if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
             break;
@@ -159,6 +165,14 @@ export default function ChessGame() {
     if (target && target[0] === piece[0]) return false; // cannot capture own piece
     const dx = tx - fx;
     const dy = ty - fy;
+
+    // Get castling rights and en passant target from game state
+    const castlingRights = game?.castlingRights || {
+      w: { kingSide: true, queenSide: true },
+      b: { kingSide: true, queenSide: true },
+    };
+    const enPassantTarget = game?.enPassantTarget || null;
+
     // Helper for clear path
     function isPathClear(dx, dy) {
       const steps = Math.max(Math.abs(dx), Math.abs(dy));
@@ -171,6 +185,43 @@ export default function ChessGame() {
       }
       return true;
     }
+
+    // Helper to check if a square is attacked by opponent
+    function isSquareAttacked(board, square, byColor) {
+      // Simple implementation - a more complete version would check all possible attacking pieces
+      // This is a simplified version that doesn't account for all attack vectors
+      const [x, y] = square;
+
+      // Check for pawn attacks
+      const pawnDir = byColor === "WHITE" ? -1 : 1;
+      if ((byColor === "WHITE" && x > 0) || (byColor === "BLACK" && x < 7)) {
+        // Check left and right pawn attacks
+        if (y > 0) {
+          const leftPiece = board[x + pawnDir][y - 1];
+          if (
+            leftPiece &&
+            leftPiece[0] === (byColor === "WHITE" ? "w" : "b") &&
+            leftPiece[1] === "P"
+          )
+            return true;
+        }
+        if (y < 7) {
+          const rightPiece = board[x + pawnDir][y + 1];
+          if (
+            rightPiece &&
+            rightPiece[0] === (byColor === "WHITE" ? "w" : "b") &&
+            rightPiece[1] === "P"
+          )
+            return true;
+        }
+      }
+
+      // This is incomplete - a full implementation would check for all piece types
+      // For knights, bishops, rooks, queens, and king
+
+      return false; // Not attacked (based on this simplified check)
+    }
+
     switch (type) {
       case "P": {
         // Pawn
@@ -211,6 +262,19 @@ export default function ChessGame() {
           }
           return true;
         }
+
+        // En Passant capture
+        if (
+          Math.abs(dy) === 1 &&
+          dx === dir &&
+          !target && // No piece on target square
+          enPassantTarget && // There is an en passant target
+          enPassantTarget.x === ty && // Target matches column
+          enPassantTarget.y === tx // Target matches row
+        ) {
+          return true;
+        }
+
         return false;
       }
       case "R": {
@@ -243,7 +307,84 @@ export default function ChessGame() {
       }
       case "K": {
         // King
+        // Normal king move (one square in any direction)
         if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true;
+
+        // Castling
+        const colorPrefix = color === "WHITE" ? "w" : "b";
+
+        // Check if king is in starting position
+        if ((color === "WHITE" && fx !== 7) || (color === "BLACK" && fx !== 0))
+          return false;
+
+        if (fy !== 4)
+          // King must be in the center file (e1 for white, e8 for black)
+          return false;
+
+        // Check castling rights
+        if (!castlingRights[colorPrefix.toLowerCase()]) return false;
+
+        // King-side castling (O-O)
+        if (
+          dy === 2 &&
+          dx === 0 &&
+          castlingRights[colorPrefix.toLowerCase()]?.kingSide
+        ) {
+          // Check if path is clear
+          if (!isPathClear(0, 2)) return false;
+
+          // Check if king or passing square is in check (simplified - should check for attacks)
+          // This is a simplified check that doesn't fully validate all check conditions
+          const oppColor = color === "WHITE" ? "BLACK" : "WHITE";
+          if (
+            isSquareAttacked(board, [fx, fy], oppColor) ||
+            isSquareAttacked(board, [fx, fy + 1], oppColor)
+          )
+            return false;
+
+          // Check if rook is in place
+          const rookPos = board[fx][7];
+          if (
+            !rookPos ||
+            rookPos[0] !== colorPrefix.toLowerCase() ||
+            rookPos[1] !== "R"
+          )
+            return false;
+
+          return true;
+        }
+
+        // Queen-side castling (O-O-O)
+        if (
+          dy === -2 &&
+          dx === 0 &&
+          castlingRights[colorPrefix.toLowerCase()]?.queenSide
+        ) {
+          // Check if path is clear
+          if (!isPathClear(0, -2) || board[fx][1] !== null)
+            // Extra check for b1/b8 square
+            return false;
+
+          // Check if king or passing square is in check (simplified)
+          const oppColor = color === "WHITE" ? "BLACK" : "WHITE";
+          if (
+            isSquareAttacked(board, [fx, fy], oppColor) ||
+            isSquareAttacked(board, [fx, fy - 1], oppColor)
+          )
+            return false;
+
+          // Check if rook is in place
+          const rookPos = board[fx][0];
+          if (
+            !rookPos ||
+            rookPos[0] !== colorPrefix.toLowerCase() ||
+            rookPos[1] !== "R"
+          )
+            return false;
+
+          return true;
+        }
+
         return false;
       }
       default:
@@ -258,6 +399,85 @@ export default function ChessGame() {
       if (!prev) return prev;
       const newBoard = prev.board.map((row) => [...row]);
       let movedPiece = newBoard[from[0]][from[1]];
+
+      // Update castling rights
+      const newCastlingRights = {
+        ...(prev.castlingRights || {
+          w: { kingSide: true, queenSide: true },
+          b: { kingSide: true, queenSide: true },
+        }),
+      };
+
+      // If king moves, lose all castling rights for that color
+      if (movedPiece && movedPiece[1] === "K") {
+        const colorKey = movedPiece[0];
+        if (newCastlingRights[colorKey]) {
+          newCastlingRights[colorKey].kingSide = false;
+          newCastlingRights[colorKey].queenSide = false;
+        }
+      }
+
+      // If rook moves, lose castling rights for that side
+      if (movedPiece && movedPiece[1] === "R") {
+        const colorKey = movedPiece[0];
+        if (newCastlingRights[colorKey]) {
+          // King-side rook (h1/h8)
+          if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 7) {
+            newCastlingRights[colorKey].kingSide = false;
+          }
+          // Queen-side rook (a1/a8)
+          else if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 0) {
+            newCastlingRights[colorKey].queenSide = false;
+          }
+        }
+      }
+
+      // Set en passant target for pawn double move
+      let enPassantTarget = null;
+      if (movedPiece && movedPiece[1] === "P") {
+        // Double pawn move
+        if (Math.abs(to[0] - from[0]) === 2) {
+          // Set the en passant target to the square behind the pawn
+          const direction = movedPiece[0] === "w" ? -1 : 1;
+          enPassantTarget = {
+            x: to[1],
+            y: to[0] + direction,
+          };
+        }
+      }
+
+      // Handle en passant capture
+      if (
+        movedPiece &&
+        movedPiece[1] === "P" &&
+        Math.abs(to[1] - from[1]) === 1 && // Moving diagonally
+        !newBoard[to[0]][to[1]] && // No piece at target
+        prev.enPassantTarget && // There is an en passant target
+        prev.enPassantTarget.x === to[1] && // Target matches column
+        prev.enPassantTarget.y === to[0] // Target matches row
+      ) {
+        // Remove the captured pawn
+        const capturedPawnRow = from[0];
+        const capturedPawnCol = to[1];
+        newBoard[capturedPawnRow][capturedPawnCol] = null;
+      }
+
+      // Handle castling
+      if (
+        movedPiece &&
+        movedPiece[1] === "K" &&
+        Math.abs(to[1] - from[1]) === 2
+      ) {
+        // Determine rook positions based on castling type
+        const isKingSideCastling = to[1] > from[1]; // Moving right
+        const rookFromCol = isKingSideCastling ? 7 : 0;
+        const rookToCol = isKingSideCastling ? 5 : 3; // f1/f8 or d1/d8
+
+        // Move the rook
+        newBoard[to[0]][rookToCol] = newBoard[from[0]][rookFromCol];
+        newBoard[from[0]][rookFromCol] = null;
+      }
+
       // Pawn promotion: nếu tốt đi đến hàng cuối thì thành Queen
       if (
         movedPiece &&
@@ -267,12 +487,16 @@ export default function ChessGame() {
       ) {
         movedPiece = movedPiece[0] + "Q";
       }
+
       newBoard[to[0]][to[1]] = movedPiece;
       newBoard[from[0]][from[1]] = null;
+
       return {
         ...prev,
         board: newBoard,
         currentPlayer: prev.currentPlayer === "WHITE" ? "BLACK" : "WHITE",
+        castlingRights: newCastlingRights,
+        enPassantTarget: enPassantTarget,
         moveHistory: [
           ...(prev.moveHistory || []),
           {
@@ -284,6 +508,13 @@ export default function ChessGame() {
               ((from[0] === 1 && to[0] === 0) || (from[0] === 6 && to[0] === 7))
                 ? "Q"
                 : undefined,
+            isCastling:
+              prev.board[from[0]][from[1]][1] === "K" &&
+              Math.abs(to[1] - from[1]) === 2,
+            isEnPassant:
+              prev.board[from[0]][from[1]][1] === "P" &&
+              Math.abs(to[1] - from[1]) === 1 &&
+              !prev.board[to[0]][to[1]],
           },
         ],
       };
