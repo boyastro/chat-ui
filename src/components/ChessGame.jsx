@@ -66,6 +66,7 @@ export default function ChessGame() {
       console.error("[WebSocket] Error", e);
       setConnectionStatus("error");
     };
+    // Xử lý khi backend trả về thông tin move
     ws.current.onmessage = (event) => {
       console.log("[WebSocket] Message received:", event.data);
       try {
@@ -95,6 +96,47 @@ export default function ChessGame() {
             break;
           case "move":
             if (!payload) return;
+            console.log("[WebSocket] Received move update:", payload);
+
+            // Phát hiện các tình huống cho en passant
+            // Nếu có nước đi là tốt đi 2 ô, cần tạo enPassantTarget
+            let enPassantTarget = null;
+            if (
+              payload.move &&
+              payload.move.piece &&
+              payload.move.piece[1] === "P" &&
+              Math.abs(payload.move.to.y - payload.move.from.y) === 2
+            ) {
+              // Xác định vị trí enPassantTarget - ô phía sau tốt vừa đi
+              const direction = payload.move.piece[0] === "w" ? 1 : -1; // Hướng đi của tốt
+              enPassantTarget = {
+                x: payload.move.to.x, // Cột không thay đổi
+                y: payload.move.to.y + direction, // Hàng phía sau tốt
+              };
+              console.log(
+                "[WebSocket] Created en passant target:",
+                enPassantTarget
+              );
+            }
+
+            // Sử dụng enPassantTarget từ server nếu có, hoặc từ phát hiện nội bộ
+            const finalEnPassantTarget =
+              payload.enPassantTarget || enPassantTarget;
+
+            if (payload.move && payload.move.isEnPassant) {
+              console.log(
+                "[WebSocket] En passant move detected from server:",
+                payload.move
+              );
+            }
+
+            // Hiển thị thông tin enPassantTarget cho debug
+            if (finalEnPassantTarget) {
+              console.log(
+                "[WebSocket] Using en passant target:",
+                finalEnPassantTarget
+              );
+            }
             setGame((prev) => ({
               ...prev,
               board: payload.board,
@@ -103,6 +145,8 @@ export default function ChessGame() {
                 ? [...prev.moveHistory, payload.move]
                 : [payload.move],
               status: payload.status,
+              // Cập nhật enPassantTarget từ server hoặc từ phát hiện nội bộ
+              enPassantTarget: finalEnPassantTarget,
             }));
             break;
           case "gameOver":
@@ -272,6 +316,33 @@ export default function ChessGame() {
           enPassantTarget.x === ty && // Target matches column
           enPassantTarget.y === tx // Target matches row
         ) {
+          // Kiểm tra nếu có quân tốt đối phương ở vị trí bên cạnh
+          const capturedPawnRow = fx; // Cùng hàng với quân tốt đang di chuyển
+          const capturedPawnCol = ty; // Cùng cột với ô đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          // Nếu không có quân tốt đối phương, hoặc không phải là tốt, hoặc cùng màu - không phải en passant
+          if (
+            !capturedPawn ||
+            capturedPawn[1] !== "P" ||
+            capturedPawn[0] === piece[0]
+          ) {
+            console.log(
+              "Invalid en passant - no opponent pawn at capture position:",
+              {
+                capturePosition: [capturedPawnRow, capturedPawnCol],
+                pieceAtCapture: capturedPawn,
+              }
+            );
+            return false;
+          }
+
+          console.log("En passant capture is VALID for move:", {
+            from: [fx, fy],
+            to: [tx, ty],
+            enPassantTarget,
+            capturedPawn,
+          });
           return true;
         }
 
@@ -401,7 +472,7 @@ export default function ChessGame() {
       piece && piece[1] === "K" && Math.abs(to[1] - from[1]) === 2;
 
     // Check if this is an en passant move
-    const isEnPassant =
+    let isEnPassant =
       piece &&
       piece[1] === "P" && // Là quân tốt
       Math.abs(to[1] - from[1]) === 1 && // Tốt di chuyển chéo
@@ -410,8 +481,45 @@ export default function ChessGame() {
       game.enPassantTarget.x === to[1] && // Khớp cột của ô đích
       game.enPassantTarget.y === to[0]; // Khớp hàng của ô đích
 
+    // Kiểm tra thêm điều kiện: có quân tốt đối phương ở vị trí cần bắt
+    if (isEnPassant) {
+      const capturedPawnRow = from[0]; // Cùng hàng với quân tốt đang di chuyển
+      const capturedPawnCol = to[1]; // Cùng cột với ô đích
+      const capturedPawn = game.board[capturedPawnRow][capturedPawnCol];
+
+      // Kiểm tra xem có quân tốt đối phương ở vị trí bắt không
+      if (
+        !capturedPawn ||
+        capturedPawn[1] !== "P" ||
+        capturedPawn[0] === piece[0]
+      ) {
+        console.log(
+          "Invalid en passant - no opponent pawn at capture position"
+        );
+        isEnPassant = false;
+      } else {
+        console.log("Valid en passant capture found:", {
+          from,
+          to,
+          capturedPawn,
+          enPassantTarget: game.enPassantTarget,
+        });
+      }
+    }
+
     // For special moves, don't update UI, just send to backend and wait for response
     const isSpecialMove = isCastling || isEnPassant;
+
+    // Debugging special moves
+    if (isSpecialMove) {
+      console.log("Special move detected:", {
+        isCastling,
+        isEnPassant,
+        from,
+        to,
+        piece,
+      });
+    }
 
     if (!isSpecialMove) {
       setGame((prev) => {
@@ -477,10 +585,20 @@ export default function ChessGame() {
         ) {
           // Remove the captured pawn
           // Pawn to be captured is on the same row as the moving pawn, and same column as the destination
-          const capturedPawnRow = from[0];
-          const capturedPawnCol = to[1];
+          // Tốt bị bắt nằm ở cùng hàng với quân tốt đang di chuyển và cùng cột với ô đích
           console.log(
-            `[En Passant] Capturing pawn at [${capturedPawnRow}][${capturedPawnCol}]`
+            `[En Passant] Before capture - piece at target: ${
+              prev.board[prev.enPassantTarget.y][prev.enPassantTarget.x]
+            }`
+          );
+
+          // Vị trí của quân tốt bị bắt
+          // Với En Passant, quân tốt bị bắt luôn nằm ở hàng của quân tốt đi và cột của ô đích
+          const capturedPawnRow = from[0]; // Hàng của quân tốt đi
+          const capturedPawnCol = to[1]; // Cột của ô đích
+
+          console.log(
+            `[En Passant] Capturing pawn at [${capturedPawnRow}][${capturedPawnCol}]: ${newBoard[capturedPawnRow][capturedPawnCol]}`
           );
           newBoard[capturedPawnRow][capturedPawnCol] = null;
         }
@@ -536,7 +654,10 @@ export default function ChessGame() {
               isEnPassant:
                 prev.board[from[0]][from[1]][1] === "P" &&
                 Math.abs(to[1] - from[1]) === 1 &&
-                !prev.board[to[0]][to[1]],
+                !prev.board[to[0]][to[1]] &&
+                prev.enPassantTarget &&
+                prev.enPassantTarget.x === to[1] &&
+                prev.enPassantTarget.y === to[0],
             },
           ],
         };
@@ -574,16 +695,17 @@ export default function ChessGame() {
       if (isEnPassant) {
         msg.enPassant = true;
         // Vị trí của quân tốt bị bắt (ở cùng hàng với quân tốt đi, cùng cột với ô đích)
-        // Nếu tốt trắng đi từ dưới lên (hàng giảm) thì tốt đen ở hàng giảm + 1
-        // Nếu tốt đen đi từ trên xuống (hàng tăng) thì tốt trắng ở hàng tăng - 1
-        const pawnColor = game?.board?.[from[0]]?.[from[1]]?.[0]; // 'w' hoặc 'b'
-        const capturedRow = pawnColor === "w" ? from[0] : from[0]; // Cùng hàng với quân đi
+        const capturedRow = from[0]; // Hàng của quân tốt đi
+        const capturedCol = to[1]; // Cột của ô đích
 
         msg.capturedPawn = {
-          x: to[1], // Cột của ô đích
+          x: capturedCol, // Cột của ô đích
           y: capturedRow, // Hàng của quân tốt đi
         };
         console.log("[WebSocket] Sending en passant move:", msg);
+        console.log(
+          `[WebSocket] Captured pawn at [${capturedRow}][${capturedCol}]: ${game.board[capturedRow][capturedCol]}`
+        );
       }
 
       console.log("[SEND TO BACKEND]", msg);
@@ -607,9 +729,86 @@ export default function ChessGame() {
   function getAllValidMoves(board, from, currentPlayer) {
     const moves = [];
     if (!board || !from) return moves;
+
+    // Log thông tin về các nước đi hợp lệ cho quân tốt nếu cần bắt tốt qua đường
+    const piece = board[from[0]][from[1]];
+    if (piece && piece[1] === "P" && game?.enPassantTarget) {
+      console.log("[ValidMoves] Checking en passant for pawn at:", from);
+      console.log("[ValidMoves] En passant target:", game.enPassantTarget);
+
+      // Kiểm tra nếu có quân tốt đối phương ở vị trí bắt qua đường
+      const color = piece[0] === "w" ? "WHITE" : "BLACK";
+      const dir = color === "WHITE" ? -1 : 1;
+
+      // Tính toán các vị trí có thể bắt tốt qua đường
+      if (from[1] > 0) {
+        // Kiểm tra bên trái
+        const checkPos = [from[0] + dir, from[1] - 1];
+        if (
+          game.enPassantTarget.x === checkPos[1] &&
+          game.enPassantTarget.y === checkPos[0]
+        ) {
+          // Kiểm tra xem có quân tốt đối phương ở vị trí cần bắt không
+          const capturedPawnRow = from[0]; // Cùng hàng
+          const capturedPawnCol = checkPos[1]; // Cột đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          if (
+            capturedPawn &&
+            capturedPawn[1] === "P" &&
+            capturedPawn[0] !== piece[0]
+          ) {
+            console.log(
+              "[ValidMoves] Found potential en passant capture to left:",
+              checkPos
+            );
+          }
+        }
+      }
+
+      if (from[1] < 7) {
+        // Kiểm tra bên phải
+        const checkPos = [from[0] + dir, from[1] + 1];
+        if (
+          game.enPassantTarget.x === checkPos[1] &&
+          game.enPassantTarget.y === checkPos[0]
+        ) {
+          // Kiểm tra xem có quân tốt đối phương ở vị trí cần bắt không
+          const capturedPawnRow = from[0]; // Cùng hàng
+          const capturedPawnCol = checkPos[1]; // Cột đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          if (
+            capturedPawn &&
+            capturedPawn[1] === "P" &&
+            capturedPawn[0] !== piece[0]
+          ) {
+            console.log(
+              "[ValidMoves] Found potential en passant capture to right:",
+              checkPos
+            );
+          }
+        }
+      }
+    }
+
     for (let tx = 0; tx < 8; tx++) {
       for (let ty = 0; ty < 8; ty++) {
         if (isLegalMove(board, from, [tx, ty], currentPlayer)) {
+          // Log nếu đây là nước đi en passant hợp lệ
+          if (
+            piece &&
+            piece[1] === "P" &&
+            Math.abs(ty - from[1]) === 1 &&
+            game?.enPassantTarget &&
+            game.enPassantTarget.x === ty &&
+            game.enPassantTarget.y === tx
+          ) {
+            console.log("[ValidMoves] Found valid en passant move to:", [
+              tx,
+              ty,
+            ]);
+          }
           moves.push([tx, ty]);
         }
       }
@@ -643,10 +842,15 @@ export default function ChessGame() {
         cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
       if (color !== game.currentPlayer) return;
       setSelected(clickedSquare);
-      // Highlight valid moves for this piece
-      setValidMovesUI(
-        getAllValidMoves(game.board, clickedSquare, game.currentPlayer)
+
+      // Lấy các nước đi hợp lệ và highlight
+      const validMoves = getAllValidMoves(
+        game.board,
+        clickedSquare,
+        game.currentPlayer
       );
+      console.log(`Valid moves for ${cell} at [${i}][${j}]:`, validMoves);
+      setValidMovesUI(validMoves);
     } else {
       // If clicking same square, deselect
       if (selected[0] === i && selected[1] === j) {
@@ -669,9 +873,16 @@ export default function ChessGame() {
             cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
           if (color === game.currentPlayer) {
             setSelected(clickedSquare);
-            setValidMovesUI(
-              getAllValidMoves(game.board, clickedSquare, game.currentPlayer)
+            const validMoves = getAllValidMoves(
+              game.board,
+              clickedSquare,
+              game.currentPlayer
             );
+            console.log(
+              `Valid moves for new selection ${cell} at [${i}][${j}]:`,
+              validMoves
+            );
+            setValidMovesUI(validMoves);
             return;
           }
         }
