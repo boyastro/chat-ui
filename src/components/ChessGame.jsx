@@ -529,11 +529,6 @@ export default function ChessGame() {
         <h2 className="w-full sm:w-auto text-lg sm:text-2xl font-bold text-center text-indigo-800 mt-2 sm:mt-0">
           ♟️ Chess Game ♟️
         </h2>
-        {game && game.withAI && (
-          <div className="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-md">
-            🤖 AI Opponent
-          </div>
-        )}
       </div>
 
       <div className="flex flex-col md:flex-row md:items-center items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
