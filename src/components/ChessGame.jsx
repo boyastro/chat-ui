@@ -171,7 +171,16 @@ export default function ChessGame() {
         // Pawn
         const dir = color === "WHITE" ? -1 : 1;
         // Move forward
-        if (dy === 0 && dx === dir && !target) return true;
+        if (dy === 0 && dx === dir && !target) {
+          // Promotion
+          if (
+            (color === "WHITE" && tx === 0) ||
+            (color === "BLACK" && tx === 7)
+          ) {
+            return true; // allow promotion
+          }
+          return true;
+        }
         // First move: two squares
         if (
           dy === 0 &&
@@ -187,8 +196,16 @@ export default function ChessGame() {
           dx === dir &&
           target &&
           target[0] !== piece[0]
-        )
+        ) {
+          // Promotion on capture
+          if (
+            (color === "WHITE" && tx === 0) ||
+            (color === "BLACK" && tx === 7)
+          ) {
+            return true;
+          }
           return true;
+        }
         return false;
       }
       case "R": {
@@ -235,7 +252,17 @@ export default function ChessGame() {
     setGame((prev) => {
       if (!prev) return prev;
       const newBoard = prev.board.map((row) => [...row]);
-      newBoard[to[0]][to[1]] = newBoard[from[0]][from[1]];
+      let movedPiece = newBoard[from[0]][from[1]];
+      // Pawn promotion: nếu tốt đi đến hàng cuối thì thành Queen
+      if (
+        movedPiece &&
+        movedPiece[1] === "P" &&
+        ((movedPiece[0] === "w" && to[0] === 0) ||
+          (movedPiece[0] === "b" && to[0] === 7))
+      ) {
+        movedPiece = movedPiece[0] + "Q";
+      }
+      newBoard[to[0]][to[1]] = movedPiece;
       newBoard[from[0]][from[1]] = null;
       return {
         ...prev,
@@ -247,6 +274,11 @@ export default function ChessGame() {
             from: { x: from[1], y: from[0] },
             to: { x: to[1], y: to[0] },
             piece: newBoard[to[0]][to[1]],
+            promotion:
+              prev.board[from[0]][from[1]][1] === "P" &&
+              ((from[0] === 1 && to[0] === 0) || (from[0] === 6 && to[0] === 7))
+                ? "Q"
+                : undefined,
           },
         ],
       };
@@ -260,6 +292,16 @@ export default function ChessGame() {
         from: { x: from[1], y: from[0] }, // col, row
         to: { x: to[1], y: to[0] }, // col, row
       };
+      // Nếu là phong hậu thì gửi thêm promotion
+      const movingPiece = game?.board?.[from[0]]?.[from[1]];
+      if (
+        movingPiece &&
+        movingPiece[1] === "P" &&
+        ((movingPiece[0] === "w" && to[0] === 0) ||
+          (movingPiece[0] === "b" && to[0] === 7))
+      ) {
+        msg.promotion = "Q";
+      }
       console.log("[SEND TO BACKEND]", msg);
       ws.current.send(JSON.stringify(msg));
     }, 0);
