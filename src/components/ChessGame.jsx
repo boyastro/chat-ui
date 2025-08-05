@@ -393,132 +393,140 @@ export default function ChessGame() {
   }
 
   // Send move to backend (convert [row, col] to {x, y})
-  // Move piece on UI immediately, backend only checks win/lose
+  // For regular moves: update UI immediately, for castling: wait for backend
   const sendMove = (from, to) => {
-    setGame((prev) => {
-      if (!prev) return prev;
-      const newBoard = prev.board.map((row) => [...row]);
-      let movedPiece = newBoard[from[0]][from[1]];
+    // Check if this is a castling move
+    const piece = game?.board?.[from[0]]?.[from[1]];
+    const isCastling =
+      piece && piece[1] === "K" && Math.abs(to[1] - from[1]) === 2;
 
-      // Update castling rights
-      const newCastlingRights = {
-        ...(prev.castlingRights || {
-          w: { kingSide: true, queenSide: true },
-          b: { kingSide: true, queenSide: true },
-        }),
-      };
+    // For castling moves, don't update UI, just send to backend and wait for response
+    if (!isCastling) {
+      setGame((prev) => {
+        if (!prev) return prev;
+        const newBoard = prev.board.map((row) => [...row]);
+        let movedPiece = newBoard[from[0]][from[1]];
 
-      // If king moves, lose all castling rights for that color
-      if (movedPiece && movedPiece[1] === "K") {
-        const colorKey = movedPiece[0];
-        if (newCastlingRights[colorKey]) {
-          newCastlingRights[colorKey].kingSide = false;
-          newCastlingRights[colorKey].queenSide = false;
-        }
-      }
+        // Update castling rights
+        const newCastlingRights = {
+          ...(prev.castlingRights || {
+            w: { kingSide: true, queenSide: true },
+            b: { kingSide: true, queenSide: true },
+          }),
+        };
 
-      // If rook moves, lose castling rights for that side
-      if (movedPiece && movedPiece[1] === "R") {
-        const colorKey = movedPiece[0];
-        if (newCastlingRights[colorKey]) {
-          // King-side rook (h1/h8)
-          if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 7) {
+        // If king moves, lose all castling rights for that color
+        if (movedPiece && movedPiece[1] === "K") {
+          const colorKey = movedPiece[0];
+          if (newCastlingRights[colorKey]) {
             newCastlingRights[colorKey].kingSide = false;
-          }
-          // Queen-side rook (a1/a8)
-          else if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 0) {
             newCastlingRights[colorKey].queenSide = false;
           }
         }
-      }
 
-      // Set en passant target for pawn double move
-      let enPassantTarget = null;
-      if (movedPiece && movedPiece[1] === "P") {
-        // Double pawn move
-        if (Math.abs(to[0] - from[0]) === 2) {
-          // Set the en passant target to the square behind the pawn
-          const direction = movedPiece[0] === "w" ? -1 : 1;
-          enPassantTarget = {
-            x: to[1],
-            y: to[0] + direction,
-          };
+        // If rook moves, lose castling rights for that side
+        if (movedPiece && movedPiece[1] === "R") {
+          const colorKey = movedPiece[0];
+          if (newCastlingRights[colorKey]) {
+            // King-side rook (h1/h8)
+            if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 7) {
+              newCastlingRights[colorKey].kingSide = false;
+            }
+            // Queen-side rook (a1/a8)
+            else if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 0) {
+              newCastlingRights[colorKey].queenSide = false;
+            }
+          }
         }
-      }
 
-      // Handle en passant capture
-      if (
-        movedPiece &&
-        movedPiece[1] === "P" &&
-        Math.abs(to[1] - from[1]) === 1 && // Moving diagonally
-        !newBoard[to[0]][to[1]] && // No piece at target
-        prev.enPassantTarget && // There is an en passant target
-        prev.enPassantTarget.x === to[1] && // Target matches column
-        prev.enPassantTarget.y === to[0] // Target matches row
-      ) {
-        // Remove the captured pawn
-        const capturedPawnRow = from[0];
-        const capturedPawnCol = to[1];
-        newBoard[capturedPawnRow][capturedPawnCol] = null;
-      }
+        // Set en passant target for pawn double move
+        let enPassantTarget = null;
+        if (movedPiece && movedPiece[1] === "P") {
+          // Double pawn move
+          if (Math.abs(to[0] - from[0]) === 2) {
+            // Set the en passant target to the square behind the pawn
+            const direction = movedPiece[0] === "w" ? -1 : 1;
+            enPassantTarget = {
+              x: to[1],
+              y: to[0] + direction,
+            };
+          }
+        }
 
-      // Handle castling
-      if (
-        movedPiece &&
-        movedPiece[1] === "K" &&
-        Math.abs(to[1] - from[1]) === 2
-      ) {
-        // Determine rook positions based on castling type
-        const isKingSideCastling = to[1] > from[1]; // Moving right
-        const rookFromCol = isKingSideCastling ? 7 : 0;
-        const rookToCol = isKingSideCastling ? 5 : 3; // f1/f8 or d1/d8
+        // Handle en passant capture
+        if (
+          movedPiece &&
+          movedPiece[1] === "P" &&
+          Math.abs(to[1] - from[1]) === 1 && // Moving diagonally
+          !newBoard[to[0]][to[1]] && // No piece at target
+          prev.enPassantTarget && // There is an en passant target
+          prev.enPassantTarget.x === to[1] && // Target matches column
+          prev.enPassantTarget.y === to[0] // Target matches row
+        ) {
+          // Remove the captured pawn
+          const capturedPawnRow = from[0];
+          const capturedPawnCol = to[1];
+          newBoard[capturedPawnRow][capturedPawnCol] = null;
+        }
 
-        // Move the rook
-        newBoard[to[0]][rookToCol] = newBoard[from[0]][rookFromCol];
-        newBoard[from[0]][rookFromCol] = null;
-      }
+        // Handle castling
+        if (
+          movedPiece &&
+          movedPiece[1] === "K" &&
+          Math.abs(to[1] - from[1]) === 2
+        ) {
+          // Determine rook positions based on castling type
+          const isKingSideCastling = to[1] > from[1]; // Moving right
+          const rookFromCol = isKingSideCastling ? 7 : 0;
+          const rookToCol = isKingSideCastling ? 5 : 3; // f1/f8 or d1/d8
 
-      // Pawn promotion: nếu tốt đi đến hàng cuối thì thành Queen
-      if (
-        movedPiece &&
-        movedPiece[1] === "P" &&
-        ((movedPiece[0] === "w" && to[0] === 0) ||
-          (movedPiece[0] === "b" && to[0] === 7))
-      ) {
-        movedPiece = movedPiece[0] + "Q";
-      }
+          // Move the rook
+          newBoard[to[0]][rookToCol] = newBoard[from[0]][rookFromCol];
+          newBoard[from[0]][rookFromCol] = null;
+        }
 
-      newBoard[to[0]][to[1]] = movedPiece;
-      newBoard[from[0]][from[1]] = null;
+        // Pawn promotion: nếu tốt đi đến hàng cuối thì thành Queen
+        if (
+          movedPiece &&
+          movedPiece[1] === "P" &&
+          ((movedPiece[0] === "w" && to[0] === 0) ||
+            (movedPiece[0] === "b" && to[0] === 7))
+        ) {
+          movedPiece = movedPiece[0] + "Q";
+        }
 
-      return {
-        ...prev,
-        board: newBoard,
-        currentPlayer: prev.currentPlayer === "WHITE" ? "BLACK" : "WHITE",
-        castlingRights: newCastlingRights,
-        enPassantTarget: enPassantTarget,
-        moveHistory: [
-          ...(prev.moveHistory || []),
-          {
-            from: { x: from[1], y: from[0] },
-            to: { x: to[1], y: to[0] },
-            piece: newBoard[to[0]][to[1]],
-            promotion:
-              prev.board[from[0]][from[1]][1] === "P" &&
-              ((from[0] === 1 && to[0] === 0) || (from[0] === 6 && to[0] === 7))
-                ? "Q"
-                : undefined,
-            isCastling:
-              prev.board[from[0]][from[1]][1] === "K" &&
-              Math.abs(to[1] - from[1]) === 2,
-            isEnPassant:
-              prev.board[from[0]][from[1]][1] === "P" &&
-              Math.abs(to[1] - from[1]) === 1 &&
-              !prev.board[to[0]][to[1]],
-          },
-        ],
-      };
-    });
+        newBoard[to[0]][to[1]] = movedPiece;
+        newBoard[from[0]][from[1]] = null;
+
+        return {
+          ...prev,
+          board: newBoard,
+          currentPlayer: prev.currentPlayer === "WHITE" ? "BLACK" : "WHITE",
+          castlingRights: newCastlingRights,
+          enPassantTarget: enPassantTarget,
+          moveHistory: [
+            ...(prev.moveHistory || []),
+            {
+              from: { x: from[1], y: from[0] },
+              to: { x: to[1], y: to[0] },
+              piece: newBoard[to[0]][to[1]],
+              promotion:
+                prev.board[from[0]][from[1]][1] === "P" &&
+                ((from[0] === 1 && to[0] === 0) ||
+                  (from[0] === 6 && to[0] === 7))
+                  ? "Q"
+                  : undefined,
+              isCastling: false, // This is not a castling move in this case
+              isEnPassant:
+                prev.board[from[0]][from[1]][1] === "P" &&
+                Math.abs(to[1] - from[1]) === 1 &&
+                !prev.board[to[0]][to[1]],
+            },
+          ],
+        };
+      });
+    }
+
     // Gửi message cho backend sau mỗi lần di chuyển
     setTimeout(() => {
       if (!ws.current || ws.current.readyState !== 1) return;
@@ -538,6 +546,14 @@ export default function ChessGame() {
       ) {
         msg.promotion = "Q";
       }
+
+      // Nếu là nhập thành thì gửi thêm thông tin castling
+      if (isCastling) {
+        msg.castling = true;
+        msg.castlingSide = to[1] > from[1] ? "kingside" : "queenside";
+        console.log("[WebSocket] Sending castling move:", msg);
+      }
+
       console.log("[SEND TO BACKEND]", msg);
       ws.current.send(JSON.stringify(msg));
     }, 0);
