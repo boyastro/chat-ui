@@ -1092,7 +1092,7 @@ export default function ChessGame() {
                             <div
                               key={i + "-" + j}
                               className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl sm:text-3xl md:text-4xl transition-all duration-150
-                            ${isWhiteSquare ? "bg-slate-400" : "bg-slate-700"}
+                            ${isWhiteSquare ? "bg-amber-100" : "bg-teal-700"}
                             ${
                               isSelected
                                 ? "ring-2 ring-indigo-400 ring-inset"
@@ -1104,7 +1104,7 @@ export default function ChessGame() {
                                 : ""
                             }
                             ${pieceColorClass}
-                            hover:bg-gray-600 hover:bg-opacity-60
+                            hover:bg-teal-500 hover:bg-opacity-70
                           `}
                               onClick={() => handleSquareClick(realI, realJ)}
                             >
