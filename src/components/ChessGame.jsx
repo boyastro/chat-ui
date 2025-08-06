@@ -1050,9 +1050,10 @@ export default function ChessGame() {
                               ([x, y]) => x === realI && y === realJ
                             );
                           }
-                          // Map backend code (bR, wK, ...) to Unicode chess piece
+                          // Map backend code (bR, wK, ...) to SVG chess piece
                           let piece = null;
                           let pieceColorClass = "";
+                          let svgPiece = null;
                           if (typeof cell === "string" && cell.length === 2) {
                             const color =
                               cell[0] === "w"
@@ -1075,6 +1076,16 @@ export default function ChessGame() {
                                 color === "WHITE"
                                   ? "text-white drop-shadow-md font-bold"
                                   : "text-gray-900 drop-shadow-sm font-bold";
+                              // Sử dụng SVG thay cho ký tự Unicode
+                              const svgName = `${cell[0]}${cell[1]}`; // vd: wK, bP
+                              svgPiece = (
+                                <img
+                                  src={`/chess/${svgName}.svg`}
+                                  alt={piece}
+                                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 select-none"
+                                  draggable={false}
+                                />
+                              );
                             }
                           }
                           return (
@@ -1098,7 +1109,7 @@ export default function ChessGame() {
                               onClick={() => handleSquareClick(realI, realJ)}
                             >
                               <span className="transform hover:scale-110 transition-transform duration-200">
-                                {piece}
+                                {svgPiece || piece}
                               </span>
                             </div>
                           );
