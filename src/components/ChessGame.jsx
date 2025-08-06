@@ -1266,7 +1266,7 @@ export default function ChessGame() {
                           return (
                             <div
                               key={i + "-" + j}
-                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl sm:text-3xl md:text-4xl transition-all duration-150
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl sm:text-3xl md:text-4xl transition-all duration-300
                             ${isWhiteSquare ? "bg-amber-100" : "bg-teal-700"}
                             ${
                               isSelected
@@ -1280,7 +1280,7 @@ export default function ChessGame() {
                             }
                             ${
                               isLastMove
-                                ? "ring-4 ring-yellow-400 ring-offset-2 animate-pulse"
+                                ? "ring-2 ring-yellow-400 ring-inset animate-pulse-slow"
                                 : ""
                             }
                             ${pieceColorClass}
@@ -1288,7 +1288,7 @@ export default function ChessGame() {
                           `}
                               onClick={() => handleSquareClick(realI, realJ)}
                             >
-                              <span className="transform hover:scale-110 transition-transform duration-200">
+                              <span className="transform hover:scale-105 transition-transform duration-300">
                                 {svgPiece || piece}
                               </span>
                             </div>
