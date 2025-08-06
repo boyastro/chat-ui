@@ -1053,6 +1053,24 @@ export default function ChessGame() {
                             selected &&
                             selected[0] === realI &&
                             selected[1] === realJ;
+                          // Highlight the most recently moved piece
+                          let isLastMove = false;
+                          if (
+                            game &&
+                            game.moveHistory &&
+                            game.moveHistory.length > 0
+                          ) {
+                            const lastMove =
+                              game.moveHistory[game.moveHistory.length - 1];
+                            if (
+                              lastMove &&
+                              lastMove.to &&
+                              lastMove.to.y === realI &&
+                              lastMove.to.x === realJ
+                            ) {
+                              isLastMove = true;
+                            }
+                          }
                           // Highlight valid moves for selected piece (UI)
                           let isValidMove = false;
                           if (selected && validMovesUI.length > 0) {
@@ -1111,6 +1129,11 @@ export default function ChessGame() {
                             ${
                               isValidMove
                                 ? "ring-2 ring-green-500 ring-inset"
+                                : ""
+                            }
+                            ${
+                              isLastMove
+                                ? "ring-4 ring-yellow-400 ring-offset-2 animate-pulse"
                                 : ""
                             }
                             ${pieceColorClass}
