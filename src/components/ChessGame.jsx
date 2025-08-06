@@ -1224,26 +1224,6 @@ export default function ChessGame() {
           </div>
         </div>
       </div>
-
-      <div className="mt-4 p-2 sm:p-3 bg-indigo-100 rounded-xl text-indigo-800 shadow-inner text-center text-xs sm:text-sm">
-        {game && game.moveHistory && game.moveHistory.length > 0 ? (
-          <div className="flex flex-col">
-            <h4 className="font-semibold mb-1">Recent Moves</h4>
-            <div className="max-h-16 overflow-y-auto">
-              {game.moveHistory.slice(-5).map((move, index) => (
-                <p key={index} className="text-xs mb-1">
-                  {move.piece} {move.notation}
-                </p>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p>
-            Click a piece to select it, then click a destination square to move.
-            Green-highlighted squares show valid moves (if supported).
-          </p>
-        )}
-      </div>
     </div>
   );
 }
