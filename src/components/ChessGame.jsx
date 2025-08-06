@@ -1462,13 +1462,13 @@ export default function ChessGame() {
           </div>
         </div>
 
-        <div className="mt-2 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-1 sm:p-3 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-12">
-          <h3 className="font-bold text-indigo-700 mb-1 text-center text-sm sm:text-base md:text-lg">
+        <div className="mt-1 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-0 sm:p-1 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-12">
+          <h3 className="font-bold text-indigo-700 mb-0 text-center text-xs sm:text-sm md:text-base">
             Selected Square
           </h3>
           {selected ? (
-            <div className="flex flex-row items-center justify-center gap-2">
-              <span className="text-gray-800 text-sm sm:text-base md:text-lg font-semibold">
+            <div className="flex flex-row items-center justify-center gap-1">
+              <span className="text-gray-800 text-xs sm:text-sm md:text-base font-semibold">
                 {files[selected[1]]}
                 {ranks[selected[0]]}
               </span>
@@ -1506,7 +1506,7 @@ export default function ChessGame() {
                       );
                     } else {
                       return (
-                        <span className="ml-1 text-base sm:ml-2 sm:text-lg md:text-xl">
+                        <span className="ml-0 text-xs sm:ml-1 sm:text-sm md:text-base">
                           {cell}
                         </span>
                       );
@@ -1516,15 +1516,15 @@ export default function ChessGame() {
                 })()}
             </div>
           ) : (
-            <p className="text-gray-600 italic text-center text-xs sm:text-sm">
+            <p className="text-gray-600 italic text-center text-xs sm:text-xs">
               No square selected
             </p>
           )}
-          <div className="mt-1 sm:mt-2 md:mt-4 pt-1 sm:pt-2 md:pt-4 border-t border-gray-300 w-full">
-            <h3 className="font-bold text-indigo-700 mb-1 text-center text-sm sm:text-base md:text-lg">
+          <div className="mt-0 sm:mt-1 md:mt-2 pt-0 sm:pt-1 md:pt-2 border-t border-gray-300 w-full">
+            <h3 className="font-bold text-indigo-700 mb-0 text-center text-xs sm:text-sm md:text-base">
               Game Status
             </h3>
-            <p className="text-gray-800 text-center text-xs sm:text-sm md:text-base">
+            <p className="text-gray-800 text-center text-xs sm:text-xs md:text-sm">
               {game
                 ? `${game.currentPlayer}'s Turn${
                     game.withAI &&
@@ -1540,11 +1540,11 @@ export default function ChessGame() {
                 : "Đang tải..."}
             </p>
             {selected ? (
-              <p className="text-emerald-600 text-xs mt-1 text-center font-semibold">
+              <p className="text-emerald-600 text-xs mt-0 text-center font-semibold">
                 Chọn điểm đến cho quân cờ
               </p>
             ) : (
-              <p className="text-gray-600 text-xs mt-1 text-center">
+              <p className="text-gray-600 text-xs mt-0 text-center">
                 Chọn quân cờ để di chuyển
               </p>
             )}
