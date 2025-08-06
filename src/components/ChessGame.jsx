@@ -1129,7 +1129,7 @@ export default function ChessGame() {
                             <div
                               key={i + "-" + j}
                               className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-2xl ${
-                                isWhiteSquare ? "bg-slate-500" : "bg-slate-700"
+                                isWhiteSquare ? "bg-amber-100" : "bg-teal-700"
                               }`}
                             ></div>
                           );
