@@ -902,6 +902,153 @@ export default function ChessGame() {
               <div className="text-lg font-semibold text-indigo-700 text-center">
                 Đang chuẩn bị bàn cờ
               </div>
+              {/* Captured pieces row */}
+              {game && game.moveHistory && game.moveHistory.length > 0 && (
+                <div className="w-full flex flex-col gap-1 mt-2">
+                  {/* White's captured pieces */}
+                  <div className="flex flex-row items-center gap-1 justify-start min-h-[28px]">
+                    <span className="text-xs font-semibold text-gray-700 mr-2">
+                      Trắng đã mất:
+                    </span>
+                    {(() => {
+                      // All black pieces captured by white
+                      const initial = [
+                        "bK",
+                        "bQ",
+                        "bR",
+                        "bR",
+                        "bB",
+                        "bB",
+                        "bN",
+                        "bN",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                      ];
+                      const current = [];
+                      if (game.board) {
+                        for (let i = 0; i < 8; i++) {
+                          for (let j = 0; j < 8; j++) {
+                            const cell = game.board[i][j];
+                            if (typeof cell === "string" && cell[0] === "b") {
+                              current.push(cell);
+                            }
+                          }
+                        }
+                      }
+                      // Count lost pieces
+                      const lost = {};
+                      initial.forEach((piece) => {
+                        lost[piece] = (lost[piece] || 0) + 1;
+                      });
+                      current.forEach((piece) => {
+                        if (lost[piece]) lost[piece]--;
+                      });
+                      // Render SVGs for lost pieces
+                      return Object.entries(lost)
+                        .filter(([_, count]) => count > 0)
+                        .map(([piece, count], idx) => {
+                          const typeMap = {
+                            K: "KING",
+                            Q: "QUEEN",
+                            R: "ROOK",
+                            B: "BISHOP",
+                            N: "KNIGHT",
+                            P: "PAWN",
+                          };
+                          const type = typeMap[piece[1]];
+                          return Array(count)
+                            .fill(0)
+                            .map((_, i) => (
+                              <img
+                                key={piece + idx + i}
+                                src={`/chess/${piece}.svg`}
+                                alt={type}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                                draggable={false}
+                              />
+                            ));
+                        });
+                    })()}
+                  </div>
+                  {/* Black's captured pieces */}
+                  <div className="flex flex-row items-center gap-1 justify-start min-h-[28px]">
+                    <span className="text-xs font-semibold text-gray-700 mr-2">
+                      Đen đã mất:
+                    </span>
+                    {(() => {
+                      // All white pieces captured by black
+                      const initial = [
+                        "wK",
+                        "wQ",
+                        "wR",
+                        "wR",
+                        "wB",
+                        "wB",
+                        "wN",
+                        "wN",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                      ];
+                      const current = [];
+                      if (game.board) {
+                        for (let i = 0; i < 8; i++) {
+                          for (let j = 0; j < 8; j++) {
+                            const cell = game.board[i][j];
+                            if (typeof cell === "string" && cell[0] === "w") {
+                              current.push(cell);
+                            }
+                          }
+                        }
+                      }
+                      // Count lost pieces
+                      const lost = {};
+                      initial.forEach((piece) => {
+                        lost[piece] = (lost[piece] || 0) + 1;
+                      });
+                      current.forEach((piece) => {
+                        if (lost[piece]) lost[piece]--;
+                      });
+                      // Render SVGs for lost pieces
+                      return Object.entries(lost)
+                        .filter(([_, count]) => count > 0)
+                        .map(([piece, count], idx) => {
+                          const typeMap = {
+                            K: "KING",
+                            Q: "QUEEN",
+                            R: "ROOK",
+                            B: "BISHOP",
+                            N: "KNIGHT",
+                            P: "PAWN",
+                          };
+                          const type = typeMap[piece[1]];
+                          return Array(count)
+                            .fill(0)
+                            .map((_, i) => (
+                              <img
+                                key={piece + idx + i}
+                                src={`/chess/${piece}.svg`}
+                                alt={type}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                                draggable={false}
+                              />
+                            ));
+                        });
+                    })()}
+                  </div>
+                </div>
+              )}
               <div className="text-xs text-gray-500 text-center">
                 Vui lòng chờ hệ thống...
               </div>
@@ -1170,6 +1317,147 @@ export default function ChessGame() {
                     )}
             </div>
           </div>
+          {/* Captured pieces rows - always visible below the board */}
+          {game && game.moveHistory && game.moveHistory.length > 0 && (
+            <div className="w-full flex flex-col gap-1 mt-2 items-center">
+              {/* White's captured pieces */}
+              <div className="flex flex-row items-center gap-1 justify-center min-h-[28px] w-[320px] sm:w-[384px] md:w-[480px]">
+                {(() => {
+                  // All black pieces captured by white
+                  const initial = [
+                    "bK",
+                    "bQ",
+                    "bR",
+                    "bR",
+                    "bB",
+                    "bB",
+                    "bN",
+                    "bN",
+                    "bP",
+                    "bP",
+                    "bP",
+                    "bP",
+                    "bP",
+                    "bP",
+                    "bP",
+                    "bP",
+                  ];
+                  const current = [];
+                  if (game.board) {
+                    for (let i = 0; i < 8; i++) {
+                      for (let j = 0; j < 8; j++) {
+                        const cell = game.board[i][j];
+                        if (typeof cell === "string" && cell[0] === "b") {
+                          current.push(cell);
+                        }
+                      }
+                    }
+                  }
+                  // Count lost pieces
+                  const lost = {};
+                  initial.forEach((piece) => {
+                    lost[piece] = (lost[piece] || 0) + 1;
+                  });
+                  current.forEach((piece) => {
+                    if (lost[piece]) lost[piece]--;
+                  });
+                  // Render SVGs for lost pieces
+                  return Object.entries(lost)
+                    .filter(([_, count]) => count > 0)
+                    .map(([piece, count], idx) => {
+                      const typeMap = {
+                        K: "KING",
+                        Q: "QUEEN",
+                        R: "ROOK",
+                        B: "BISHOP",
+                        N: "KNIGHT",
+                        P: "PAWN",
+                      };
+                      const type = typeMap[piece[1]];
+                      return Array(count)
+                        .fill(0)
+                        .map((_, i) => (
+                          <img
+                            key={piece + idx + i}
+                            src={`/chess/${piece}.svg`}
+                            alt={type}
+                            className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                            draggable={false}
+                          />
+                        ));
+                    });
+                })()}
+              </div>
+              {/* Black's captured pieces */}
+              <div className="flex flex-row items-center gap-1 justify-center min-h-[28px] w-[320px] sm:w-[384px] md:w-[480px]">
+                {(() => {
+                  // All white pieces captured by black
+                  const initial = [
+                    "wK",
+                    "wQ",
+                    "wR",
+                    "wR",
+                    "wB",
+                    "wB",
+                    "wN",
+                    "wN",
+                    "wP",
+                    "wP",
+                    "wP",
+                    "wP",
+                    "wP",
+                    "wP",
+                    "wP",
+                    "wP",
+                  ];
+                  const current = [];
+                  if (game.board) {
+                    for (let i = 0; i < 8; i++) {
+                      for (let j = 0; j < 8; j++) {
+                        const cell = game.board[i][j];
+                        if (typeof cell === "string" && cell[0] === "w") {
+                          current.push(cell);
+                        }
+                      }
+                    }
+                  }
+                  // Count lost pieces
+                  const lost = {};
+                  initial.forEach((piece) => {
+                    lost[piece] = (lost[piece] || 0) + 1;
+                  });
+                  current.forEach((piece) => {
+                    if (lost[piece]) lost[piece]--;
+                  });
+                  // Render SVGs for lost pieces
+                  return Object.entries(lost)
+                    .filter(([_, count]) => count > 0)
+                    .map(([piece, count], idx) => {
+                      const typeMap = {
+                        K: "KING",
+                        Q: "QUEEN",
+                        R: "ROOK",
+                        B: "BISHOP",
+                        N: "KNIGHT",
+                        P: "PAWN",
+                      };
+                      const type = typeMap[piece[1]];
+                      return Array(count)
+                        .fill(0)
+                        .map((_, i) => (
+                          <img
+                            key={piece + idx + i}
+                            src={`/chess/${piece}.svg`}
+                            alt={type}
+                            className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                            draggable={false}
+                          />
+                        ));
+                    });
+                })()}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-2 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-1 sm:p-3 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-6">
