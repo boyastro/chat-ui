@@ -1220,9 +1220,6 @@ export default function ChessGame() {
             Green-highlighted squares show valid moves (if supported).
           </p>
         )}
-        <p className="mt-1 text-xs text-indigo-600">
-          All moves and state are now backend-driven!
-        </p>
       </div>
     </div>
   );
