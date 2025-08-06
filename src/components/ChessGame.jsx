@@ -1318,9 +1318,9 @@ export default function ChessGame() {
             </div>
           </div>
           {/* Captured pieces rows - always visible below the board */}
-          <div className="w-full flex flex-col gap-1 mt-2 items-center min-h-[60px]">
+          <div className="w-full flex flex-col gap-1 mt-2 items-center min-h-[36px]">
             {/* White's captured pieces */}
-            <div className="flex flex-row items-center gap-1 justify-center min-h-[28px] w-[320px] sm:w-[384px] md:w-[480px]">
+            <div className="flex flex-row items-center gap-1 justify-center min-h-[18px] w-[320px] sm:w-[384px] md:w-[480px]">
               {game && game.moveHistory && game.moveHistory.length > 0
                 ? (() => {
                     // All black pieces captured by white
@@ -1390,7 +1390,7 @@ export default function ChessGame() {
                 : null}
             </div>
             {/* Black's captured pieces */}
-            <div className="flex flex-row items-center gap-1 justify-center min-h-[28px] w-[320px] sm:w-[384px] md:w-[480px]">
+            <div className="flex flex-row items-center gap-1 justify-center min-h-[18px] w-[320px] sm:w-[384px] md:w-[480px]">
               {game && game.moveHistory && game.moveHistory.length > 0
                 ? (() => {
                     // All white pieces captured by black
