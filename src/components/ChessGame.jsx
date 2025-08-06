@@ -1275,7 +1275,7 @@ export default function ChessGame() {
                             }
                             ${
                               isValidMove
-                                ? "ring-2 ring-green-500 ring-inset"
+                                ? "ring-2 ring-orange-500 ring-inset"
                                 : ""
                             }
                             ${
