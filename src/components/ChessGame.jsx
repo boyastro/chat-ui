@@ -908,12 +908,7 @@ export default function ChessGame() {
             </div>
           </div>
         )}
-      {/* Connection status */}
-      {connectionStatus !== "connected" && (
-        <div className="text-center text-red-600 font-semibold mb-2">
-          Kết nối tới server: {connectionStatus}
-        </div>
-      )}
+
       {/* Waiting/Preparing modal */}
       {game &&
         !game.withAI &&
