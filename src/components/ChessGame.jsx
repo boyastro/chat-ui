@@ -595,7 +595,7 @@ export default function ChessGame() {
           // Vị trí của quân tốt bị bắt
           // Với En Passant, quân tốt bị bắt luôn nằm ở hàng của quân tốt đi và cột của ô đích
           const capturedPawnRow = from[0]; // Hàng của quân tốt đi
-          const capturedPawnCol = to[1]; // Cột của ô đích
+          const capturedPawnCol = to[1]; // Cùng cột với ô đích
 
           console.log(
             `[En Passant] Capturing pawn at [${capturedPawnRow}][${capturedPawnCol}]: ${newBoard[capturedPawnRow][capturedPawnCol]}`
@@ -696,7 +696,7 @@ export default function ChessGame() {
         msg.enPassant = true;
         // Vị trí của quân tốt bị bắt (ở cùng hàng với quân tốt đi, cùng cột với ô đích)
         const capturedRow = from[0]; // Hàng của quân tốt đi
-        const capturedCol = to[1]; // Cột của ô đích
+        const capturedCol = to[1]; // Cùng cột với ô đích
 
         msg.capturedPawn = {
           x: capturedCol, // Cột của ô đích
@@ -908,7 +908,22 @@ export default function ChessGame() {
             </div>
           </div>
         )}
-
+      {/* Connection status */}
+      {connectionStatus !== "connected" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+          <div className="bg-gradient-to-br from-yellow-50 to-teal-100 rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-yellow-200">
+            <div className="text-4xl mb-2 text-yellow-500">😊</div>
+            <div className="text-lg font-semibold text-teal-700 text-center">
+              Đang kết nối tới server...
+            </div>
+            <div className="text-xs text-gray-600 text-center mt-1">
+              Hãy kiên nhẫn một chút hoặc kiểm tra mạng nhé!
+              <br />
+              Chúng tôi sẽ tự động thử lại cho bạn.
+            </div>
+          </div>
+        </div>
+      )}
       {/* Waiting/Preparing modal */}
       {game &&
         !game.withAI &&
