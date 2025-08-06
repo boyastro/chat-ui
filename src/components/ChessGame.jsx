@@ -1177,16 +1177,53 @@ export default function ChessGame() {
             Selected Square
           </h3>
           {selected ? (
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-row items-center justify-center gap-2">
               <span className="text-gray-800 text-sm sm:text-base md:text-lg font-semibold">
                 {files[selected[1]]}
                 {ranks[selected[0]]}
-                {game && game.board && game.board[selected[0]][selected[1]] && (
-                  <span className="ml-1 text-base sm:ml-2 sm:text-lg md:text-xl">
-                    {game.board[selected[0]][selected[1]]}
-                  </span>
-                )}
               </span>
+              {game &&
+                game.board &&
+                game.board[selected[0]][selected[1]] &&
+                (() => {
+                  const cell = game.board[selected[0]][selected[1]];
+                  if (typeof cell === "string" && cell.length === 2) {
+                    const color =
+                      cell[0] === "w"
+                        ? "WHITE"
+                        : cell[0] === "b"
+                        ? "BLACK"
+                        : null;
+                    const typeMap = {
+                      K: "KING",
+                      Q: "QUEEN",
+                      R: "ROOK",
+                      B: "BISHOP",
+                      N: "KNIGHT",
+                      P: "PAWN",
+                    };
+                    const type = typeMap[cell[1]];
+                    if (color && type && PIECES[color][type]) {
+                      const piece = PIECES[color][type];
+                      const svgName = `${cell[0]}${cell[1]}`;
+                      return (
+                        <img
+                          src={`/chess/${svgName}.svg`}
+                          alt={piece}
+                          className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                          draggable={false}
+                        />
+                      );
+                    } else {
+                      return (
+                        <span className="ml-1 text-base sm:ml-2 sm:text-lg md:text-xl">
+                          {cell}
+                        </span>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
             </div>
           ) : (
             <p className="text-gray-600 italic text-center text-xs sm:text-sm">
