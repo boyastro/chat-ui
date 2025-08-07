@@ -1479,7 +1479,7 @@ export default function ChessGame() {
                 : null}
             </div>
           </div>
-          
+
           {/* Nút chơi lại khi đang ở chế độ xem lại */}
           {game && game.viewingEnded && (
             <div className="w-full flex justify-center mt-4">
@@ -1557,7 +1557,9 @@ export default function ChessGame() {
             </h3>
             <p className="text-gray-800 text-center text-xs sm:text-xs md:text-sm">
               {game && game.viewingEnded ? (
-                <span className="text-yellow-600 font-semibold">Đang xem lại bàn cờ</span>
+                <span className="text-yellow-600 font-semibold">
+                  Đang xem lại bàn cờ
+                </span>
               ) : game ? (
                 `${game.currentPlayer}'s Turn${
                   game.withAI &&
