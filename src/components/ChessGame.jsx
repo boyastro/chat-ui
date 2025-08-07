@@ -1479,6 +1479,18 @@ export default function ChessGame() {
                 : null}
             </div>
           </div>
+          
+          {/* Nút chơi lại khi đang ở chế độ xem lại */}
+          {game && game.viewingEnded && (
+            <div className="w-full flex justify-center mt-4">
+              <button
+                onClick={handleRestart}
+                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-semibold transition text-base flex items-center gap-2"
+              >
+                <span>🔄</span> Chơi lại
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mt-1 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-0 sm:p-1 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-12">
@@ -1544,23 +1556,31 @@ export default function ChessGame() {
               Game Status
             </h3>
             <p className="text-gray-800 text-center text-xs sm:text-xs md:text-sm">
-              {game
-                ? `${game.currentPlayer}'s Turn${
-                    game.withAI &&
-                    game.currentPlayer !==
-                      (myConnectionId &&
-                      game.players &&
-                      game.players.indexOf(myConnectionId) === 0
-                        ? "WHITE"
-                        : "BLACK")
-                      ? " (AI)"
-                      : ""
-                  }`
-                : "Đang tải..."}
+              {game && game.viewingEnded ? (
+                <span className="text-yellow-600 font-semibold">Đang xem lại bàn cờ</span>
+              ) : game ? (
+                `${game.currentPlayer}'s Turn${
+                  game.withAI &&
+                  game.currentPlayer !==
+                    (myConnectionId &&
+                    game.players &&
+                    game.players.indexOf(myConnectionId) === 0
+                      ? "WHITE"
+                      : "BLACK")
+                    ? " (AI)"
+                    : ""
+                }`
+              ) : (
+                "Đang tải..."
+              )}
             </p>
             {selected ? (
               <p className="text-emerald-600 text-xs mt-0 text-center font-semibold">
                 Chọn điểm đến cho quân cờ
+              </p>
+            ) : game && game.viewingEnded ? (
+              <p className="text-orange-600 text-xs mt-0 text-center font-semibold">
+                Chế độ xem lại
               </p>
             ) : (
               <p className="text-gray-600 text-xs mt-0 text-center">
