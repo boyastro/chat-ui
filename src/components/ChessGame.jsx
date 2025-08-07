@@ -831,7 +831,10 @@ export default function ChessGame() {
 
   // Handle square click: chỉ cho phép đi khi đúng lượt
   const handleSquareClick = (i, j) => {
-    if (!game || game.winner) return;
+    if (!game) return;
+    // Nếu ở chế độ xem lại (đã kết thúc game nhưng đang xem lại), không cho phép thực hiện nước đi
+    if (game.viewingEnded) return;
+    if (game.winner) return;
     if (!isMyTurn()) return;
     const clickedSquare = [i, j];
     if (!selected) {
@@ -1091,6 +1094,7 @@ export default function ChessGame() {
       {/* Winner modal */}
       {game &&
         game.winner &&
+        !game.viewingEnded &&
         (() => {
           let result = null;
           let isWin = false;
@@ -1149,18 +1153,33 @@ export default function ChessGame() {
                 <div className="text-base text-gray-700 mb-2 text-center">
                   Game Over !
                 </div>
-                <button
-                  onClick={handleRestart}
-                  className={`px-5 py-2 ${
-                    isWin
-                      ? "bg-green-500 hover:bg-green-600"
-                      : isLose
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-indigo-500 hover:bg-indigo-600"
-                  } text-white rounded-lg shadow font-semibold transition text-base`}
-                >
-                  Chơi lại
-                </button>
+                <div className="flex flex-row gap-3">
+                  <button
+                    onClick={handleRestart}
+                    className={`px-5 py-2 ${
+                      isWin
+                        ? "bg-green-500 hover:bg-green-600"
+                        : isLose
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-indigo-500 hover:bg-indigo-600"
+                    } text-white rounded-lg shadow font-semibold transition text-base`}
+                  >
+                    Chơi lại
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Chỉ đóng modal kết thúc game để người chơi có thể xem lại bàn cờ
+                      setGame((prev) => ({
+                        ...prev,
+                        viewingEnded: true,
+                        winner: null,
+                      }));
+                    }}
+                    className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow font-semibold transition text-base"
+                  >
+                    Xem lại
+                  </button>
+                </div>
               </div>
             </div>
           );
