@@ -1220,7 +1220,8 @@ export default function ChessGame() {
                             selected[0] === realI &&
                             selected[1] === realJ;
                           // Highlight the most recently moved piece
-                          let isLastMove = false;
+                          let isLastMoveTo = false;
+                          let isLastMoveFrom = false;
                           if (
                             game &&
                             game.moveHistory &&
@@ -1234,7 +1235,15 @@ export default function ChessGame() {
                               lastMove.to.y === realI &&
                               lastMove.to.x === realJ
                             ) {
-                              isLastMove = true;
+                              isLastMoveTo = true;
+                            }
+                            if (
+                              lastMove &&
+                              lastMove.from &&
+                              lastMove.from.y === realI &&
+                              lastMove.from.x === realJ
+                            ) {
+                              isLastMoveFrom = true;
                             }
                           }
                           // Highlight valid moves for selected piece (UI)
@@ -1298,10 +1307,11 @@ export default function ChessGame() {
                                 : ""
                             }
                             ${
-                              isLastMove
+                              isLastMoveTo
                                 ? "ring-2 ring-yellow-400 ring-inset animate-pulse-slow"
                                 : ""
                             }
+                            ${isLastMoveFrom ? "bg-blue-300 bg-opacity-60" : ""}
                             ${pieceColorClass}
                             hover:bg-teal-500 hover:bg-opacity-70
                           `}
@@ -1588,6 +1598,19 @@ export default function ChessGame() {
               <p className="text-gray-600 text-xs mt-0 text-center">
                 Chọn quân cờ để di chuyển
               </p>
+            )}
+            {game && game.moveHistory && game.moveHistory.length > 0 && (
+              <div className="mt-2 border-t border-gray-200 pt-2">
+                <h4 className="font-semibold text-indigo-600 text-xs text-center mb-1">
+                  Nước đi cuối cùng
+                </h4>
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  <div className="w-3 h-3 bg-blue-300 rounded-sm"></div>
+                  <span className="text-gray-700">Từ</span>
+                  <div className="w-3 h-3 ring-1 ring-yellow-400 rounded-sm"></div>
+                  <span className="text-gray-700">Đến</span>
+                </div>
+              </div>
             )}
           </div>
         </div>
