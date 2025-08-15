@@ -1,0 +1,1620 @@
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+// ... (phần PIECES và initialBoard giữ nguyên)
+// PIECES mapping for rendering only
+const PIECES = {
+  WHITE: {
+    KING: "♔",
+    QUEEN: "♕",
+    ROOK: "♖",
+    BISHOP: "♗",
+    KNIGHT: "♘",
+    PAWN: "♙",
+  },
+  BLACK: {
+    KING: "♚",
+    QUEEN: "♛",
+    ROOK: "♜",
+    BISHOP: "♝",
+    KNIGHT: "♞",
+    PAWN: "♟",
+  },
+};
+
+export default function ChessGame() {
+  const navigate = useNavigate();
+  // All game state comes from backend
+  const [game, setGame] = useState(null); // { board, currentPlayer, moveHistory, winner, validMoves, selected, ... }
+  const [selected, setSelected] = useState(null); // [row, col] or null
+  const [validMovesUI, setValidMovesUI] = useState([]); // highlight squares for selected piece
+  const [myConnectionId, setMyConnectionId] = useState(null); // id của mình
+  const ws = useRef(null);
+  const [connectionStatus, setConnectionStatus] = useState("connecting");
+
+  // For rendering
+  const filesBase = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const ranksBase = ["8", "7", "6", "5", "4", "3", "2", "1"];
+  // Determine player color
+  let isBlackPlayer = false;
+  if (game && myConnectionId && game.players && Array.isArray(game.players)) {
+    const idx = game.players.indexOf(myConnectionId);
+    isBlackPlayer = idx === 1;
+  }
+  const files = isBlackPlayer ? [...filesBase].reverse() : filesBase;
+  const ranks = isBlackPlayer ? [...ranksBase].reverse() : ranksBase;
+
+  // Connect to backend WebSocket on mount
+  useEffect(() => {
+    // Replace with your actual WebSocket endpoint
+    const wsUrl =
+      "wss://vd7olzoftd.execute-api.ap-southeast-1.amazonaws.com/prod";
+    ws.current = new window.WebSocket(wsUrl);
+    ws.current.onopen = () => {
+      console.log("[WebSocket] Connected to:", wsUrl);
+      setConnectionStatus("connected");
+      // Join room or request initial state
+      const joinMsg = JSON.stringify({ action: "join", roomId: "default" });
+      console.log("[WebSocket] Sending join:", joinMsg);
+      ws.current.send(joinMsg);
+    };
+    ws.current.onclose = (e) => {
+      console.log("[WebSocket] Disconnected", e);
+      setConnectionStatus("disconnected");
+    };
+    ws.current.onerror = (e) => {
+      console.error("[WebSocket] Error", e);
+      setConnectionStatus("error");
+    };
+    // Xử lý khi backend trả về thông tin move
+    ws.current.onmessage = (event) => {
+      console.log("[WebSocket] Message received:", event.data);
+      try {
+        if (!event.data || !event.data.trim()) return;
+        const data = JSON.parse(event.data);
+        // Lấy payload đúng key
+        const payload = data.payload || data.data;
+        switch (data.type) {
+          case "gameStarted":
+            if (!payload) return;
+            setGame({
+              board: payload.board,
+              currentPlayer: payload.turn,
+              moveHistory: [],
+              winner: null,
+              players: payload.players,
+              status: payload.status,
+              withAI: payload.withAI || false,
+              // Initialize castling rights for a new game
+              castlingRights: {
+                w: { kingSide: true, queenSide: true },
+                b: { kingSide: true, queenSide: true },
+              },
+              enPassantTarget: null,
+            });
+            if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
+            break;
+          case "move":
+            if (!payload) return;
+            console.log("[WebSocket] Received move update:", payload);
+
+            // Phát hiện các tình huống cho en passant
+            // Nếu có nước đi là tốt đi 2 ô, cần tạo enPassantTarget
+            let enPassantTarget = null;
+            if (
+              payload.move &&
+              payload.move.piece &&
+              payload.move.piece[1] === "P" &&
+              Math.abs(payload.move.to.y - payload.move.from.y) === 2
+            ) {
+              // Xác định vị trí enPassantTarget - ô phía sau tốt vừa đi
+              const direction = payload.move.piece[0] === "w" ? 1 : -1; // Hướng đi của tốt
+              enPassantTarget = {
+                x: payload.move.to.x, // Cột không thay đổi
+                y: payload.move.to.y + direction, // Hàng phía sau tốt
+              };
+              console.log(
+                "[WebSocket] Created en passant target:",
+                enPassantTarget
+              );
+            }
+
+            // Sử dụng enPassantTarget từ server nếu có, hoặc từ phát hiện nội bộ
+            const finalEnPassantTarget =
+              payload.enPassantTarget || enPassantTarget;
+
+            if (payload.move && payload.move.isEnPassant) {
+              console.log(
+                "[WebSocket] En passant move detected from server:",
+                payload.move
+              );
+            }
+
+            // Hiển thị thông tin enPassantTarget cho debug
+            if (finalEnPassantTarget) {
+              console.log(
+                "[WebSocket] Using en passant target:",
+                finalEnPassantTarget
+              );
+            }
+            setGame((prev) => ({
+              ...prev,
+              board: payload.board,
+              currentPlayer: payload.nextTurn,
+              moveHistory: prev?.moveHistory
+                ? [...prev.moveHistory, payload.move]
+                : [payload.move],
+              status: payload.status,
+              // Cập nhật enPassantTarget từ server hoặc từ phát hiện nội bộ
+              enPassantTarget: finalEnPassantTarget,
+            }));
+            break;
+          case "gameOver":
+            if (!payload) return;
+            setGame((prev) => ({
+              ...prev,
+              board: payload.board,
+              winner: payload.winner,
+              moveHistory: payload.moveHistory,
+              status: "finished",
+            }));
+            break;
+          case "userLeft":
+            if (!payload) return;
+            setGame((prev) => ({
+              ...prev,
+              status: payload.status,
+              players: payload.players,
+            }));
+            break;
+          case "gameUpdate":
+            if (!payload) return;
+            setGame((prev) => ({
+              ...prev,
+              ...payload,
+              withAI:
+                payload.withAI !== undefined
+                  ? payload.withAI
+                  : prev?.withAI || false,
+            }));
+            if (data.myConnectionId) setMyConnectionId(data.myConnectionId);
+            break;
+          case "error":
+            alert(data.message);
+            break;
+          default:
+            break;
+        }
+      } catch (e) {
+        console.error("[WebSocket] Error parsing message", e);
+      }
+    };
+    return () => {
+      ws.current && ws.current.close();
+    };
+  }, []);
+
+  // Check if a move is legal according to chess rules (basic, no castling/en passant/promotion)
+  function isLegalMove(board, from, to, currentPlayer) {
+    if (!board) return false;
+    const [fx, fy] = from;
+    const [tx, ty] = to;
+    if (fx === tx && fy === ty) return false;
+    const piece = board[fx][fy];
+    if (!piece) return false;
+    const color = piece[0] === "w" ? "WHITE" : "BLACK";
+    if (color !== currentPlayer) return false;
+    const type = piece[1];
+    const target = board[tx][ty];
+    if (target && target[0] === piece[0]) return false; // cannot capture own piece
+    const dx = tx - fx;
+    const dy = ty - fy;
+
+    // Get castling rights and en passant target from game state
+    const castlingRights = game?.castlingRights || {
+      w: { kingSide: true, queenSide: true },
+      b: { kingSide: true, queenSide: true },
+    };
+    const enPassantTarget = game?.enPassantTarget || null;
+
+    // Helper for clear path
+    function isPathClear(dx, dy) {
+      const steps = Math.max(Math.abs(dx), Math.abs(dy));
+      const stepx = dx === 0 ? 0 : dx / Math.abs(dx);
+      const stepy = dy === 0 ? 0 : dy / Math.abs(dy);
+      for (let step = 1; step < steps; step++) {
+        const x = fx + step * stepx;
+        const y = fy + step * stepy;
+        if (board[x][y]) return false;
+      }
+      return true;
+    }
+
+    // Helper to check if a square is attacked by opponent
+    function isSquareAttacked(board, square, byColor) {
+      // Simple implementation - a more complete version would check all possible attacking pieces
+      // This is a simplified version that doesn't account for all attack vectors
+      const [x, y] = square;
+
+      // Check for pawn attacks
+      const pawnDir = byColor === "WHITE" ? -1 : 1;
+      if ((byColor === "WHITE" && x > 0) || (byColor === "BLACK" && x < 7)) {
+        // Check left and right pawn attacks
+        if (y > 0) {
+          const leftPiece = board[x + pawnDir][y - 1];
+          if (
+            leftPiece &&
+            leftPiece[0] === (byColor === "WHITE" ? "w" : "b") &&
+            leftPiece[1] === "P"
+          )
+            return true;
+        }
+        if (y < 7) {
+          const rightPiece = board[x + pawnDir][y + 1];
+          if (
+            rightPiece &&
+            rightPiece[0] === (byColor === "WHITE" ? "w" : "b") &&
+            rightPiece[1] === "P"
+          )
+            return true;
+        }
+      }
+
+      // This is incomplete - a full implementation would check for all piece types
+      // For knights, bishops, rooks, queens, and king
+
+      return false; // Not attacked (based on this simplified check)
+    }
+
+    switch (type) {
+      case "P": {
+        // Pawn
+        const dir = color === "WHITE" ? -1 : 1;
+        // Move forward
+        if (dy === 0 && dx === dir && !target) {
+          // Promotion
+          if (
+            (color === "WHITE" && tx === 0) ||
+            (color === "BLACK" && tx === 7)
+          ) {
+            return true; // allow promotion
+          }
+          return true;
+        }
+        // First move: two squares
+        if (
+          dy === 0 &&
+          dx === 2 * dir &&
+          fx === (color === "WHITE" ? 6 : 1) &&
+          !target &&
+          !board[fx + dir][fy]
+        )
+          return true;
+        // Capture
+        if (
+          Math.abs(dy) === 1 &&
+          dx === dir &&
+          target &&
+          target[0] !== piece[0]
+        ) {
+          // Promotion on capture
+          if (
+            (color === "WHITE" && tx === 0) ||
+            (color === "BLACK" && tx === 7)
+          ) {
+            return true;
+          }
+          return true;
+        }
+
+        // En Passant capture
+        if (
+          Math.abs(dy) === 1 &&
+          dx === dir &&
+          !target && // No piece on target square
+          enPassantTarget && // There is an en passant target
+          enPassantTarget.x === ty && // Target matches column
+          enPassantTarget.y === tx // Target matches row
+        ) {
+          // Kiểm tra nếu có quân tốt đối phương ở vị trí bên cạnh
+          const capturedPawnRow = fx; // Cùng hàng với quân tốt đang di chuyển
+          const capturedPawnCol = ty; // Cùng cột với ô đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          // Nếu không có quân tốt đối phương, hoặc không phải là tốt, hoặc cùng màu - không phải en passant
+          if (
+            !capturedPawn ||
+            capturedPawn[1] !== "P" ||
+            capturedPawn[0] === piece[0]
+          ) {
+            console.log(
+              "Invalid en passant - no opponent pawn at capture position:",
+              {
+                capturePosition: [capturedPawnRow, capturedPawnCol],
+                pieceAtCapture: capturedPawn,
+              }
+            );
+            return false;
+          }
+
+          console.log("En passant capture is VALID for move:", {
+            from: [fx, fy],
+            to: [tx, ty],
+            enPassantTarget,
+            capturedPawn,
+          });
+          return true;
+        }
+
+        return false;
+      }
+      case "R": {
+        // Rook
+        if ((dx === 0 || dy === 0) && isPathClear(dx, dy)) return true;
+        return false;
+      }
+      case "N": {
+        // Knight
+        if (
+          (Math.abs(dx) === 2 && Math.abs(dy) === 1) ||
+          (Math.abs(dx) === 1 && Math.abs(dy) === 2)
+        )
+          return true;
+        return false;
+      }
+      case "B": {
+        // Bishop
+        if (Math.abs(dx) === Math.abs(dy) && isPathClear(dx, dy)) return true;
+        return false;
+      }
+      case "Q": {
+        // Queen
+        if (
+          (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) &&
+          isPathClear(dx, dy)
+        )
+          return true;
+        return false;
+      }
+      case "K": {
+        // King
+        // Normal king move (one square in any direction)
+        if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return true;
+
+        // Castling
+        const colorPrefix = color === "WHITE" ? "w" : "b";
+
+        // Check if king is in starting position
+        if ((color === "WHITE" && fx !== 7) || (color === "BLACK" && fx !== 0))
+          return false;
+
+        if (fy !== 4)
+          // King must be in the center file (e1 for white, e8 for black)
+          return false;
+
+        // Check castling rights
+        if (!castlingRights[colorPrefix.toLowerCase()]) return false;
+
+        // King-side castling (O-O)
+        if (
+          dy === 2 &&
+          dx === 0 &&
+          castlingRights[colorPrefix.toLowerCase()]?.kingSide
+        ) {
+          // Check if path is clear
+          if (!isPathClear(0, 2)) return false;
+
+          // Check if king or passing square is in check (simplified - should check for attacks)
+          // This is a simplified check that doesn't fully validate all check conditions
+          const oppColor = color === "WHITE" ? "BLACK" : "WHITE";
+          if (
+            isSquareAttacked(board, [fx, fy], oppColor) ||
+            isSquareAttacked(board, [fx, fy + 1], oppColor)
+          )
+            return false;
+
+          // Check if rook is in place
+          const rookPos = board[fx][7];
+          if (
+            !rookPos ||
+            rookPos[0] !== colorPrefix.toLowerCase() ||
+            rookPos[1] !== "R"
+          )
+            return false;
+
+          return true;
+        }
+
+        // Queen-side castling (O-O-O)
+        if (
+          dy === -2 &&
+          dx === 0 &&
+          castlingRights[colorPrefix.toLowerCase()]?.queenSide
+        ) {
+          // Check if path is clear
+          if (!isPathClear(0, -2) || board[fx][1] !== null)
+            // Extra check for b1/b8 square
+            return false;
+
+          // Check if king or passing square is in check (simplified)
+          const oppColor = color === "WHITE" ? "BLACK" : "WHITE";
+          if (
+            isSquareAttacked(board, [fx, fy], oppColor) ||
+            isSquareAttacked(board, [fx, fy - 1], oppColor)
+          )
+            return false;
+
+          // Check if rook is in place
+          const rookPos = board[fx][0];
+          if (
+            !rookPos ||
+            rookPos[0] !== colorPrefix.toLowerCase() ||
+            rookPos[1] !== "R"
+          )
+            return false;
+
+          return true;
+        }
+
+        return false;
+      }
+      default:
+        return false;
+    }
+  }
+
+  // Send move to backend (convert [row, col] to {x, y})
+  // For regular moves: update UI immediately, for castling: wait for backend
+  const sendMove = (from, to) => {
+    // Check if this is a castling move
+    const piece = game?.board?.[from[0]]?.[from[1]];
+    const isCastling =
+      piece && piece[1] === "K" && Math.abs(to[1] - from[1]) === 2;
+
+    // Check if this is an en passant move
+    let isEnPassant =
+      piece &&
+      piece[1] === "P" && // Là quân tốt
+      Math.abs(to[1] - from[1]) === 1 && // Tốt di chuyển chéo
+      !game.board[to[0]][to[1]] && // Ô đích trống
+      game.enPassantTarget && // Có target en passant
+      game.enPassantTarget.x === to[1] && // Khớp cột của ô đích
+      game.enPassantTarget.y === to[0]; // Khớp hàng của ô đích
+
+    // Kiểm tra thêm điều kiện: có quân tốt đối phương ở vị trí cần bắt
+    if (isEnPassant) {
+      const capturedPawnRow = from[0]; // Cùng hàng với quân tốt đang di chuyển
+      const capturedPawnCol = to[1]; // Cùng cột với ô đích
+      const capturedPawn = game.board[capturedPawnRow][capturedPawnCol];
+
+      // Kiểm tra xem có quân tốt đối phương ở vị trí bắt không
+      if (
+        !capturedPawn ||
+        capturedPawn[1] !== "P" ||
+        capturedPawn[0] === piece[0]
+      ) {
+        console.log(
+          "Invalid en passant - no opponent pawn at capture position"
+        );
+        isEnPassant = false;
+      } else {
+        console.log("Valid en passant capture found:", {
+          from,
+          to,
+          capturedPawn,
+          enPassantTarget: game.enPassantTarget,
+        });
+      }
+    }
+
+    // For special moves, don't update UI, just send to backend and wait for response
+    const isSpecialMove = isCastling || isEnPassant;
+
+    // Debugging special moves
+    if (isSpecialMove) {
+      console.log("Special move detected:", {
+        isCastling,
+        isEnPassant,
+        from,
+        to,
+        piece,
+      });
+    }
+
+    if (!isSpecialMove) {
+      setGame((prev) => {
+        if (!prev) return prev;
+        const newBoard = prev.board.map((row) => [...row]);
+        let movedPiece = newBoard[from[0]][from[1]];
+
+        // Update castling rights
+        const newCastlingRights = {
+          ...(prev.castlingRights || {
+            w: { kingSide: true, queenSide: true },
+            b: { kingSide: true, queenSide: true },
+          }),
+        };
+
+        // If king moves, lose all castling rights for that color
+        if (movedPiece && movedPiece[1] === "K") {
+          const colorKey = movedPiece[0];
+          if (newCastlingRights[colorKey]) {
+            newCastlingRights[colorKey].kingSide = false;
+            newCastlingRights[colorKey].queenSide = false;
+          }
+        }
+
+        // If rook moves, lose castling rights for that side
+        if (movedPiece && movedPiece[1] === "R") {
+          const colorKey = movedPiece[0];
+          if (newCastlingRights[colorKey]) {
+            // King-side rook (h1/h8)
+            if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 7) {
+              newCastlingRights[colorKey].kingSide = false;
+            }
+            // Queen-side rook (a1/a8)
+            else if (from[0] === (colorKey === "w" ? 7 : 0) && from[1] === 0) {
+              newCastlingRights[colorKey].queenSide = false;
+            }
+          }
+        }
+
+        // Set en passant target for pawn double move
+        let enPassantTarget = null;
+        if (movedPiece && movedPiece[1] === "P") {
+          // Double pawn move
+          if (Math.abs(to[0] - from[0]) === 2) {
+            // Set the en passant target to the square behind the pawn
+            const direction = movedPiece[0] === "w" ? -1 : 1;
+            enPassantTarget = {
+              x: to[1],
+              y: to[0] + direction,
+            };
+          }
+        }
+
+        // Handle en passant capture
+        if (
+          movedPiece &&
+          movedPiece[1] === "P" &&
+          Math.abs(to[1] - from[1]) === 1 && // Moving diagonally
+          !newBoard[to[0]][to[1]] && // No piece at target
+          prev.enPassantTarget && // There is an en passant target
+          prev.enPassantTarget.x === to[1] && // Target matches column
+          prev.enPassantTarget.y === to[0] // Target matches row
+        ) {
+          // Remove the captured pawn
+          // Pawn to be captured is on the same row as the moving pawn, and same column as the destination
+          // Tốt bị bắt nằm ở cùng hàng với quân tốt đang di chuyển và cùng cột với ô đích
+          console.log(
+            `[En Passant] Before capture - piece at target: ${
+              prev.board[prev.enPassantTarget.y][prev.enPassantTarget.x]
+            }`
+          );
+
+          // Vị trí của quân tốt bị bắt
+          // Với En Passant, quân tốt bị bắt luôn nằm ở hàng của quân tốt đi và cột của ô đích
+          const capturedPawnRow = from[0]; // Hàng của quân tốt đi
+          const capturedPawnCol = to[1]; // Cùng cột với ô đích
+
+          console.log(
+            `[En Passant] Capturing pawn at [${capturedPawnRow}][${capturedPawnCol}]: ${newBoard[capturedPawnRow][capturedPawnCol]}`
+          );
+          newBoard[capturedPawnRow][capturedPawnCol] = null;
+        }
+
+        // Handle castling
+        if (
+          movedPiece &&
+          movedPiece[1] === "K" &&
+          Math.abs(to[1] - from[1]) === 2
+        ) {
+          // Determine rook positions based on castling type
+          const isKingSideCastling = to[1] > from[1]; // Moving right
+          const rookFromCol = isKingSideCastling ? 7 : 0;
+          const rookToCol = isKingSideCastling ? 5 : 3; // f1/f8 or d1/d8
+
+          // Move the rook
+          newBoard[to[0]][rookToCol] = newBoard[from[0]][rookFromCol];
+          newBoard[from[0]][rookFromCol] = null;
+        }
+
+        // Pawn promotion: nếu tốt đi đến hàng cuối thì thành Queen
+        if (
+          movedPiece &&
+          movedPiece[1] === "P" &&
+          ((movedPiece[0] === "w" && to[0] === 0) ||
+            (movedPiece[0] === "b" && to[0] === 7))
+        ) {
+          movedPiece = movedPiece[0] + "Q";
+        }
+
+        newBoard[to[0]][to[1]] = movedPiece;
+        newBoard[from[0]][from[1]] = null;
+
+        return {
+          ...prev,
+          board: newBoard,
+          currentPlayer: prev.currentPlayer === "WHITE" ? "BLACK" : "WHITE",
+          castlingRights: newCastlingRights,
+          enPassantTarget: enPassantTarget,
+          moveHistory: [
+            ...(prev.moveHistory || []),
+            {
+              from: { x: from[1], y: from[0] },
+              to: { x: to[1], y: to[0] },
+              piece: newBoard[to[0]][to[1]],
+              promotion:
+                prev.board[from[0]][from[1]][1] === "P" &&
+                ((from[0] === 1 && to[0] === 0) ||
+                  (from[0] === 6 && to[0] === 7))
+                  ? "Q"
+                  : undefined,
+              isCastling: false, // This is not a castling move in this case
+              isEnPassant:
+                prev.board[from[0]][from[1]][1] === "P" &&
+                Math.abs(to[1] - from[1]) === 1 &&
+                !prev.board[to[0]][to[1]] &&
+                prev.enPassantTarget &&
+                prev.enPassantTarget.x === to[1] &&
+                prev.enPassantTarget.y === to[0],
+            },
+          ],
+        };
+      });
+    }
+
+    // Gửi message cho backend sau mỗi lần di chuyển
+    setTimeout(() => {
+      if (!ws.current || ws.current.readyState !== 1) return;
+      const msg = {
+        action: "move",
+        roomId: "default",
+        from: { x: from[1], y: from[0] }, // col, row
+        to: { x: to[1], y: to[0] }, // col, row
+      };
+      // Nếu là phong hậu thì gửi thêm promotion
+      const movingPiece = game?.board?.[from[0]]?.[from[1]];
+      if (
+        movingPiece &&
+        movingPiece[1] === "P" &&
+        ((movingPiece[0] === "w" && to[0] === 0) ||
+          (movingPiece[0] === "b" && to[0] === 7))
+      ) {
+        msg.promotion = "Q";
+      }
+
+      // Nếu là nhập thành thì gửi thêm thông tin castling
+      if (isCastling) {
+        msg.castling = true;
+        msg.castlingSide = to[1] > from[1] ? "kingside" : "queenside";
+        console.log("[WebSocket] Sending castling move:", msg);
+      }
+
+      // Nếu là bắt tốt qua đường (en passant) thì gửi thêm thông tin
+      if (isEnPassant) {
+        msg.enPassant = true;
+        // Vị trí của quân tốt bị bắt (ở cùng hàng với quân tốt đi, cùng cột với ô đích)
+        const capturedRow = from[0]; // Hàng của quân tốt đi
+        const capturedCol = to[1]; // Cùng cột với ô đích
+
+        msg.capturedPawn = {
+          x: capturedCol, // Cột của ô đích
+          y: capturedRow, // Hàng của quân tốt đi
+        };
+        console.log("[WebSocket] Sending en passant move:", msg);
+        console.log(
+          `[WebSocket] Captured pawn at [${capturedRow}][${capturedCol}]: ${game.board[capturedRow][capturedCol]}`
+        );
+      }
+
+      console.log("[SEND TO BACKEND]", msg);
+      ws.current.send(JSON.stringify(msg));
+    }, 0);
+  };
+
+  // Send restart to backend
+  const handleRestart = () => {
+    if (!ws.current || ws.current.readyState !== 1) return;
+    ws.current.send(
+      JSON.stringify({
+        action: "restart",
+        roomId: "default",
+      })
+    );
+    setSelected(null);
+  };
+
+  // Compute all valid moves for a piece at [fx, fy]
+  function getAllValidMoves(board, from, currentPlayer) {
+    const moves = [];
+    if (!board || !from) return moves;
+
+    // Log thông tin về các nước đi hợp lệ cho quân tốt nếu cần bắt tốt qua đường
+    const piece = board[from[0]][from[1]];
+    if (piece && piece[1] === "P" && game?.enPassantTarget) {
+      console.log("[ValidMoves] Checking en passant for pawn at:", from);
+      console.log("[ValidMoves] En passant target:", game.enPassantTarget);
+
+      // Kiểm tra nếu có quân tốt đối phương ở vị trí bắt qua đường
+      const color = piece[0] === "w" ? "WHITE" : "BLACK";
+      const dir = color === "WHITE" ? -1 : 1;
+
+      // Tính toán các vị trí có thể bắt tốt qua đường
+      if (from[1] > 0) {
+        // Kiểm tra bên trái
+        const checkPos = [from[0] + dir, from[1] - 1];
+        if (
+          game.enPassantTarget.x === checkPos[1] &&
+          game.enPassantTarget.y === checkPos[0]
+        ) {
+          // Kiểm tra xem có quân tốt đối phương ở vị trí cần bắt không
+          const capturedPawnRow = from[0]; // Cùng hàng
+          const capturedPawnCol = checkPos[1]; // Cột đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          if (
+            capturedPawn &&
+            capturedPawn[1] === "P" &&
+            capturedPawn[0] !== piece[0]
+          ) {
+            console.log(
+              "[ValidMoves] Found potential en passant capture to left:",
+              checkPos
+            );
+          }
+        }
+      }
+
+      if (from[1] < 7) {
+        // Kiểm tra bên phải
+        const checkPos = [from[0] + dir, from[1] + 1];
+        if (
+          game.enPassantTarget.x === checkPos[1] &&
+          game.enPassantTarget.y === checkPos[0]
+        ) {
+          // Kiểm tra xem có quân tốt đối phương ở vị trí cần bắt không
+          const capturedPawnRow = from[0]; // Cùng hàng
+          const capturedPawnCol = checkPos[1]; // Cột đích
+          const capturedPawn = board[capturedPawnRow][capturedPawnCol];
+
+          if (
+            capturedPawn &&
+            capturedPawn[1] === "P" &&
+            capturedPawn[0] !== piece[0]
+          ) {
+            console.log(
+              "[ValidMoves] Found potential en passant capture to right:",
+              checkPos
+            );
+          }
+        }
+      }
+    }
+
+    for (let tx = 0; tx < 8; tx++) {
+      for (let ty = 0; ty < 8; ty++) {
+        if (isLegalMove(board, from, [tx, ty], currentPlayer)) {
+          // Log nếu đây là nước đi en passant hợp lệ
+          if (
+            piece &&
+            piece[1] === "P" &&
+            Math.abs(ty - from[1]) === 1 &&
+            game?.enPassantTarget &&
+            game.enPassantTarget.x === ty &&
+            game.enPassantTarget.y === tx
+          ) {
+            console.log("[ValidMoves] Found valid en passant move to:", [
+              tx,
+              ty,
+            ]);
+          }
+          moves.push([tx, ty]);
+        }
+      }
+    }
+    return moves;
+  }
+
+  // Helper: xác định connectionId này có phải lượt đi không
+  function isMyTurn() {
+    if (!game || !myConnectionId) return false;
+    // Mặc định: players[0] là trắng, players[1] là đen
+    const idx =
+      game.players && Array.isArray(game.players)
+        ? game.players.indexOf(myConnectionId)
+        : -1;
+    if (idx === -1) return false;
+    const color = idx === 0 ? "WHITE" : "BLACK";
+    return color === game.currentPlayer;
+  }
+
+  // Handle square click: chỉ cho phép đi khi đúng lượt
+  const handleSquareClick = (i, j) => {
+    if (!game) return;
+    // Nếu ở chế độ xem lại (đã kết thúc game nhưng đang xem lại), không cho phép thực hiện nước đi
+    if (game.viewingEnded) return;
+    if (game.winner) return;
+    if (!isMyTurn()) return;
+    const clickedSquare = [i, j];
+    if (!selected) {
+      // Select only if it's your piece
+      const cell = game.board[i][j];
+      if (!cell) return;
+      const color =
+        cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
+      if (color !== game.currentPlayer) return;
+      setSelected(clickedSquare);
+
+      // Lấy các nước đi hợp lệ và highlight
+      const validMoves = getAllValidMoves(
+        game.board,
+        clickedSquare,
+        game.currentPlayer
+      );
+      console.log(`Valid moves for ${cell} at [${i}][${j}]:`, validMoves);
+      setValidMovesUI(validMoves);
+    } else {
+      // If clicking same square, deselect
+      if (selected[0] === i && selected[1] === j) {
+        setSelected(null);
+        setValidMovesUI([]);
+        return;
+      }
+      // Only allow legal moves
+      if (
+        isLegalMove(game.board, selected, clickedSquare, game.currentPlayer)
+      ) {
+        sendMove(selected, clickedSquare);
+        setSelected(null);
+        setValidMovesUI([]);
+      } else {
+        // If clicked another own piece, select it and show its valid moves
+        const cell = game.board[i][j];
+        if (cell) {
+          const color =
+            cell[0] === "w" ? "WHITE" : cell[0] === "b" ? "BLACK" : null;
+          if (color === game.currentPlayer) {
+            setSelected(clickedSquare);
+            const validMoves = getAllValidMoves(
+              game.board,
+              clickedSquare,
+              game.currentPlayer
+            );
+            console.log(
+              `Valid moves for new selection ${cell} at [${i}][${j}]:`,
+              validMoves
+            );
+            setValidMovesUI(validMoves);
+            return;
+          }
+        }
+        // Otherwise, do nothing
+      }
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-2 sm:p-4 bg-gradient-to-b from-indigo-50 to-blue-100 rounded-xl shadow-xl border-2 border-indigo-300">
+      {/* Modal xác định người đi trước */}
+      {game &&
+        (game.currentPlayer === undefined || game.currentPlayer === null) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+            <div className="bg-gradient-to-br from-indigo-100 to-blue-50 rounded-2xl shadow-xl px-6 py-5 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-indigo-200">
+              <div className="text-3xl mb-1 animate-spin-slow">🔄</div>
+              <div className="text-lg font-semibold text-indigo-700 text-center">
+                Đang chuẩn bị bàn cờ
+              </div>
+              {/* Captured pieces row */}
+              {game && game.moveHistory && game.moveHistory.length > 0 && (
+                <div className="w-full flex flex-col gap-1 mt-2">
+                  {/* White's captured pieces */}
+                  <div className="flex flex-row items-center gap-1 justify-start min-h-[28px]">
+                    <span className="text-xs font-semibold text-gray-700 mr-2">
+                      Trắng đã mất:
+                    </span>
+                    {(() => {
+                      // All black pieces captured by white
+                      const initial = [
+                        "bK",
+                        "bQ",
+                        "bR",
+                        "bR",
+                        "bB",
+                        "bB",
+                        "bN",
+                        "bN",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                        "bP",
+                      ];
+                      const current = [];
+                      if (game.board) {
+                        for (let i = 0; i < 8; i++) {
+                          for (let j = 0; j < 8; j++) {
+                            const cell = game.board[i][j];
+                            if (typeof cell === "string" && cell[0] === "b") {
+                              current.push(cell);
+                            }
+                          }
+                        }
+                      }
+                      // Count lost pieces
+                      const lost = {};
+                      initial.forEach((piece) => {
+                        lost[piece] = (lost[piece] || 0) + 1;
+                      });
+                      current.forEach((piece) => {
+                        if (lost[piece]) lost[piece]--;
+                      });
+                      // Render SVGs for lost pieces
+                      return Object.entries(lost)
+                        .filter(([_, count]) => count > 0)
+                        .map(([piece, count], idx) => {
+                          const typeMap = {
+                            K: "KING",
+                            Q: "QUEEN",
+                            R: "ROOK",
+                            B: "BISHOP",
+                            N: "KNIGHT",
+                            P: "PAWN",
+                          };
+                          const type = typeMap[piece[1]];
+                          return Array(count)
+                            .fill(0)
+                            .map((_, i) => (
+                              <img
+                                key={piece + idx + i}
+                                src={`/chess/${piece}.svg`}
+                                alt={type}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                                draggable={false}
+                              />
+                            ));
+                        });
+                    })()}
+                  </div>
+                  {/* Black's captured pieces */}
+                  <div className="flex flex-row items-center gap-1 justify-start min-h-[28px]">
+                    <span className="text-xs font-semibold text-gray-700 mr-2">
+                      Đen đã mất:
+                    </span>
+                    {(() => {
+                      // All white pieces captured by black
+                      const initial = [
+                        "wK",
+                        "wQ",
+                        "wR",
+                        "wR",
+                        "wB",
+                        "wB",
+                        "wN",
+                        "wN",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                        "wP",
+                      ];
+                      const current = [];
+                      if (game.board) {
+                        for (let i = 0; i < 8; i++) {
+                          for (let j = 0; j < 8; j++) {
+                            const cell = game.board[i][j];
+                            if (typeof cell === "string" && cell[0] === "w") {
+                              current.push(cell);
+                            }
+                          }
+                        }
+                      }
+                      // Count lost pieces
+                      const lost = {};
+                      initial.forEach((piece) => {
+                        lost[piece] = (lost[piece] || 0) + 1;
+                      });
+                      current.forEach((piece) => {
+                        if (lost[piece]) lost[piece]--;
+                      });
+                      // Render SVGs for lost pieces
+                      return Object.entries(lost)
+                        .filter(([_, count]) => count > 0)
+                        .map(([piece, count], idx) => {
+                          const typeMap = {
+                            K: "KING",
+                            Q: "QUEEN",
+                            R: "ROOK",
+                            B: "BISHOP",
+                            N: "KNIGHT",
+                            P: "PAWN",
+                          };
+                          const type = typeMap[piece[1]];
+                          return Array(count)
+                            .fill(0)
+                            .map((_, i) => (
+                              <img
+                                key={piece + idx + i}
+                                src={`/chess/${piece}.svg`}
+                                alt={type}
+                                className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                                draggable={false}
+                              />
+                            ));
+                        });
+                    })()}
+                  </div>
+                </div>
+              )}
+              <div className="text-xs text-gray-500 text-center">
+                Vui lòng chờ hệ thống...
+              </div>
+            </div>
+          </div>
+        )}
+      {/* Connection status */}
+      {connectionStatus !== "connected" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+          <div className="bg-gradient-to-br from-yellow-50 to-teal-100 rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-yellow-200">
+            <div className="text-4xl mb-2 text-yellow-500">😊</div>
+            <div className="text-lg font-semibold text-teal-700 text-center">
+              Đang kết nối tới server...
+            </div>
+            <div className="text-xs text-gray-600 text-center mt-1">
+              Hãy kiên nhẫn một chút hoặc kiểm tra mạng nhé!
+              <br />
+              Chúng tôi sẽ tự động thử lại cho bạn.
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Waiting/Preparing modal */}
+      {game &&
+        !game.withAI &&
+        (game.status === "waiting" ||
+          (game.players && game.players.length < 2)) && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+            <div className="bg-gradient-to-br from-indigo-100 to-blue-50 rounded-2xl shadow-xl px-6 py-5 flex flex-col items-center gap-2 max-w-xs w-full mx-4 animate-fade-in border border-indigo-200">
+              <div className="text-3xl mb-1 animate-spin-slow">⏳</div>
+              <div className="text-lg font-semibold text-indigo-700 text-center">
+                Đang chờ người chơi...
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Đang tìm người chơi phù hợp với bạn.
+              </div>
+            </div>
+          </div>
+        )}
+      {/* Winner modal */}
+      {game &&
+        game.winner &&
+        !game.viewingEnded &&
+        (() => {
+          let result = null;
+          let isWin = false;
+          let isLose = false;
+          let icon = null;
+          let colorClass = "text-green-700";
+          if (!game.players || !myConnectionId) {
+            result = game.winner === "WHITE" ? "Trắng thắng!" : "Đen thắng!";
+            icon = game.winner === "WHITE" ? "🏆" : "🏆";
+          } else {
+            const idx = game.players.indexOf(myConnectionId);
+            if (idx === -1) {
+              result = game.winner === "WHITE" ? "Trắng thắng!" : "Đen thắng!";
+              icon = game.winner === "WHITE" ? "🏆" : "🏆";
+            } else {
+              const myColor = idx === 0 ? "WHITE" : "BLACK";
+              if (game.winner === myColor) {
+                result = "Bạn Thắng";
+                isWin = true;
+                icon = "🎉";
+                colorClass = "text-green-700";
+              } else if (
+                game.winner &&
+                (game.winner === "WHITE" || game.winner === "BLACK")
+              ) {
+                result = "Bạn Thua";
+                isLose = true;
+                icon = "😢";
+                colorClass = "text-red-600";
+              } else {
+                result = "Kết thúc ván cờ";
+                icon = "🏁";
+                colorClass = "text-gray-700";
+              }
+            }
+          }
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center sm:items-start sm:pt-24 bg-black bg-opacity-40">
+              <div
+                className={`bg-white rounded-xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 max-w-md w-full mx-4 sm:mx-0 ${
+                  isWin
+                    ? "border-4 border-green-400"
+                    : isLose
+                    ? "border-4 border-red-400"
+                    : "border-4 border-gray-300"
+                }`}
+              >
+                <div
+                  className={`text-4xl mb-2 ${isWin ? "animate-bounce" : ""}`}
+                >
+                  {icon}
+                </div>
+                <div className={`text-2xl font-bold text-center ${colorClass}`}>
+                  {result}
+                </div>
+                <div className="text-base text-gray-700 mb-2 text-center">
+                  Game Over !
+                </div>
+                <div className="flex flex-row gap-3">
+                  <button
+                    onClick={handleRestart}
+                    className={`px-5 py-2 ${
+                      isWin
+                        ? "bg-green-500 hover:bg-green-600"
+                        : isLose
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-indigo-500 hover:bg-indigo-600"
+                    } text-white rounded-lg shadow font-semibold transition text-base`}
+                  >
+                    Chơi lại
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Chỉ đóng modal kết thúc game để người chơi có thể xem lại bàn cờ
+                      setGame((prev) => ({
+                        ...prev,
+                        viewingEnded: true,
+                        winner: null,
+                      }));
+                    }}
+                    className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg shadow font-semibold transition text-base"
+                  >
+                    Xem lại
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-4 gap-2">
+        <button
+          onClick={() => navigate("/rooms")}
+          className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:from-indigo-600 hover:to-purple-700 transition text-base font-semibold"
+        >
+          ← Back
+        </button>
+        <h2 className="w-full sm:w-auto text-lg sm:text-2xl font-bold text-center text-indigo-800 mt-2 sm:mt-0">
+          ♟️ Chess Game ♟️
+        </h2>
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-center items-center justify-center mb-2 sm:mb-6 gap-4 sm:gap-8">
+        <div className="flex flex-col items-center md:justify-center md:items-center w-full">
+          <div className="rounded-lg overflow-hidden shadow-lg border-4 border-gray-800 mx-auto">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(8, 1fr)",
+              }}
+            >
+              {game && game.board
+                ? (isBlackPlayer ? [...game.board].reverse() : game.board).map(
+                    (row, i) =>
+                      (isBlackPlayer ? [...row].reverse() : row).map(
+                        (cell, j) => {
+                          // Map i, j to real board index
+                          const realI = isBlackPlayer ? 7 - i : i;
+                          const realJ = isBlackPlayer ? 7 - j : j;
+                          const isWhiteSquare = (realI + realJ) % 2 === 0;
+                          const isSelected =
+                            selected &&
+                            selected[0] === realI &&
+                            selected[1] === realJ;
+                          // Highlight the most recently moved piece
+                          let isLastMoveTo = false;
+                          let isLastMoveFrom = false;
+                          if (
+                            game &&
+                            game.moveHistory &&
+                            game.moveHistory.length > 0
+                          ) {
+                            const lastMove =
+                              game.moveHistory[game.moveHistory.length - 1];
+                            if (
+                              lastMove &&
+                              lastMove.to &&
+                              lastMove.to.y === realI &&
+                              lastMove.to.x === realJ
+                            ) {
+                              isLastMoveTo = true;
+                            }
+                            if (
+                              lastMove &&
+                              lastMove.from &&
+                              lastMove.from.y === realI &&
+                              lastMove.from.x === realJ
+                            ) {
+                              isLastMoveFrom = true;
+                            }
+                          }
+                          // Highlight valid moves for selected piece (UI)
+                          let isValidMove = false;
+                          if (selected && validMovesUI.length > 0) {
+                            isValidMove = validMovesUI.some(
+                              ([x, y]) => x === realI && y === realJ
+                            );
+                          }
+                          // Map backend code (bR, wK, ...) to SVG chess piece
+                          let piece = null;
+                          let pieceColorClass = "";
+                          let svgPiece = null;
+                          if (typeof cell === "string" && cell.length === 2) {
+                            const color =
+                              cell[0] === "w"
+                                ? "WHITE"
+                                : cell[0] === "b"
+                                ? "BLACK"
+                                : null;
+                            const typeMap = {
+                              K: "KING",
+                              Q: "QUEEN",
+                              R: "ROOK",
+                              B: "BISHOP",
+                              N: "KNIGHT",
+                              P: "PAWN",
+                            };
+                            const type = typeMap[cell[1]];
+                            if (color && type && PIECES[color][type]) {
+                              piece = PIECES[color][type];
+                              pieceColorClass =
+                                color === "WHITE"
+                                  ? "text-white drop-shadow-md font-bold"
+                                  : "text-gray-900 drop-shadow-sm font-bold";
+                              // Sử dụng SVG thay cho ký tự Unicode
+                              const svgName = `${cell[0]}${cell[1]}`; // vd: wK, bP
+                              svgPiece = (
+                                <img
+                                  src={`/chess/${svgName}.svg`}
+                                  alt={piece}
+                                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 select-none"
+                                  draggable={false}
+                                />
+                              );
+                            }
+                          }
+                          return (
+                            <div
+                              key={i + "-" + j}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center cursor-pointer text-2xl sm:text-3xl md:text-4xl transition-all duration-300
+                            ${isWhiteSquare ? "bg-amber-100" : "bg-teal-700"}
+                            ${
+                              isSelected
+                                ? "ring-2 ring-indigo-400 ring-inset"
+                                : ""
+                            }
+                            ${
+                              isValidMove
+                                ? "ring-2 ring-orange-500 ring-inset"
+                                : ""
+                            }
+                            ${
+                              isLastMoveTo
+                                ? "ring-2 ring-yellow-400 ring-inset animate-pulse-slow"
+                                : ""
+                            }
+                            ${isLastMoveFrom ? "bg-blue-300 bg-opacity-60" : ""}
+                            ${pieceColorClass}
+                            hover:bg-teal-500 hover:bg-opacity-70
+                          `}
+                              onClick={() => handleSquareClick(realI, realJ)}
+                            >
+                              <span className="transform hover:scale-105 transition-transform duration-300">
+                                {svgPiece || piece}
+                              </span>
+                            </div>
+                          );
+                        }
+                      )
+                  )
+                : Array(8)
+                    .fill(null)
+                    .map((_, i) =>
+                      Array(8)
+                        .fill(null)
+                        .map((_, j) => {
+                          const realI = isBlackPlayer ? 7 - i : i;
+                          const realJ = isBlackPlayer ? 7 - j : j;
+                          const isWhiteSquare = (realI + realJ) % 2 === 0;
+                          return (
+                            <div
+                              key={i + "-" + j}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-2xl ${
+                                isWhiteSquare ? "bg-amber-100" : "bg-teal-700"
+                              }`}
+                            ></div>
+                          );
+                        })
+                    )}
+            </div>
+          </div>
+          {/* Captured pieces rows - always visible below the board */}
+          <div className="w-full flex flex-col gap-1 mt-2 items-center min-h-[36px]">
+            {/* White's captured pieces */}
+            <div className="flex flex-row items-center gap-1 justify-center min-h-[18px] w-[320px] sm:w-[384px] md:w-[480px]">
+              {game && game.moveHistory && game.moveHistory.length > 0
+                ? (() => {
+                    // All black pieces captured by white
+                    const initial = [
+                      "bK",
+                      "bQ",
+                      "bR",
+                      "bR",
+                      "bB",
+                      "bB",
+                      "bN",
+                      "bN",
+                      "bP",
+                      "bP",
+                      "bP",
+                      "bP",
+                      "bP",
+                      "bP",
+                      "bP",
+                      "bP",
+                    ];
+                    const current = [];
+                    if (game.board) {
+                      for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                          const cell = game.board[i][j];
+                          if (typeof cell === "string" && cell[0] === "b") {
+                            current.push(cell);
+                          }
+                        }
+                      }
+                    }
+                    // Count lost pieces
+                    const lost = {};
+                    initial.forEach((piece) => {
+                      lost[piece] = (lost[piece] || 0) + 1;
+                    });
+                    current.forEach((piece) => {
+                      if (lost[piece]) lost[piece]--;
+                    });
+                    // Render SVGs for lost pieces
+                    return Object.entries(lost)
+                      .filter(([_, count]) => count > 0)
+                      .map(([piece, count], idx) => {
+                        const typeMap = {
+                          K: "KING",
+                          Q: "QUEEN",
+                          R: "ROOK",
+                          B: "BISHOP",
+                          N: "KNIGHT",
+                          P: "PAWN",
+                        };
+                        const type = typeMap[piece[1]];
+                        return Array(count)
+                          .fill(0)
+                          .map((_, i) => (
+                            <img
+                              key={piece + idx + i}
+                              src={`/chess/${piece}.svg`}
+                              alt={type}
+                              className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                              draggable={false}
+                            />
+                          ));
+                      });
+                  })()
+                : null}
+            </div>
+            {/* Black's captured pieces */}
+            <div className="flex flex-row items-center gap-1 justify-center min-h-[18px] w-[320px] sm:w-[384px] md:w-[480px]">
+              {game && game.moveHistory && game.moveHistory.length > 0
+                ? (() => {
+                    // All white pieces captured by black
+                    const initial = [
+                      "wK",
+                      "wQ",
+                      "wR",
+                      "wR",
+                      "wB",
+                      "wB",
+                      "wN",
+                      "wN",
+                      "wP",
+                      "wP",
+                      "wP",
+                      "wP",
+                      "wP",
+                      "wP",
+                      "wP",
+                      "wP",
+                    ];
+                    const current = [];
+                    if (game.board) {
+                      for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                          const cell = game.board[i][j];
+                          if (typeof cell === "string" && cell[0] === "w") {
+                            current.push(cell);
+                          }
+                        }
+                      }
+                    }
+                    // Count lost pieces
+                    const lost = {};
+                    initial.forEach((piece) => {
+                      lost[piece] = (lost[piece] || 0) + 1;
+                    });
+                    current.forEach((piece) => {
+                      if (lost[piece]) lost[piece]--;
+                    });
+                    // Render SVGs for lost pieces
+                    return Object.entries(lost)
+                      .filter(([_, count]) => count > 0)
+                      .map(([piece, count], idx) => {
+                        const typeMap = {
+                          K: "KING",
+                          Q: "QUEEN",
+                          R: "ROOK",
+                          B: "BISHOP",
+                          N: "KNIGHT",
+                          P: "PAWN",
+                        };
+                        const type = typeMap[piece[1]];
+                        return Array(count)
+                          .fill(0)
+                          .map((_, i) => (
+                            <img
+                              key={piece + idx + i}
+                              src={`/chess/${piece}.svg`}
+                              alt={type}
+                              className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                              draggable={false}
+                            />
+                          ));
+                      });
+                  })()
+                : null}
+            </div>
+          </div>
+
+          {/* Nút chơi lại khi đang ở chế độ xem lại */}
+          {game && game.viewingEnded && (
+            <div className="w-full flex justify-center mt-4">
+              <button
+                onClick={handleRestart}
+                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md font-semibold transition text-base flex items-center gap-2"
+              >
+                <span>🔄</span> Chơi lại
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-1 md:mt-0 md:ml-6 w-full max-w-[180px] sm:max-w-xs md:max-w-none md:w-52 p-0 sm:p-1 bg-white bg-opacity-80 rounded-xl shadow flex flex-col items-center md:-translate-y-20 md:-translate-x-12">
+          <h3 className="font-bold text-indigo-700 mb-0 text-center text-xs sm:text-sm md:text-base">
+            Selected Square
+          </h3>
+          {selected ? (
+            <div className="flex flex-row items-center justify-center gap-1">
+              <span className="text-gray-800 text-xs sm:text-sm md:text-base font-semibold">
+                {files[selected[1]]}
+                {ranks[selected[0]]}
+              </span>
+              {game &&
+                game.board &&
+                game.board[selected[0]][selected[1]] &&
+                (() => {
+                  const cell = game.board[selected[0]][selected[1]];
+                  if (typeof cell === "string" && cell.length === 2) {
+                    const color =
+                      cell[0] === "w"
+                        ? "WHITE"
+                        : cell[0] === "b"
+                        ? "BLACK"
+                        : null;
+                    const typeMap = {
+                      K: "KING",
+                      Q: "QUEEN",
+                      R: "ROOK",
+                      B: "BISHOP",
+                      N: "KNIGHT",
+                      P: "PAWN",
+                    };
+                    const type = typeMap[cell[1]];
+                    if (color && type && PIECES[color][type]) {
+                      const piece = PIECES[color][type];
+                      const svgName = `${cell[0]}${cell[1]}`;
+                      return (
+                        <img
+                          src={`/chess/${svgName}.svg`}
+                          alt={piece}
+                          className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 select-none"
+                          draggable={false}
+                        />
+                      );
+                    } else {
+                      return (
+                        <span className="ml-0 text-xs sm:ml-1 sm:text-sm md:text-base">
+                          {cell}
+                        </span>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
+            </div>
+          ) : (
+            <p className="text-gray-600 italic text-center text-xs sm:text-xs">
+              No square selected
+            </p>
+          )}
+          <div className="mt-0 sm:mt-1 md:mt-2 pt-0 sm:pt-1 md:pt-2 border-t border-gray-300 w-full">
+            <h3 className="font-bold text-indigo-700 mb-0 text-center text-xs sm:text-sm md:text-base">
+              Game Status
+            </h3>
+            <p className="text-gray-800 text-center text-xs sm:text-xs md:text-sm">
+              {game && game.viewingEnded ? (
+                <span className="text-yellow-600 font-semibold">
+                  Đang xem lại bàn cờ
+                </span>
+              ) : game ? (
+                `${game.currentPlayer}'s Turn${
+                  game.withAI &&
+                  game.currentPlayer !==
+                    (myConnectionId &&
+                    game.players &&
+                    game.players.indexOf(myConnectionId) === 0
+                      ? "WHITE"
+                      : "BLACK")
+                    ? " (AI)"
+                    : ""
+                }`
+              ) : (
+                "Đang tải..."
+              )}
+            </p>
+            {selected ? (
+              <p className="text-emerald-600 text-xs mt-0 text-center font-semibold">
+                Chọn điểm đến cho quân cờ
+              </p>
+            ) : game && game.viewingEnded ? (
+              <p className="text-orange-600 text-xs mt-0 text-center font-semibold">
+                Chế độ xem lại
+              </p>
+            ) : (
+              <p className="text-gray-600 text-xs mt-0 text-center">
+                Chọn quân cờ để di chuyển
+              </p>
+            )}
+            {game && game.moveHistory && game.moveHistory.length > 0 && (
+              <div className="mt-2 border-t border-gray-200 pt-2">
+                <h4 className="font-semibold text-indigo-600 text-xs text-center mb-1">
+                  Nước đi cuối cùng
+                </h4>
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  <div className="w-3 h-3 bg-blue-300 rounded-sm"></div>
+                  <span className="text-gray-700">Từ</span>
+                  <div className="w-3 h-3 ring-1 ring-yellow-400 rounded-sm"></div>
+                  <span className="text-gray-700">Đến</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,150 @@
+/* Millionaire Game CSS - Styling inspired by the TV show */
+
+/* Background with radial gradient like the show */
+.millionaire-container {
+  background: radial-gradient(circle, #000f40 0%, #000428 100%);
+  color: white;
+  box-shadow: 0 0 30px rgba(0, 72, 255, 0.5);
+  border: 1px solid #1a4dff;
+}
+
+/* Logo styling */
+.millionaire-title {
+  text-shadow: 0 0 10px #00c6ff, 0 0 20px #00c6ff;
+  letter-spacing: 1px;
+}
+
+/* Question box styling */
+.millionaire-question {
+  background: linear-gradient(to bottom, #051654 0%, #010b30 100%);
+  border: 1px solid #1a4dff;
+  box-shadow: 0 0 15px rgba(0, 72, 255, 0.5) inset,
+    0 0 20px rgba(0, 102, 255, 0.3);
+}
+
+/* Answer option styling */
+.millionaire-option {
+  background: linear-gradient(to bottom, #051654 0%, #010b30 100%);
+  border: 1px solid #1a4dff;
+  box-shadow: 0 0 10px rgba(0, 72, 255, 0.5);
+  transition: all 0.2s ease;
+  transform-origin: center left;
+}
+
+.millionaire-option:hover {
+  background: linear-gradient(to bottom, #1a3a7e 0%, #102465 100%);
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(0, 140, 255, 0.7);
+}
+
+.millionaire-option:active {
+  transform: scale(0.99);
+}
+
+.millionaire-option.selected {
+  background: linear-gradient(to bottom, #307cff 0%, #1a56cf 100%);
+}
+
+.millionaire-option.correct {
+  background: linear-gradient(to bottom, #00b24c 0%, #008a3c 100%);
+  border-color: #00ff73;
+  box-shadow: 0 0 15px rgba(0, 255, 115, 0.7);
+}
+
+.millionaire-option.incorrect {
+  background: linear-gradient(to bottom, #b20000 0%, #8a0000 100%);
+  border-color: #ff0000;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+}
+
+/* Option label (A, B, C, D) styling */
+.millionaire-option-label {
+  background: radial-gradient(circle, #1a56cf 0%, #0a338a 100%);
+  color: white;
+  font-weight: bold;
+}
+
+/* Prize ladder styling */
+.millionaire-prize-item {
+  background: linear-gradient(to right, #010b30 0%, #051654 50%, #010b30 100%);
+  border: 1px solid #1a4dff;
+  transition: all 0.2s ease;
+}
+
+.millionaire-prize-item.current {
+  background: linear-gradient(to right, #1a3a7e 0%, #102465 100%);
+  box-shadow: 0 0 15px rgba(0, 140, 255, 0.7);
+}
+
+.millionaire-prize-item.checkpoint {
+  border: 1px dashed #ffd700;
+  background: linear-gradient(to right, #2d2d03 0%, #5a5705 50%, #2d2d03 100%);
+}
+
+.millionaire-prize-item.passed {
+  background: linear-gradient(to right, #00332b 0%, #006655 50%, #00332b 100%);
+  border-color: #00cc55;
+}
+
+/* Coin icon styling */
+.coin-icon {
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.7));
+}
+
+/* Button styling */
+.millionaire-button {
+  background: linear-gradient(to bottom, #051654 0%, #010b30 100%);
+  border: 1px solid #1a4dff;
+  box-shadow: 0 0 10px rgba(0, 72, 255, 0.5);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.millionaire-button:hover {
+  background: linear-gradient(to bottom, #1a3a7e 0%, #102465 100%);
+  transform: scale(1.02);
+}
+
+.millionaire-button:active {
+  transform: scale(0.99);
+}
+
+/* Animation for the active question */
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(26, 86, 219, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(26, 86, 219, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(26, 86, 219, 0);
+  }
+}
+
+.millionaire-pulse {
+  animation: pulse-border 2s infinite;
+}
+
+/* Money won display */
+.millionaire-money-won {
+  text-shadow: 0 0 10px gold, 0 0 20px gold;
+  color: #ffd700;
+}
+
+/* Stop game button */
+.millionaire-stop-button {
+  background: linear-gradient(to bottom, #8a6700 0%, #614a00 100%);
+  border: 1px solid #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.millionaire-stop-button:hover {
+  background: linear-gradient(to bottom, #b28900 0%, #8a6700 100%);
+}
+
+/* User info area */
+.millionaire-user-info {
+  background: linear-gradient(to bottom, #051654 0%, #010b30 100%);
+  border: 1px solid #1a4dff;
+}
